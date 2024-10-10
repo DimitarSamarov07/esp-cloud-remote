@@ -6,7 +6,7 @@ const port = 3000;
 let sendOptions = { root: "../Front-End"};
 app.use(express.json());
 
-app.get('/site_style.css', function(req, res) {
+app.get('/styles.css', function (req, res) {
     res.sendFile( "styles.css", sendOptions);
 });
 
