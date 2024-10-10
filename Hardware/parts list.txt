@@ -1,0 +1,4 @@
+ESP 32
+IR transmitter
+IR receiver
+External battery
