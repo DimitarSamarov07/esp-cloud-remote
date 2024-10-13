@@ -13,10 +13,6 @@ let sendOptions = { root: "../Front-End"};
 app.use(express.json());
 app.use("/public", express.static(path.join(__dirname, '/../Front-End/public/')));
 
-app.get('/styles.css', function (req, res) {
-    res.sendFile( "styles.css", sendOptions);
-});
-
 app.get('/', (req, res) => {
     res.sendFile( 'index.html', sendOptions);
 })
