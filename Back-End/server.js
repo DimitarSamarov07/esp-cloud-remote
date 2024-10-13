@@ -1,10 +1,17 @@
 import express from 'express';
+import {fileURLToPath} from 'url';
+import {dirname} from 'path';
+import * as path from "node:path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const port = 3000;
 
 let sendOptions = { root: "../Front-End"};
 app.use(express.json());
+app.use("/public", express.static(path.join(__dirname, '/../Front-End/public/')));
 
 app.get('/styles.css', function (req, res) {
     res.sendFile( "styles.css", sendOptions);
