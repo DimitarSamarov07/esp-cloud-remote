@@ -1,0 +1,58 @@
+MS SQL
+*Pros
+1.High-speed query processing
+2.Ease of use
+3.Portability
+4.Data integrity
+5.Security
+*Cons
+1.Not scalable enough
+2.Especially horizontally
+3.Lack of decentralisation and flexibility
+4.Only effective with structured data
+MySQL
+*Pros
+1.Free and Open Source
+2.Large Community for Support
+3.High Performance, Scalability, Flexibility
+4.Faster and more efficient than other relational database management systems
+5.Platform Independency
+*Cons
+1.Stability issues
+2.Poor Performance in High Loads
+3.Poor Server Response
+4.Tough Debugging For Beginners
+MariaDB
+*Pros
+1.Can be part of the database infrastructure for Big Data
+2.No big hardware required
+3.Open source
+4.Great stabiltity
+5.Ample amount of tools to be used.
+*Cons
+1.Compatibility issues
+2.Limited ecosystem
+3.Row-size limit of 65,535 bytes for the combined sizes of all columns
+PostgreSQL
+*Pros
+1.Scalability
+2.Robustness
+3.Support for advanced features such as full-text search
+4.Handling large datasets and complex workloads
+*Cons
+1.No horizontal scaling
+2.Lack of NoSQL Features
+3.Not great for analytics workloads
+4.More time-intensive to implement compared to other databases like Neo4j
+Amazon Dynamo DB
+*Pros
+1.Helps customers handle their high-traffic
+2.Extreme-scaled events seamlessly with nearly unlimited throughput
+3.Offers limitless scalability
+4.Performance is consistent at any scale
+*Cons
+1.Weak querying model, querying data is extremely limited
+2.Lack of server-side scripts
+3.Table Joins
+4.Hard to predict cost when that usage might spike
+5.Provisioned throughput and batch jobs don't work well together
