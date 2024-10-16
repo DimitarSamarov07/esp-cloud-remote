@@ -56,3 +56,6 @@ Amazon Dynamo DB
 3.Table Joins
 4.Hard to predict cost when that usage might spike
 5.Provisioned throughput and batch jobs don't work well together
+
+For me the best database is PostgreSQL.
+The reason for this is because its open-source and supports the most advanced SQL features and standards.
