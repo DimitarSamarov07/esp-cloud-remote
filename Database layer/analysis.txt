@@ -63,3 +63,13 @@ Amazon Dynamo DB
 
 For me the best database is PostgreSQL.
 The reason for this is because its open-source and supports the most advanced SQL features and standards.
+
+----------------------------------
+After talking with the team and considering the research made by Nikolay, we decided to use MariaDB, as
+that's what everyone has the most experience with. No one has experience with PostgreSQL and although it has
+a large number of integrated SQL functions, this would be overkill for the goals
+of our project. We chose MariaDB on the basis of simplicity. It's also open source.
+It's the next best option after PostgreSQL, and certainly the best option for our project.
+for our project.
+
+- D. Samarov
