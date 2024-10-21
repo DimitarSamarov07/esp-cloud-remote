@@ -1,0 +1,16 @@
+/* You can add global styles to this file, and also import other style files */
+body {
+  background-color: grey;
+  color: black;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial;
+  text-align: center;
+}
+
+h1 {
+  font-size: 2em;
+}
+
+.left-aligned {
+  float: left;
+
+}
