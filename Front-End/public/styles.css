@@ -13,3 +13,17 @@ h1 {
     float: left;
 
 }
+
+.red{
+    color: red;
+}
+.butonn{
+    background-color: green;
+    border:1px solid orange;
+    padding: 10px
+}
+.butonn-destroy{
+    background-color: red;
+    border:10px solid black;
+    padding: 10px
+}
