@@ -2,13 +2,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CONTROL PANEL</title>
+    <title>Admin Panel</title>
     <link rel="stylesheet" href="public/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+<link rel="icon" href="public/images/cloud-icon-white.png" type="image/x-icon"/>
+
 </head>
 <body>
-<h1>CONTROL PANEL</h1>
-<p>The panel for our site.</p>
-<img src="https://prismplus.my/cdn/shop/files/AirconLuna-Web-Thumb3_530x@2x.jpg?v=1714356237" alt="aircon" height="200"
-     class="left-aligned">
+    <nav class="navbar">
+        <div class="logo">
+            <a href="#">Admin Panel</a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" class="active">Home</a></li>
+            <li><a href="#" class="active">About Us</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <div class="table">
+            <div class="table-title">
+                <tr>
+                    <td><h2>Registered ESPs</h2></td>
+                    <td><a href="#">Manage ESPs</a></td>
+                </tr>
+            </div>
+            <table class="table-container">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Mode</th>
+                        <th>Fan</th>
+                        <th>Temperature</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <!--items-->
+                <tr>
+                    <td class="esp-profile">
+                        <img src="public/images/esp-list-logo.png">
+                        <span>ESP-8266</span>
+                    </td>
+                    <td>Cold</td>
+                    <td>2x</td>
+                    <td>22°C</td>
+                    <td style="color: #00c774;">Active</td>
+                </tr>
+                <tr>
+                    <td class="esp-profile">
+                        <img src="public/images/esp-list-logo.png">
+                        <span>ESP-8266</span>
+                    </td>
+                    <td>Cold</td>
+                    <td>2x</td>
+                    <td>22°C</td>
+                    <td style="color: #00c774;">Active</td>
+                </tr>
+                <tr>
+                    <td class="esp-profile">
+                        <img src="public/images/esp-list-logo.png">
+                        <span>ESP-8266</span>
+                    </td>
+                    <td>Cold</td>
+                    <td>2x</td>
+                    <td>22°C</td>
+                    <td style="color: #00c774;">Active</td>
+                </tr>
+                <tr>
+                    <td class="esp-profile">
+                        <img src="public/images/esp-list-logo.png">
+                        <span>ESP-8266</span>
+                    </td>
+                    <td>Cold</td>
+                    <td>2x</td>
+                    <td>22°C</td>
+                    <td style="color: #00c774;">Active</td>
+                </tr>
+                <tr>
+                    <td class="esp-profile">
+                        <img src="public/images/esp-list-logo.png">
+                        <span>ESP-8266</span>
+                    </td>
+                    <td>Cold</td>
+                    <td>2x</td>
+                    <td>22°C</td>
+                    <td style="color: #00c774;">Active</td>
+                </tr>
+                <tr>
+                    <td class="esp-profile">
+                        <img src="public/images/esp-list-logo.png">
+                        <span>ESP-8266</span>
+                    </td>
+                    <td>Cold</td>
+                    <td>2x</td>
+                    <td>22°C</td>
+                    <td style="color: #cd0012;">Inactive</td>
+                </tr>
+                <tr>
+                    <td class="esp-profile">
+                        <img src="public/images/esp-list-logo.png">
+                        <span>ESP-8266</span>
+                    </td>
+                    <td>Cold</td>
+                    <td>2x</td>
+                    <td>22°C</td>
+                    <td style="color: #cd0012;">Inactive</td>
+                </tr>
+                <tr>
+                    <td class="esp-profile">
+                        <img src="public/images/esp-list-logo.png">
+                        <span>ESP-8266</span>
+                    </td>
+                    <td>Cold</td>
+                    <td>2x</td>
+                    <td>22°C</td>
+                    <td style="color: #cd0012;">Inactive</td>
+                </tr>
+                <tr>
+                    <td class="esp-profile">
+                        <img src="public/images/esp-list-logo.png">
+                        <span>ESP-8266</span>
+                    </td>
+                    <td>Cold</td>
+                    <td>2x</td>
+                    <td>22°C</td>
+                    <td style="color: #cd0012;">Inactive</td>
+                </tr>
+                <tr>
+                    <td class="esp-profile">
+                        <img src="public/images/esp-list-logo.png">
+                        <span>ESP-8266</span>
+                    </td>
+                    <td>Cold</td>
+                    <td>2x</td>
+                    <td>22°C</td>
+                    <td style="color: #cd0012;">Inactive</td>
+                </tr>
+                <!--/items-->
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="brand">
+            <div class="logo">
+                <img src="public/images/cloud-icon.png" alt="cloud-icon">
+                <h3>ESP Cloud Remote</h3>
+            </div>
+            <div class="contact">
+                <ul>
+                    <li><p class="list-head">Need help?</p></li>
+                    <li><a href="#">Contact us via email at support@example.com</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="links">
+            <ul>
+                <li><p class="list-head">Company</p></li>
+                <li><a href="#">Terms & Conditions</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+            </ul>
+            <ul>
+                <li><p class="list-head">Download</p></li>
+                <li><a href="#">Microsoft Store</a></li>
+                <li><a href="#">Google Play</a></li>
+                <li><a href="#">Apple Store</a></li>
+            </ul>
+            <ul>
+                <li><p class="list-head"><a href="https://github.com/DimitarSamarov07/esp-cloud-remote" target="_blank">View us on GitHub</a></p></li>
+            </ul>
+
+        </div>
+    </div>
+    <div class="copyright">
+        <hr>
+        <span>ESP Cloud Remote @ 2024</span>
+    </div>
 </body>
 </html>
