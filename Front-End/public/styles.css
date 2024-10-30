@@ -1,29 +1,204 @@
 body {
-    background-color: grey;
-    color: black;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial;
+    margin: 0;
+    width: 100%;
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+
+/*navigation bar*/
+.navbar {
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5% 5% 0.5% 5%;
+}
+
+.navbar .logo a {
+    color: #000;
+    text-decoration: none;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+}
+
+.nav-links a {
+    color: #000;
+    margin: 0 0.6rem;
+    text-decoration: none;
+}
+
+
+/*table*/
+.container {
+    background-color: #e1e1e1;
+    padding: 6vh 10vw;
+}
+
+.table {
+    box-shadow: 0 4px 8px 0 #83838333, 0 6px 20px 0 #83838333;
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 1.5rem;
+}
+
+.table-title {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 15px;
+}
+
+.table-title h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.table-title a {
+    color: #00c6ff;
     text-align: center;
+    text-decoration: none;
 }
 
-h1 {
-    font-size: 2em;
+.table-container{
+    width: 100%;
 }
 
-.left-aligned {
-    float: left;
-
+.table-container thead tr th:last-of-type{
+    width: 13%;
 }
 
-.red{
-    color: red;
+.table-container thead tr th:nth-last-of-type(2){
+    width: 20%;
 }
-.butonn{
-    background-color: green;
-    border:1px solid orange;
-    padding: 10px
+
+.table-container tr td:first-of-type{
+    width:30%;
 }
-.butonn-destroy{
-    background-color: red;
-    border:10px solid black;
-    padding: 10px
+
+.table-container th {
+    color: #616161;
+    font-weight: 400;
+    font-size: 0.8rem;
+    text-align: left;
+    padding: 5px;
+    user-select: none;
+}
+
+.table-container td {
+    cursor: pointer;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.esp-profile {
+    display: flex;
+    align-items: center;
+}
+
+.esp-profile img{
+    width: 1.7rem;
+    margin-right: 5px;
+}
+
+
+/*footer*/
+.footer {
+    display: flex;
+    background-color: #ffffff;
+    padding: 2.5% 5%;
+}
+
+.brand .logo {
+    display: flex;
+}
+
+.brand .logo img {
+    margin: 5px;
+    width: 2.7rem;
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+}
+
+.footer .brand {
+    align-items: center;
+    margin-right: 20px;
+}
+
+.footer .brand .logo {
+    display: flex;
+}
+
+.footer .brand .logo img {
+    width: 45px;
+    height: 45px;
+    padding: 5;
+}
+
+.footer .brand .logo h3 {
+    font-weight: 500;
+    font-size: 20px;
+}
+
+.footer .brand .contact ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-container th {
+    text-align: center;
+    padding: 0 1rem;
+}
+
+.footer-container td {
+    padding: 0 1rem;
+}
+
+.footer .links {
+    display: flex;
+}
+
+.footer .links ul {
+    list-style: none;
+    padding-left: 50px;
+    line-height: 1.5rem;
+}
+
+.footer li a {
+    color: black;
+    text-decoration: none;
+}
+
+.footer .list-head {
+    margin: 0 0 10px 0;
+    font-weight: 600;
+}
+
+
+/*copyright*/
+.copyright {
+    background-color: #fff;
+    text-align: center;
+    padding-bottom: 0.5rem;
+}
+
+.copyright span {
+    font-size: 0.8rem;
+    color: gray;
+}
+
+.copyright hr {
+    width: 70%;
+    color: lightgray;
 }
