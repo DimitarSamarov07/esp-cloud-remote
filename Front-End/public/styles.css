@@ -1,29 +1,181 @@
 body {
-    background-color: grey;
-    color: black;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial;
+    margin: 0;
+    width: 100%;
+    background-color: #e1e1e1;  
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    min-height: 90vh;
+}
+
+header, .table-container, footer {
+    background-color: #ffffff;
+}
+
+a {
+    color: #000;
+    text-decoration: none;
+}
+
+ul {
+    list-style: none;
+}
+
+.active {
+    color: #00c774;
+}
+
+.inactive {
+    color: #cd0012;
+}
+
+/*header*/
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 3.7rem;
+}
+
+header .logo a {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.nav-links {
+    display: flex;
+}
+
+.nav-links a {
+    margin: 0 0.6rem;
+}
+
+/*table*/
+main {
+    padding: 6vh 10vw;
+    min-height: 90vh;
+}
+
+.table-container {
+    box-shadow: 0 4px 8px 0 #83838333, 0 6px 20px 0 #83838333;
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+
+.table-title {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+}
+
+.table-title h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.table-title a {
+    color: #00c6ff;
     text-align: center;
 }
 
-h1 {
-    font-size: 2em;
+table {
+    width: 100%;
 }
 
-.left-aligned {
-    float: left;
-
+table thead tr th:last-of-type {
+    width: 13%;
 }
 
-.red{
-    color: red;
+table thead tr th:nth-last-of-type(2) {
+    width: 20%;
 }
-.butonn{
-    background-color: green;
-    border:1px solid orange;
-    padding: 10px
+
+table tr td:first-of-type {
+    width:30%;
 }
-.butonn-destroy{
-    background-color: red;
-    border:10px solid black;
-    padding: 10px
+
+table th {
+    color: #616161;
+    font-weight: 400;
+    font-size: 0.8rem;
+    text-align: left;
+    padding: 0.3rem;
+    user-select: none;
+}
+
+table td {
+    cursor: pointer;
+    border-radius: 10px;
+    padding: 0.3rem;
+}
+
+.esp-profile {
+    display: flex;
+    align-items: center;
+}
+
+.esp-profile p {
+    margin: 0;
+}
+
+.esp-profile img{
+    width: 1.7rem;
+    margin-right: 0.3rem;
+}
+
+/*footer*/
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem;
+}
+
+.footer .contact .logo {
+    display: flex;
+}
+
+.footer .contact .logo img {
+    width: 2.8rem;
+    height: 2.8rem;
+    margin: 0.3rem;
+    padding: 0.3rem;
+}
+
+.footer .contact .logo h3 {
+    font-weight: 500;
+    font-size: 1.3rem;
+}
+
+.footer .contact ul {
+    padding: 0;
+}
+
+.footer .links {
+    display: flex;
+}
+
+.footer .links ul {
+    padding-left: 3rem;
+    line-height: 1.5rem;
+}
+
+.footer .list-head {
+    margin: 0 0 0.6rem 0;
+    font-weight: 600;
+}
+
+.copyright {
+    text-align: center;
+}
+
+.copyright hr {
+    width: 90vw;
+    color: lightgray;
+}
+
+.copyright p {
+    font-size: 0.8rem;
+    color: gray;
 }
