@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "express": "^4.21.0",
+    "express-ws": "^5.0.2",
     "path": "^0.12.7"
   }
 }
