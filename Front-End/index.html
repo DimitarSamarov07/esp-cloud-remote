@@ -9,12 +9,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
 <link rel="icon" href="public/images/cloud-icon-white.png" type="image/x-icon"/>
-
 </head>
 <body>
     <header>
         <article class="logo">
-            <a href="#">Admin Panel</a>
+            <h1>Admin Panel</h1>
         </article>
         <ul class="nav-links">
             <li><a href="#">Home</a></li>
@@ -24,11 +23,33 @@
     <main>
         <article class="table-container">
             <section class="table-title">
-                <tr>
-                    <td><h2>Registered ESPs</h2></td>
-                    <td><a href="#">Manage ESPs</a></td>
-                </tr>
+                <h2>Registered ESPs</h2>
+                <ul class="features">
+                    <li><button class="new-feature" id="openPopup">Light LED</button></li>
+                    <li><button class="new-feature">Manage ESPs</button></li>
+                </ul>
             </section>
+
+            <div class="popup" id="popup">
+                <div class="popup-inner">
+                    <div class="title">
+                        <h2>Light LED</h2>
+                        <button class="close" id="closePopup">&times;</button>
+                    </div>
+                    <div class="body">
+                        <p>Toggle LED</p>
+                        <label class="switch" id="toggleLed">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <!-- <div class="buttons">
+                        <button id="closePopup">CANCEL</button>
+                        <button>APPLY</button>
+                    </div> -->
+                </div>
+            </div>
+
             <table>
                 <thead>
                     <tr>
@@ -44,60 +65,30 @@
                 <tr>
                     <td class="esp-profile">
                         <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
+                        <p>ESP-32</p>
                     </td>
                     <td>Cold</td>
-                    <td>2x</td>
+                    <td>2</td>
                     <td>22°C</td>
                     <td class="active">Active</td>
                 </tr>
                 <tr>
                     <td class="esp-profile">
                         <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
+                        <p>ESP-32</p>
                     </td>
                     <td>Cold</td>
-                    <td>2x</td>
+                    <td>2</td>
                     <td>22°C</td>
-                    <td class="active">Active</td>
+                    <td class="inactive">Inactive</td>
                 </tr>
                 <tr>
                     <td class="esp-profile">
                         <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
+                        <p>ESP-32</p>
                     </td>
                     <td>Cold</td>
-                    <td>2x</td>
-                    <td>22°C</td>
-                    <td class="active">Active</td>
-                </tr>
-                <tr>
-                    <td class="esp-profile">
-                        <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
-                    </td>
-                    <td>Cold</td>
-                    <td>2x</td>
-                    <td>22°C</td>
-                    <td class="active">Active</td>
-                </tr>
-                <tr>
-                    <td class="esp-profile">
-                        <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
-                    </td>
-                    <td>Cold</td>
-                    <td>2x</td>
-                    <td>22°C</td>
-                    <td class="active">Active</td>
-                </tr>
-                <tr>
-                    <td class="esp-profile">
-                        <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
-                    </td>
-                    <td>Cold</td>
-                    <td>2x</td>
+                    <td>2</td>
                     <td>22°C</td>
                     <td class="inactive">Inactive</td>
                 </tr>
@@ -107,7 +98,7 @@
                         <p>ESP-8266</p>
                     </td>
                     <td>Cold</td>
-                    <td>2x</td>
+                    <td>2</td>
                     <td>22°C</td>
                     <td class="inactive">Inactive</td>
                 </tr>
@@ -117,7 +108,7 @@
                         <p>ESP-8266</p>
                     </td>
                     <td>Cold</td>
-                    <td>2x</td>
+                    <td>2</td>
                     <td>22°C</td>
                     <td class="inactive">Inactive</td>
                 </tr>
@@ -127,7 +118,7 @@
                         <p>ESP-8266</p>
                     </td>
                     <td>Cold</td>
-                    <td>2x</td>
+                    <td>2</td>
                     <td>22°C</td>
                     <td class="inactive">Inactive</td>
                 </tr>
@@ -137,7 +128,37 @@
                         <p>ESP-8266</p>
                     </td>
                     <td>Cold</td>
-                    <td>2x</td>
+                    <td>2</td>
+                    <td>22°C</td>
+                    <td class="inactive">Inactive</td>
+                </tr>
+                <tr>
+                    <td class="esp-profile">
+                        <img src="public/images/esp-list-logo.png">
+                        <p>ESP-8266</p>
+                    </td>
+                    <td>Cold</td>
+                    <td>2</td>
+                    <td>22°C</td>
+                    <td class="inactive">Inactive</td>
+                </tr>
+                <tr>
+                    <td class="esp-profile">
+                        <img src="public/images/esp-list-logo.png">
+                        <p>ESP-8266</p>
+                    </td>
+                    <td>Cold</td>
+                    <td>2</td>
+                    <td>22°C</td>
+                    <td class="inactive">Inactive</td>
+                </tr>
+                <tr>
+                    <td class="esp-profile">
+                        <img src="public/images/esp-list-logo.png">
+                        <p>ESP-8266</p>
+                    </td>
+                    <td>Cold</td>
+                    <td>2</td>
                     <td>22°C</td>
                     <td class="inactive">Inactive</td>
                 </tr>
@@ -180,6 +201,32 @@
             <p>ESP Cloud Remote @ 2024</p>
         </article>
     </footer>
-    
 </body>
+<script>
+    //popup
+    const openButton = document.getElementById("openPopup");
+    const closeButton = document.getElementById("closePopup");
+    const popup = document.getElementById("popup");
+
+    openButton.addEventListener("click", () => {
+        popup.classList.add("open");
+    });
+
+    closeButton.addEventListener("click", () => {
+        popup.classList.remove("open");
+    });
+
+    //toggle ESP
+    const toggle = document.getElementById("toggleLed");
+    let isToggled = false;
+    const params = new URLSearchParams();
+    toggle.addEventListener("change", () => {
+        isToggled = isToggled ? false : true;
+        let state = isToggled ? 'ON' : 'OFF';
+        params.set('led_state', state);
+        const queryString = params.toString();
+        const url = `93.154.224.232:8690/led?${queryString}`;
+        console.log(url);
+    });
+</script>
 </html>

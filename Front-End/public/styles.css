@@ -5,7 +5,34 @@ body {
     font-family: "Roboto", sans-serif;
     font-weight: 400;
     font-style: normal;
-    min-height: 90vh;
+    min-height: 90vh;   
+}
+
+.new-feature {
+    cursor: pointer;
+    background-color: #00000000;
+    border: none;
+    color: #00c6ff;
+
+    border: 1.5px solid #00c6ff;
+    padding: 5px 10px;
+    border-radius: 16px;
+
+    transition: all 0.1s ease-in-out;
+}
+
+.new-feature:hover {
+    background-color: #00c6ff;
+    color: white;
+}
+
+.new-feature:active {
+    background-color: #007697;
+    color: white;
+}
+
+.new-feature p {
+    margin: 0;
 }
 
 header, .table-container, footer {
@@ -15,6 +42,10 @@ header, .table-container, footer {
 a {
     color: #000;
     text-decoration: none;
+}
+
+a:hover {
+    border-bottom: 1.5px solid #000;
 }
 
 ul {
@@ -29,6 +60,147 @@ ul {
     color: #cd0012;
 }
 
+/*toggle*/
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+  }
+  
+  .switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .2s;
+  }
+  
+  input:checked + .slider {
+    background-color: #00c6ff;
+  }
+  
+  input:focus + .slider {
+    box-shadow: 0 0 1px #00c6ff;
+  }
+  
+  input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+  
+  /* Rounded sliders */
+  .slider.round {
+    border-radius: 34px;
+  }
+  
+  .slider.round:before {
+    border-radius: 50%;
+  }
+
+/*popups*/
+.popup {
+    background-color: #0000007d;
+    opacity: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: all 0.3s ease-in-out;
+    z-index: -9;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.popup .popup-inner {
+    background-color: white;
+    width: 15rem;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 8px 0 #83838333, 0 6px 20px 0 #83838333;
+}
+
+.popup .popup-inner .title {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.popup .popup-inner h2 {
+    margin: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    user-select: none;
+}
+
+.popup .popup-inner .close {
+    color: black;
+    font-weight: 600;
+}
+
+.popup .popup-inner p {
+    margin-right: 5px;
+}
+
+.popup .popup-inner .body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.popup .popup-inner .buttons {
+    margin-top: 1rem;
+    float: right;
+}
+
+.popup .popup-inner button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: #00c6ff;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.popup .popup-inner button:hover {
+    color: #0083a7;
+}
+
+.popup .popup-inner button:active {
+    color: #00c6ff;
+}
+
+.popup.open {
+    opacity: 1;
+    z-index: 9;
+}
+
 /*header*/
 header {
     display: flex;
@@ -37,9 +209,10 @@ header {
     padding: 0.4rem 3.7rem;
 }
 
-header .logo a {
+header .logo h1 {
     font-size: 1.4rem;
     font-weight: 700;
+    margin: 0;
 }
 
 .nav-links {
@@ -47,7 +220,7 @@ header .logo a {
 }
 
 .nav-links a {
-    margin: 0 0.6rem;
+    margin-left: 1.2rem;
 }
 
 /*table*/
@@ -65,13 +238,24 @@ main {
 .table-title {
     display: flex;
     justify-content: space-between;
-    padding-bottom: 1rem;
+    align-items: center;
+    padding-bottom: 1.5rem;
 }
 
 .table-title h2 {
     font-size: 1.1rem;
     font-weight: 700;
     margin: 0;
+}
+
+.table-title .features {
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.table-title .features li {
+    margin-left: 0.5rem;
 }
 
 .table-title a {
