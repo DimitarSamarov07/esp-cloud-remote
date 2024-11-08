@@ -34,8 +34,12 @@ app.post("/led", function (req, res) {
         case "OFF":
             objToSend["led_state"] = "OFF";
             break;
+        default:
+            res.sendStatus(404);
+            return;
     }
-    ws.send(JSON.stringify(objToSend));
+    global_ws.send(JSON.stringify(objToSend));
+    res.sendStatus(200);
 })
 
 

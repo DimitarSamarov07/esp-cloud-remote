@@ -35,24 +35,27 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 		case WStype_TEXT: {
 			USE_SERIAL.printf("[ESP] get text: %s\n", payload);
       String string_payload = (char *)payload;
-
+      USE_SERIAL.println(string_payload);
       JSONVar myObject = JSON.parse(string_payload);
       if (JSON.typeof(myObject) == "undefined") {
-        USE_SERIAL.println(string_payload);
+        //USE_SERIAL.println(string_payload);
         return;
       }
 
       String led_state = (String) myObject["led_state"];
+      USE_SERIAL.println("Duhast state:" + led_state);
       if (led_state == "OFF") {
-          digitalWrite(42, LOW);
-          webSocket.sendTXT("OK");
+        USE_SERIAL.println("Set low");
+        digitalWrite(36, LOW);
+        webSocket.sendTXT("OK");
       }
       else if (led_state == "ON"){
-          digitalWrite(42, HIGH);
-          webSocket.sendTXT("OK");
+        USE_SERIAL.println("Set high");
+        digitalWrite(36, HIGH);
+        webSocket.sendTXT("OK");
       }
       else {
-          webSocket.sendTXT("error");
+        webSocket.sendTXT("error");
       }
 			break;
     }
@@ -62,6 +65,7 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 
 void setup() {
 	USE_SERIAL.begin(115200);
+  pinMode(36, OUTPUT);
 
 	USE_SERIAL.setDebugOutput(true);
 
@@ -75,7 +79,7 @@ void setup() {
 		delay(1000);
 	}
 
-	WiFiMulti.addAP("SSID", "PASSWORD");
+	WiFiMulti.addAP("OPTELA", "");
 
 	//WiFi.disconnect();
 	while(WiFiMulti.run() != WL_CONNECTED) {
@@ -83,7 +87,7 @@ void setup() {
 	}
 
 	// server address, port and URL
-	webSocket.begin("localhost", 8690, "/ws-repeat");
+	webSocket.begin("93.155.224.232", 8690, "/return-ws");
 
 	// event handler
 	webSocket.onEvent(webSocketEvent);
