@@ -12,9 +12,9 @@
 </head>
 <body>
     <header>
-        <article class="logo">
+        <figure class="logo">
             <h1>Admin Panel</h1>
-        </article>
+        </figure>
         <ul class="nav-links">
             <li><a href="#">Home</a></li>
             <li><a href="#">About Us</a></li>
@@ -29,27 +29,25 @@
                     <li><button class="new-feature">Manage ESPs</button></li>
                 </ul>
             </section>
-
-            <div class="popup" id="popup">
-                <div class="popup-inner">
-                    <div class="title">
+            <section class="popup" id="popup">
+                <section class="popup-inner">
+                    <section class="title">
                         <h2>Light LED</h2>
                         <button class="close" id="closePopup">&times;</button>
-                    </div>
-                    <div class="body">
+                    </section>
+                    <section class="body">
                         <p>Toggle LED</p>
                         <label class="switch" id="toggleLed">
                             <input type="checkbox">
                             <span class="slider round"></span>
                         </label>
-                    </div>
-                    <!-- <div class="buttons">
+                    </section>
+                    <!-- <section class="buttons">
                         <button id="closePopup">CANCEL</button>
                         <button>APPLY</button>
-                    </div> -->
-                </div>
-            </div>
-
+                    </section> -->
+                </section>
+            </section>
             <table>
                 <thead>
                     <tr>
@@ -170,10 +168,10 @@
     <footer>
         <article class="footer">
             <section class="contact">
-                <div class="logo">
+                <figure class="logo">
                     <img src="public/images/cloud-icon.png" alt="cloud-icon">
                     <h3>ESP Cloud Remote</h3>
-                </div>
+                </figure>
                 <ul>
                     <li><p class="list-head">Need help?</p></li>
                     <li><a href="#">Contact us via email at support@example.com</a></li>
@@ -202,31 +200,5 @@
         </article>
     </footer>
 </body>
-<script>
-    //popup
-    const openButton = document.getElementById("openPopup");
-    const closeButton = document.getElementById("closePopup");
-    const popup = document.getElementById("popup");
-
-    openButton.addEventListener("click", () => {
-        popup.classList.add("open");
-    });
-
-    closeButton.addEventListener("click", () => {
-        popup.classList.remove("open");
-    });
-
-    //toggle ESP
-    const toggle = document.getElementById("toggleLed");
-    let isToggled = false;
-    const params = new URLSearchParams();
-    toggle.addEventListener("change", () => {
-        isToggled = isToggled ? false : true;
-        let state = isToggled ? 'ON' : 'OFF';
-        params.set('led_state', state);
-        const queryString = params.toString();
-        const url = `93.154.224.232:8690/led?${queryString}`;
-        console.log(url);
-    });
-</script>
+<script src="public/script.js"></script>
 </html>
