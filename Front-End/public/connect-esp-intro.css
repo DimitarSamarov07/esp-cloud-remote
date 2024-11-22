@@ -19,7 +19,7 @@ main {
     margin: 20px auto;
     background: #fff;
     padding: 20px;
-    border: 1px solid #ddd;
+    border: 1px solid #ddd
     border-radius: 8px;
 }
 
@@ -34,7 +34,6 @@ main h2 {
 
 .instructions p {
     margin: 10px 0;
-    line-height: 1.6;
 }
 
 .note {
