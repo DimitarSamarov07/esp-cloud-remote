@@ -79,6 +79,40 @@ main {
     text-align: center;
 }
 
+.table-title .title-buttons {
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.table-title .title-buttons li {
+    margin-left: 0.5rem;
+}
+
+.table-title .title-buttons button {
+    cursor: pointer;
+    background-color: #00000000;
+    color: #00c6ff;
+    border: 1.5px solid #00c6ff;
+    padding: 5px 10px;
+    border-radius: 16px;
+    transition: all 0.1s ease-in-out;
+}
+
+.title-buttons button:hover {
+    background-color: #00c6ff;
+    color: white;
+}
+
+.title-buttons button:active {
+    background-color: #00a8d6;
+    color: white;
+}
+
+.title-buttons button p {
+    margin: 0;
+}
+
 table {
     width: 100%;
 }
