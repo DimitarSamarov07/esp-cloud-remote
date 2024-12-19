@@ -26,6 +26,7 @@ bool deviceConnected = false;
 bool oldDeviceConnected = false;
 bool isBLENecessery = true;
 
+// Define characteristics
 BLECharacteristic *pSSIDSet = NULL;
 BLECharacteristic *pPassSet = NULL;
 BLECharacteristic *pSSIDScan = NULL;
@@ -35,8 +36,7 @@ BLEServer *pServer = NULL;
 
 String oldValue = DEFAULT_VALUE;
 
-
-
+// Callbacks for the BLE server
 class MyServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer *pServer) {
     deviceConnected = true;
@@ -50,13 +50,12 @@ class MyServerCallbacks : public BLEServerCallbacks {
 
 void setup() {
   Serial.begin(115200);
-  permanent_storage.begin("esp-cloud", false);
+  permanent_storage.begin("esp-cloud", false); // initialize the storage in RW mode
 
   bool doesPreviousPassExist = permanent_storage.isKey("Password");
   bool doesPreviousSSIDExist = permanent_storage.isKey("SSID");
 
-  Serial.println(doesPreviousSSIDExist);
-  Serial.println(doesPreviousPassExist);
+  // Try to reconnect with the last known good WiFi connection  
   if (doesPreviousSSIDExist && doesPreviousPassExist) {
     previousSSID = permanent_storage.getString("SSID");
     previousPass = permanent_storage.getString("Password");
@@ -65,7 +64,7 @@ void setup() {
       Serial.println("Previous connection was not succesful. Entering pairing mode.");
     } else {
       Serial.println("Connected to previous network with SSID " + previousSSID + ". " + "BLE will not be enabled.");
-      isBLENecessery = false;
+      isBLENecessery = false; // Enter pairing mode
       return;
     }
   }
@@ -76,17 +75,20 @@ void setup() {
   BLEServer *pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());
 
+  // Set service characteristics. Used to set the WiFi SSID and password
   BLEService *setService = pServer->createService(SET_SERVICE_UUID);
   pSSIDSet = setService->createCharacteristic(WIFI_SSID_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   pPassSet = setService->createCharacteristic(WIFI_PASS_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   pStatusConnectionSet = setService->createCharacteristic(WIFI_CONNECTION_STATUS_UUID, BLECharacteristic::PROPERTY_READ);
 
 
+  // Set the characteristics to the default value and start the set service
   pSSIDSet->setValue(DEFAULT_VALUE);
   pPassSet->setValue(DEFAULT_VALUE);
   pStatusConnectionSet->setValue(DEFAULT_VALUE);
   setService->start();
 
+  // The scan service and its characteristics are responsible to return the available WiFi connections.
   BLEService *scanService = pServer->createService(SCAN_SERVICE_UUID);
   pSSIDScan = scanService->createCharacteristic(SCAN_WIFI_SSID_LIST_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ);
   pShouldScan = scanService->createCharacteristic(SCAN_WIFI_SHOULD_SCAN_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
@@ -94,6 +96,8 @@ void setup() {
   pSSIDScan->setValue(DEFAULT_VALUE);
   pShouldScan->setValue(DEFAULT_VALUE);
   scanService->start();
+
+  // Advertising settings for compatability
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
   pAdvertising->addServiceUUID(SET_SERVICE_UUID);
   pAdvertising->addServiceUUID(SCAN_SERVICE_UUID);
@@ -103,15 +107,19 @@ void setup() {
   BLEDevice::startAdvertising();
   Serial.println("Characteristic defined! Now you can read it in your phone!");
 
-  Serial.println("May the force be with you...");
+  Serial.println("May the force be with you...");  // good luck..
 }
 
+// Scans for WiFi networks
+// The returned string will be in the format NETWORK_NAME/SIGNAL_POWER/AUTHENTICATION_TYPE; repeated for each network
 String scanWifi() {
-  WiFi.mode(WIFI_STA);
+  // Enable the WiFi module and make sure it's disconnected
+  WiFi.mode(WIFI_STA); 
   WiFi.disconnect();
+
   String stringToReturn = "";
-  delay(100);
-  Serial.println("Now let's see if the scan fucks us....");
+  Serial.println("Scanning...");
+
   // WiFi.scanNetworks will return the number of networks found.
   int numberOfNetworksFound = WiFi.scanNetworks();
   Serial.println("Scan done");
@@ -122,7 +130,7 @@ String scanWifi() {
     Serial.println(" networks found");
     Serial.println("Nr | SSID                             | RSSI | CH | Encryption");
     for (int i = 0; i < numberOfNetworksFound; ++i) {
-      // Print SSID and RSSI for each network found
+      // Print SSID and RSSI for each network found for debugging purposes
       Serial.printf("%2d", i + 1);
       Serial.print(" | ");
       String SSID = WiFi.SSID(i).c_str();
@@ -174,32 +182,41 @@ String scanWifi() {
           break;
         default: Serial.print("unknown"); stringToReturn += "?";
       }
-      stringToReturn += ";";
+      stringToReturn += ";"; // Start the next network entry
       Serial.println();
     }
   }
-  WiFi.mode(WIFI_MODE_NULL);
+  WiFi.mode(WIFI_MODE_NULL); // Turn off the WiFi module
   return stringToReturn;
 }
 
+// The function will attempt to connect to a network by the given SSID and password
+// 1 will be returned upon success, and 0 on fail
 int connectWifi(String SSID, String password) {
   bool shouldSave = false;
   WiFi.disconnect();
-  WiFi.mode(WIFI_STA);
-  if (password == DEFAULT_VALUE) {
+  WiFi.mode(WIFI_STA); // Make sure the WiFi module is in a clean state
+  
+  // Initialize the connection
+  if (password == DEFAULT_VALUE || password == "") {
     WiFi.begin(SSID);
   } else {
     WiFi.begin(SSID, password);
   }
 
+  // Skip writing to the permanent memory if the credentials are taken from there
   if (previousSSID != SSID || previousPass != password) {
     shouldSave = true;
   }
 
+
+  // Each try will be done in tryDelay increments for numberOfTries tries. Some networks take longer to connect, but this should be sufficient
+  // Modify if some networks turn out even slower
   int tryDelay = 500;
   int numberOfTries = 20;
 
   // Wait for the WiFi event
+  // Log the data for debugging purposes
   while (true) {
     switch (WiFi.status()) {
       case WL_NO_SSID_AVAIL:
@@ -222,7 +239,7 @@ int connectWifi(String SSID, String password) {
         Serial.println("[WiFi] WiFi is connected!");
         Serial.print("[WiFi] IP address: ");
         Serial.println(WiFi.localIP());
-        if (shouldSave) { saveWiFiToStorage(SSID, password); }
+        if (shouldSave) { saveWiFiToStorage(SSID, password); } // save the credentials to the permanent storage
         return 1;
         break;
       default:
@@ -244,6 +261,7 @@ int connectWifi(String SSID, String password) {
   }
 }
 
+// Write the WiFi credentials to the non-volatile memory
 void saveWiFiToStorage(String ssid, String password) {
   Serial.println("Saving new wifi credentials to storage..");
   permanent_storage.putString("SSID", ssid);
@@ -251,18 +269,19 @@ void saveWiFiToStorage(String ssid, String password) {
 }
 
 void loop() {
+  // Enter if BLE is ON
   if (isBLENecessery) {
     if (deviceConnected) {
       String ssidSetValue = pSSIDSet->getValue();
       String shouldScanStr = pShouldScan->getValue();
-      if (shouldScanStr != DEFAULT_VALUE) {
+      if (shouldScanStr != DEFAULT_VALUE) { // if scan was enabled through BLE
         Serial.println("Producing WiFi glory..");
         String wifiString = scanWifi();
         pSSIDScan->setValue(wifiString);
         Serial.println(wifiString);
         pShouldScan->setValue(DEFAULT_VALUE);
       }
-      if (ssidSetValue != DEFAULT_VALUE) {
+      if (ssidSetValue != DEFAULT_VALUE) { // if the SSID default value has been changed, this would be considered a request to pair to a WiFi
         String passSetValue = pPassSet->getValue();
 
         int result = connectWifi(ssidSetValue, passSetValue);
@@ -271,7 +290,7 @@ void loop() {
         pPassSet->setValue(DEFAULT_VALUE);
       }
     }
-    // disconnecting
+    // Handle device disconnection
     if (!deviceConnected && oldDeviceConnected) {
       delay(500);                   // give the bluetooth stack the chance to get things ready
       pServer->startAdvertising();  // restart advertising
@@ -280,7 +299,7 @@ void loop() {
     }
     // connecting
     if (deviceConnected && !oldDeviceConnected) {
-      // do stuff here on connecting
+      // do stuff here on first connect
       oldDeviceConnected = deviceConnected;
     }
   }
