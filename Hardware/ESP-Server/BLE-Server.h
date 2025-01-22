@@ -9,7 +9,7 @@
 void ble_setup();
 
 // BLE main loop
-void ble_loop();
+int ble_loop_step();
 
 // Used to scan for WiFi. Returns a string
 String scanWifi();

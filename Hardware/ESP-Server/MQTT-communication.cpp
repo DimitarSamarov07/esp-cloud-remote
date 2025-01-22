@@ -22,9 +22,9 @@ void callback(char* topic, byte* message, unsigned int length) {
     receivedMessage += (char)message[i];
   }
 
-  if(String(topic) == mqttACControl) {
+  if (String(topic) == mqttACControl) {
     Serial.println("Message received from ac/control");
-    if(receivedMessage == "TURN_ON") {
+    if (receivedMessage == "TURN_ON") {
       client.publish("ac/report", "Turn ON signal sent to AC");
       Serial.println("Response sent to ac/report");
       flashLED();
@@ -44,28 +44,8 @@ void callback(char* topic, byte* message, unsigned int length) {
 }
 
 void mqtt_setup() {
-  Serial.begin(115200);
-  
   pinMode(2, OUTPUT);
-  
-  Serial.println("Connecting to ");
-  Serial.print(ssid);
-  WiFi.mode(WIFI_STA);
-  WiFi.disconnect();
-  delay(500);
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println();
-
-  Serial.println("WiFi connected");
-  Serial.println("IP Adress: ");
-  Serial.print(WiFi.localIP());
-  Serial.println();
-
+  // connectWifi(ssid, password);  // currently handled by the BLE Server
   client.setServer(mqtt_server, port);
   client.setCallback(callback);
 }
@@ -94,9 +74,9 @@ void flashLED() {
   delay(1000);
 }
 
-void mqtt_loop() {
+void mqtt_loop_step() {
   if (!client.connected()) {
     reconnect();
   }
-  client.loop(); 
+  client.loop();
 }

@@ -50,8 +50,7 @@ class MyServerCallbacks : public BLEServerCallbacks {
 };
 
 void ble_setup() {
-  Serial.begin(115200);
-  permanent_storage.begin("esp-cloud", false); // initialize the storage in RW mode
+  permanent_storage.begin("esp-cloud", false);  // initialize the storage in RW mode
 
   bool doesPreviousPassExist = permanent_storage.isKey("Password");
   bool doesPreviousSSIDExist = permanent_storage.isKey("SSID");
@@ -65,7 +64,7 @@ void ble_setup() {
       Serial.println("Previous connection was not succesful. Entering pairing mode.");
     } else {
       Serial.println("Connected to previous network with SSID " + previousSSID + ". " + "BLE will not be enabled.");
-      isBLENecessery = false; // Enter pairing mode
+      isBLENecessery = false;  // Enter pairing mode
       return;
     }
   }
@@ -183,11 +182,11 @@ String scanWifi() {
           break;
         default: Serial.print("unknown"); stringToReturn += "?";
       }
-      stringToReturn += ";"; // Start the next network entry
+      stringToReturn += ";";  // Start the next network entry
       Serial.println();
     }
   }
-  WiFi.mode(WIFI_MODE_NULL); // Turn off the WiFi module
+  WiFi.mode(WIFI_MODE_NULL);  // Turn off the WiFi module
   return stringToReturn;
 }
 
@@ -196,7 +195,7 @@ String scanWifi() {
 int connectWifi(String SSID, String password) {
   bool shouldSave = false;
   WiFi.disconnect();
-  WiFi.mode(WIFI_STA); // Make sure the WiFi module is in a clean state
+  WiFi.mode(WIFI_STA);  // Make sure the WiFi module is in a clean state
 
   // Initialize the connection
   if (password == DEFAULT_VALUE || password == "") {
@@ -240,7 +239,7 @@ int connectWifi(String SSID, String password) {
         Serial.println("[WiFi] WiFi is connected!");
         Serial.print("[WiFi] IP address: ");
         Serial.println(WiFi.localIP());
-        if (shouldSave) { saveWiFiToStorage(SSID, password); } // save the credentials to the permanent storage
+        if (shouldSave) { saveWiFiToStorage(SSID, password); }  // save the credentials to the permanent storage
         return 1;
         break;
       default:
@@ -269,26 +268,32 @@ void saveWiFiToStorage(String ssid, String password) {
   permanent_storage.putString("Password", password);
 }
 
-void ble_loop() {
+int ble_loop_step() {
   // Enter if BLE is ON
   if (isBLENecessery) {
     if (deviceConnected) {
       String ssidSetValue = pSSIDSet->getValue();
       String shouldScanStr = pShouldScan->getValue();
-      if (shouldScanStr != DEFAULT_VALUE) { // if scan was enabled through BLE
+      if (shouldScanStr != DEFAULT_VALUE) {  // if scan was enabled through BLE
         Serial.println("Producing WiFi glory..");
         String wifiString = scanWifi();
         pSSIDScan->setValue(wifiString);
         Serial.println(wifiString);
         pShouldScan->setValue(DEFAULT_VALUE);
       }
-      if (ssidSetValue != DEFAULT_VALUE) { // if the SSID default value has been changed, this would be considered a request to pair to a WiFi
+      if (ssidSetValue != DEFAULT_VALUE) {  // if the SSID default value has been changed, this would be considered a request to pair to a WiFi
         String passSetValue = pPassSet->getValue();
 
         int result = connectWifi(ssidSetValue, passSetValue);
         pStatusConnectionSet->setValue(result);
         pSSIDSet->setValue(DEFAULT_VALUE);
         pPassSet->setValue(DEFAULT_VALUE);
+
+        if(result == 1){
+          Serial.println("The ESP is about to restart.");
+          delay(3000);
+          ESP.restart();
+        }
       }
     }
     // Handle device disconnection
@@ -303,7 +308,7 @@ void ble_loop() {
       // do stuff here on first connect
       oldDeviceConnected = deviceConnected;
     }
+    return 0;
   }
-
-  delay(1000);
+  return 1;
 }
