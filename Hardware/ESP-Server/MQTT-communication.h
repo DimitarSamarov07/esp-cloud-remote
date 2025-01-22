@@ -7,3 +7,6 @@ void mqtt_setup();
 
 // MQTT main loop
 void mqtt_loop();
+
+// Flashes the LED
+void flashLED();
