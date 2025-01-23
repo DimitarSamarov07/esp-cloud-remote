@@ -1,4 +1,6 @@
+#include "esp32-hal-gpio.h"
 #include "MQTT-communication.h"
+#include "BLE-Server.h"
 #include <WiFi.h>
 #include <PubSubClient.h>
 
@@ -11,9 +13,11 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 #define mqttACControl "ac/control"
+#define mqttConnectionWifi "connection/wifi"
 
 void topicsSubscribe() {
   client.subscribe(mqttACControl);
+  client.subscribe(mqttConnectionWifi);
 }
 
 void callback(char* topic, byte* message, unsigned int length) {
@@ -26,21 +30,40 @@ void callback(char* topic, byte* message, unsigned int length) {
     Serial.println("Message received from ac/control");
     if (receivedMessage == "TURN_ON") {
       client.publish("ac/report", "Turn ON signal sent to AC");
-      Serial.println("Response sent to ac/report");
       flashLED();
-      delay(1000);
     } else if (receivedMessage == "TURN_OFF") {
       client.publish("ac/report", "Turn OFF signal sent to AC");
-      Serial.println("Response sent to ac/report");
       flashLED();
-      delay(1000);
+    } else if (receivedMessage == "TURN_LED_ON") {
+      digitalWrite(2, HIGH);
+      delay(3000);
+    } else if (receivedMessage == "TURN_LED_OFF") {
+      digitalWrite(2, LOW);
+      flashLED();
     } else {
       client.publish("ac/report", "Unknown command sent to ac/control");
-      Serial.println("Response sent to ac/report");
       flashLED();
-      delay(1000);
     }
   }
+
+  if(String(topic) == mqttConnectionWifi) {
+    Serial.println("Message received from connection/wifi");
+    int delimeterIndex = receivedMessage.indexOf('/');
+    if(delimeterIndex != -1) {
+      String newSSID = receivedMessage.substring(0, delimeterIndex);
+      String newPass = receivedMessage.substring(delimeterIndex + 1);
+      Serial.println(newSSID);
+      Serial.println(newPass);
+      client.publish("ac/report", "Changed WiFi connection");
+      connectWifi(newSSID, newPass); // TODO: If new connection doesn't exist stay in previous connection
+      flashLED();
+    } else {
+      client.publish("ac/report", "Couldn't change WiFi because it wasn't sent in correct format");
+    }
+  }
+
+  Serial.println("Response sent to ac/report");
+  delay(1000);
 }
 
 void mqtt_setup() {

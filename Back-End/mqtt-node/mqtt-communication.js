@@ -1,54 +1,69 @@
-const mqtt = require('mqtt')
+import mqtt from 'mqtt';
 
 const protocol = 'mqtt'
 const host = '93.155.224.232'
 const port = '5728'
-const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
 
-const connectUrl = `${protocol}://${host}:${port}`
-
-const client = mqtt.connect(connectUrl, {
-    clientId,
-    clean: true,
-    connectTimeout: 4000,
-    username: '',
-    password: '',
-    reconnectPeriod: 1000,
-})
+const connectURL = `${protocol}://${host}:${port}`
 
 const responseTopic = 'ac/report'
 const controlTopic = 'ac/control'
+const wifiConnectionTopic = 'connection/wifi'
 
-client.on('error', (error) => {
-    console.error('Connection failed\n', error)
-})
+class ESPClient {
+    constructor(options) {
+        this.client = mqtt.connect(connectURL, options)
+        this.clientId = options.clientId
 
-client.on('reconnect', (error) => {
-    console.error('Reconnection failed\n', error)
-})
-
-client.on('connect', () => {
-    console.log('Connected with ID: ', clientId)
-
-    client.subscribe([responseTopic], () => {
-        console.log(`Subscribe to topic '${responseTopic}'`)
-        repeatedPublishLoop(5)
-    })
-})
-
-client.on('message', (topic, payload) => {
-    console.log(`Received Message (${topic}): ${payload.toString()}`)
-})
-
-function repeatedPublishLoop(intervalSeconds) {
-    setInterval(function () {
-        let messages = ['TURN_ON', 'TURN_OFF', 'abcdef']
-        let i = Math.floor(Math.random() * messages.length)
-
-        client.publish(controlTopic, messages[i], { qos: 0, retain: false }, (error) => {
-            if (error) { console.error(error) }
+        this.client.on('connect', () => {
+            console.log(`${this.clientId} connected`)
         })
 
-        console.log('Published message to ', controlTopic)
-    }, intervalSeconds*1000)
+        this.client.on('error', () => {
+            console.log(`${this.clientId} couldn't connect because of an error`)
+        })
+
+        this.client.on('disconnect', () => {
+            console.log(`${this.clientId} disconnected`)
+        })
+    }
+
+    publish(topic, message) {
+        this.client.publish(topic, message)
+        console.log(`${this.clientId} published to ${topic}`)
+    }
+
+    subscribe(topic) {
+        this.client.subscribe(topic)
+        console.log(`${this.clientId} subscribed to ${topic}`)
+    }
+
+    turnLEDOn() {
+        this.client.publish(controlTopic, 'TURN_LED_ON') // [${this.clientId}]
+        this.client.publish(responseTopic, `TURN_LED_ON command sent by ${this.clientId}`)
+    }
+
+    turnLEDOff() {
+        this.client.publish(controlTopic, 'TURN_LED_OFF')
+        this.client.publish(responseTopic, `TURN_LED_OFF command sent by ${this.clientId}`)
+    }
+
+    changeWifi(ssid, pass) {
+        // insecure
+        this.client.publish(wifiConnectionTopic, `${ssid}/${pass}`)
+        this.client.subscribe()
+        console.log(`${this.clientId} sent new wifi data to connection/wifi`)
+    }
 }
+
+const esp = new ESPClient({
+    clientId: 'mqtt_esp1', // we can use UUID
+    clean: false,
+    connectTimeout: 4000,
+    reconnectPeriod: 1000,
+})
+
+esp.turnLEDOn();
+esp.changeWifi('Hamza A25', 'a44db555')
+esp.publish(responseTopic, `\n${esp.clientId} has thanked the bus driver`)
+
