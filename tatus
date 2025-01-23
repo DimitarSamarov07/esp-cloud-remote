@@ -1,0 +1,284 @@
+[33mcommit 3cc09e70406033ed930a74bb05767b4898587487[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mMQTT-server[m[33m, [m[1;31morigin/MQTT-server[m[33m)[m
+Author: Hamza <arslanhamza2007@gmail.com>
+Date:   Tue Jan 21 12:05:31 2025 +0200
+
+    Upload ESP - server communication script
+    
+    ECR-29
+
+[33mcommit 62f37941ad6f618db9d975b26bf5a5347f6b95b3[m[33m ([m[1;31morigin/BLE-WiFi[m[33m, [m[1;32mBLE-WiFi[m[33m)[m
+Author: Nikolai Vuchkov <samarovdimitar@gmail.com>
+Date:   Thu Dec 19 12:31:13 2024 +0200
+
+    Refactor file. Add comments.
+    ECR-28
+
+[33mcommit 04fc3f67b67070f92dcda77a7d768e7fe6c058a6[m
+Author: Nikolai Vuchkov <samarovdimitar@gmail.com>
+Date:   Thu Dec 19 10:23:43 2024 +0200
+
+    Restructure files
+    
+    ECR-28
+
+[33mcommit 5865a7e056aacdb046db9424d6c3c5dd347a3adb[m
+Author: Nikolai Vuchkov <samarovdimitar@gmail.com>
+Date:   Thu Dec 19 10:20:40 2024 +0200
+
+    Implement persistent storage and proper WiFi handling
+    
+    ECR-28
+
+[33mcommit 58d2ff65026a3540423408408a6be69ba260fb74[m
+Author: Nikolai Vuchkov <samarovdimitar@gmail.com>
+Date:   Wed Dec 18 13:11:55 2024 +0200
+
+    Implement WiFi scanning through BLE
+    ECR-28
+
+[33mcommit 4c974eb3d506abdd098da6cef1dd95c464c2c357[m[33m ([m[1;31morigin/websockets[m[33m)[m
+Author: Dimitar Samarov <samarovdimitar@gmail.com>
+Date:   Fri Nov 8 13:46:40 2024 +0200
+
+    Change a few things. Consider MQTT
+
+[33mcommit 050b0d8b5fe7197d2cb1cba0d5db55d991f58f39[m
+Author: DimitarSamarov07 <samarovdimitar@gmail.com>
+Date:   Thu Nov 7 22:09:05 2024 +0200
+
+    Implement basic websocket server code
+
+[33mcommit 52a197d418cd38d5c37e7d6005b8cacf4eb963b2[m
+Author: DimitarSamarov07 <samarovdimitar@gmail.com>
+Date:   Thu Nov 7 22:07:44 2024 +0200
+
+    Upload base websocket code for the ESP
+
+[33mcommit 7ae9ef2b65bb9f17750b95dec43ea3b88bf85227[m
+Author: DimitarSamarov07 <samarovdimitar@gmail.com>
+Date:   Thu Nov 7 22:07:07 2024 +0200
+
+    Organize Hardware folder
+
+[33mcommit 1e10e16c39777bbe55700d4b331cb69242547546[m
+Author: Dimitar Samarov <samarovdimitar@gmail.com>
+Date:   Thu Nov 7 10:04:33 2024 +0200
+
+    Implement basic websocket example that replays the message sent to the server
+
+[33mcommit 11a9955bc08d489d892604359c5057bfda08ffea[m
+Author: DimitarSamarov07 <samarovdimitar@gmail.com>
+Date:   Wed Nov 6 22:21:26 2024 +0200
+
+    Update ESP schematic with new resistor values
+    
+    ECR-20
+
+[33mcommit c8bc8be403255be6b2829e13f7bff8fa4b11ba07[m
+Author: Hamza Arslan <66619280+DelHamzo@users.noreply.github.com>
+Date:   Tue Nov 5 19:52:44 2024 +0200
+
+    Update intial index page with admin panel design (#1)
+    
+    * Upload first template
+    
+    ECR-16
+    
+    * Upload completed Angular tutorial solutions
+    
+    ECR-16
+    
+    * Initialize Angular project and serve index.html
+    
+    ECR-16
+    
+    * Upload prototype of admin panel page
+    
+    ECR-17
+    
+    * Keep the basic pages for exercise purposes
+    
+    * Upload first template
+    
+    ECR-16
+    
+    * Upload completed Angular tutorial solutions
+    
+    ECR-16
+    
+    * Initialize Angular project and serve index.html
+    
+    ECR-16
+    
+    * Upload prototype of admin panel page
+    
+    ECR-17
+    
+    * Keep the basic pages for exercise purposes
+    
+    * Refine index.html and style.css
+    
+    ECR-17
+    
+    ---------
+    
+    Co-authored-by: DimitarSamarov07 <samarovdimitar@gmail.com>
+
+[33mcommit a517ef1dfc241875d17205f2bd3840a00283ead7[m
+Author: kristian <kristian@gikn.eu>
+Date:   Fri Oct 25 03:29:31 2024 -0700
+
+    Add buttons
+
+[33mcommit 873484b83ec9a07fc982ff0d646cc84688d0d29b[m
+Author: Dimitar Samarov <samarovdimitar@gmail.com>
+Date:   Thu Oct 17 10:28:31 2024 +0300
+
+    Reformat file and move it to the right place.
+
+[33mcommit 6f8462ddbdbc553e33588116fa8f8030bab4c1e0[m
+Author: Dimitar Samarov <samarovdimitar@gmail.com>
+Date:   Thu Oct 17 09:02:26 2024 +0300
+
+    Reformat file and move it to the right place.
+
+[33mcommit ccd3b45b55b50f450f4d54220468ba83f850a405[m
+Author: Nikolay Vuchkov <niko.vuchkov25@gmail.com>
+Date:   Wed Oct 16 23:55:03 2024 +0300
+
+    Database Layer.txt Updated
+
+[33mcommit 4fb5cb9acc80ec5a44936ceb6af89fbdd27cdf19[m
+Merge: ecca26e 2963a99
+Author: Nikolay Vuchkov <niko.vuchkov25@gmail.com>
+Date:   Wed Oct 16 23:39:32 2024 +0300
+
+    Merge remote-tracking branch 'origin/master'
+
+[33mcommit ecca26e2646b81ac11d500a50a1fbdae54b883b5[m
+Author: Nikolay Vuchkov <niko.vuchkov25@gmail.com>
+Date:   Wed Oct 16 23:39:15 2024 +0300
+
+    Database Layer.txt
+
+[33mcommit 2963a99170cd09845e1ea8ec410856eadee8eabf[m
+Author: DimitarSamarov07 <samarovdimitar@gmail.com>
+Date:   Wed Oct 16 19:47:13 2024 +0300
+
+    Update ESP schematic
+
+[33mcommit e833531523db9ed7b3dbb97f120863eca71904ca[m
+Author: Nikolay Vuchkov <niko.vuchkov25@gmail.com>
+Date:   Wed Oct 16 19:39:56 2024 +0300
+
+    test
+
+[33mcommit 569c45ab3778f66dd3a2eef2ca6f9bc7b910af1d[m
+Author: Hamza <arslanhamza2007@gmail.com>
+Date:   Mon Oct 14 13:10:34 2024 +0300
+
+    Add icon images to Front-End/public/images
+
+[33mcommit ba1250ddc396fc7bae12751f0e89c2434ff58969[m
+Author: DimitarSamarov07 <samarovdimitar@gmail.com>
+Date:   Sun Oct 13 19:56:31 2024 +0300
+
+    Remove outdated code
+
+[33mcommit 3d927802826df9dc55c5e61200cff6efc0a3398b[m
+Author: DimitarSamarov07 <samarovdimitar@gmail.com>
+Date:   Sun Oct 13 19:55:37 2024 +0300
+
+    Add static file serving
+
+[33mcommit 1a7374e166593d521c7d67480b3b232fb73e9e79[m
+Author: DimitarSamarov07 <samarovdimitar@gmail.com>
+Date:   Sun Oct 13 19:41:17 2024 +0300
+
+    Move design files to a separate folder
+
+[33mcommit 7b99f4bc08a5232c07368daaea565ed8a1e92c0a[m
+Author: arslanhamza <arslanhamza2007@gmail.com>
+Date:   Sat Oct 12 23:45:14 2024 +0300
+
+    Add admin panel .psd file
+
+[33mcommit 71a5a590038c43413e1ee6be50593286c5c80611[m
+Author: arslanhamza <arslanhamza2007@gmail.com>
+Date:   Sat Oct 12 16:09:28 2024 +0300
+
+    Add admin panel design images
+
+[33mcommit de6280591dfd34a61dc4196078e34dc70e4c7827[m
+Merge: bf76e70 0d31440
+Author: DimitarSamarov07 <samarovdimitar@gmail.com>
+Date:   Sat Oct 12 12:38:05 2024 +0300
+
+    Merge remote-tracking branch 'origin/master'
+
+[33mcommit bf76e702b2214b2913099ccc4c40f95f0bfd3759[m
+Author: DimitarSamarov07 <samarovdimitar@gmail.com>
+Date:   Sat Oct 12 12:37:49 2024 +0300
+
+    Upload ESP schematic files
+
+[33mcommit 0d314401a5b648bab8d46f296eb91029183bfa9c[m
+Author: kristian <kristian.dimitrov@gikn.eu>
+Date:   Fri Oct 11 03:05:19 2024 -0700
+
+    This is my test commit
+
+[33mcommit c05c78b1c47af44ec12285242e1d9d2c30d39a36[m
+Merge: af79b15 71196fd
+Author: Hamza <arslanhamza2007@gmail.com>
+Date:   Fri Oct 11 12:29:09 2024 +0300
+
+    Merge remote-tracking branch 'origin/master'
+
+[33mcommit af79b1586ddb0d3a9230f25e2afbc8a1f5ae94b0[m
+Author: Hamza <arslanhamza2007@gmail.com>
+Date:   Fri Oct 11 12:27:36 2024 +0300
+
+    Test commit
+
+[33mcommit 71196fd29c76440b3d3b08de3d08277b9503ab54[m
+Author: Nikolay Vuchkov <niko.vuchkov25@gmail.com>
+Date:   Fri Oct 11 12:26:25 2024 +0300
+
+    This is my test commit
+
+[33mcommit 1d38246689143ecd6fee7742aef811b071279e21[m
+Author: DimitarSamarov07 <samarovdimitar@gmail.com>
+Date:   Thu Oct 10 21:32:13 2024 +0300
+
+    Upload Front-End changes on behalf of Nikolai
+
+[33mcommit bf852501d1e9260805685b884424be00b8b62183[m
+Author: DimitarSamarov07 <samarovdimitar@gmail.com>
+Date:   Thu Oct 10 21:31:55 2024 +0300
+
+    Fix get request
+
+[33mcommit 15989fe83915d34f7b11eb7b714289fbb44e3d33[m
+Author: Hamza <arslanhamza2007@gmail.com>
+Date:   Thu Oct 10 11:37:10 2024 +0300
+
+    Add initial back-end files
+
+[33mcommit ca408ce3a3c00d142990eb312e4e171b0d4b13fd[m
+Author: Dimitar Samarov <samarovdimitar@gmail.com>
+Date:   Thu Oct 10 11:28:00 2024 +0300
+
+    Upload initial files
+
+[33mcommit 7ec062a912abbd7c2a0c1950c7c4ee88c47a0274[m
+Author: Dimitar Samarov <samarovdimitar@gmail.com>
+Date:   Thu Oct 10 11:25:14 2024 +0300
+
+    Update .gitignore
+
+[33mcommit 4fd25d620d0ddc59af6f0d293d27f92ee58df77d[m
+Author: Dimitar Samarov <samarovdimitar@gmail.com>
+Date:   Thu Oct 10 08:59:53 2024 +0300
+
+    Initial commit
