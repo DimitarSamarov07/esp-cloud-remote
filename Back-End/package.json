@@ -13,6 +13,7 @@
   "dependencies": {
     "express": "^4.21.0",
     "express-ws": "^5.0.2",
+    "mqtt": "^5.10.3",
     "path": "^0.12.7"
   }
 }
