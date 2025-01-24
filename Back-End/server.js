@@ -2,6 +2,7 @@ import express from 'express';
 import {fileURLToPath} from 'url';
 import {dirname} from 'path';
 import * as path from "node:path";
+import {esp_dummy} from "./mqtt-node/mqtt-communication.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -9,7 +10,6 @@ const __dirname = dirname(__filename);
 const app = express();
 const port = 8690;
 
-let global_ws;
 let sendOptions = {root: "../Front-End"};
 app.use(express.json());
 app.use("/public", express.static(path.join(__dirname, '/../Front-End/public/')));
@@ -17,19 +17,24 @@ app.use("/public", express.static(path.join(__dirname, '/../Front-End/public/'))
 
 app.post("/led", function (req, res) {
     let led_state = req.query.led_state;
-    let objToSend = {};
     switch (led_state) {
         case "ON":
-            objToSend["led_state"] = "ON";
+            esp_dummy.turnLEDOn();
             break;
         case "OFF":
-            objToSend["led_state"] = "OFF";
-            break;
+            esp_dummy.turnLEDOff()
         default:
             res.sendStatus(404);
             return;
     }
-    global_ws.send(JSON.stringify(objToSend));
+    res.sendStatus(200);
+})
+
+app.post("/changeWifi", function (req, res) {
+    let ssid = req.query.ssid;
+    let pass = req.query.password;
+
+    esp_dummy.changeWifi(ssid, pass);
     res.sendStatus(200);
 })
 

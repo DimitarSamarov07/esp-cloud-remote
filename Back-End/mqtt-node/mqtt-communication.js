@@ -73,12 +73,14 @@ class ESPClient {
     }
 }
 
-const esp = new ESPClient({
+const esp_dummy = new ESPClient({
     clientId: 'mqtt_pc1', // we can use UUID
     clean: false,
     connectTimeout: 4000,
     reconnectPeriod: 1000,
 })
 
-esp.turnLEDOff()
-esp.changeWifi('OPTELA', '')
+// esp.turnLEDOff()
+// esp.changeWifi('OPTELA', '')
+
+export {esp_dummy}
