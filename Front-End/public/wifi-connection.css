@@ -11,7 +11,7 @@
     transform: translate(-50%, -50%);
     padding: 20px;
     background-color: white;
-    border-radius: 10px;
+    border-radius: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 300px;
     display: flex;
@@ -32,7 +32,7 @@
 }
 .pop-up .wifi-option {
     display: block;
-    width: 100%;
+    width: 200%;
     padding: 10px;
     text-align: center;
     margin: 5px 0;
@@ -50,13 +50,11 @@
     width: 100%;
 }
 .pop-up .cancel-btn, .pop-up .connect-btn {
-    padding: 10px 20px;
-    background-color: blue;
+    padding: 10px;
+    background-color: deepskyblue;
     color: white;
-    border-radius: 5px;
     cursor: pointer;
-    transition: opacity 0.3s;
-    margin-left: 103%;
+    margin-left: 156%;
 }
 .pop-up .connect-btn {
     background-color: green;
@@ -67,4 +65,11 @@
 .textarea {
     width: 100%;
     height: 150px;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #f8f8f8;
+    font-size: 20px;
+    resize: none;
 }
