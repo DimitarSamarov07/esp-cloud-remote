@@ -3,26 +3,17 @@ import {fileURLToPath} from 'url';
 import {dirname} from 'path';
 import * as path from "node:path";
 
-import express_ws from "express-ws";
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
 const port = 8690;
-let expressWs = express_ws(app);
 
 let global_ws;
 let sendOptions = {root: "../Front-End"};
 app.use(express.json());
 app.use("/public", express.static(path.join(__dirname, '/../Front-End/public/')));
 
-app.ws("/return-ws", function (ws, req) {
-    global_ws = ws;
-    ws.on("message", function(msg){
-        ws.send("I agree");
-    })
-})
 
 app.post("/led", function (req, res) {
     let led_state = req.query.led_state;
