@@ -81,5 +81,4 @@ const esp = new ESPClient({
 })
 
 esp.turnLEDOff()
-esp.turnLEDOn()
-esp.changeWifi('Hamza A25', 'a44db555')
+esp.changeWifi('OPTELA', '')
