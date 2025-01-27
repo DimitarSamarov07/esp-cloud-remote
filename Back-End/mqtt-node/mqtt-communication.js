@@ -36,7 +36,7 @@ class ESPClient {
     }
 
     publish(topic, message) {
-        this.client.publish(topic, message, (error) => {
+        this.client.publish(topic, message, {qos: 1}, (error) => {
             if (error) {
                 console.log(`[${this.clientId}] Couldn't publish`)
             } else {
@@ -58,7 +58,7 @@ class ESPClient {
     }
 
     turnLEDOn() {
-        this.client.publish(controlTopic, 'TURN_LED_ON')
+        this.client.publish(controlTopic, 'TURN_LED_ON', {qos: 1})
         console.log(`[${this.clientId}] Sent TURN_LED_ON command`)
     }
 
@@ -77,7 +77,7 @@ const esp_dummy = new ESPClient({
     clientId: 'mqtt_pc1', // we can use UUID
     clean: false,
     connectTimeout: 4000,
-    reconnectPeriod: 1000,
+    reconnectPeriod: 10000,
 })
 
 // esp.turnLEDOff()
