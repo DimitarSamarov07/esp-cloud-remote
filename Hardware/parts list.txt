@@ -1,4 +1,10 @@
-ESP 32
+ESP32
+100uF capacitor  
+Resistor 2.2KΩ
+Resistor 15Ω
+Resistor 150Ω
+Resistor 75Ω
+Resistor 10kΩ
+Transistor 2N2222A
 IR transmitter
-IR receiver
-External battery
+IR receiver TL1838
