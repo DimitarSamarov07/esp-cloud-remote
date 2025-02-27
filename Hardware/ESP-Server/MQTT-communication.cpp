@@ -16,8 +16,8 @@ PubSubClient client(espClient);
 #define mqttConnectionWifi "connection/wifi"
 
 void topicsSubscribe() {
-  client.subscribe(mqttACControl);
-  client.subscribe(mqttConnectionWifi);
+  client.subscribe(mqttACControl, 1);
+  client.subscribe(mqttConnectionWifi, 1);
 }
 
 void callback(char* topic, byte* message, unsigned int length) {
@@ -46,16 +46,16 @@ void callback(char* topic, byte* message, unsigned int length) {
     }
   }
 
-  if(String(topic) == mqttConnectionWifi) {
+  if (String(topic) == mqttConnectionWifi) {
     Serial.println("Message received from connection/wifi");
     int delimeterIndex = receivedMessage.indexOf('/');
-    if(delimeterIndex != -1) {
+    if (delimeterIndex != -1) {
       String newSSID = receivedMessage.substring(0, delimeterIndex);
       String newPass = receivedMessage.substring(delimeterIndex + 1);
       Serial.println(newSSID);
       Serial.println(newPass);
       client.publish("ac/report", "Changed WiFi connection");
-      connectWifi(newSSID, newPass); // TODO: If new connection doesn't exist stay in previous connection
+      connectWifi(newSSID, newPass);  // TODO: If new connection doesn't exist stay in previous connection
       flashLED();
     } else {
       client.publish("ac/report", "Couldn't change WiFi because it wasn't sent in correct format");
@@ -74,16 +74,14 @@ void mqtt_setup() {
 }
 
 void reconnect() {
-  while (!client.connected()) {
-    if (client.connect("ESP32Client")) {
-      Serial.println("Connected");
-      Serial.println();
-      topicsSubscribe();
-    } else {
-      delay(5000);
-    }
+  if (client.connect("ESP32Client", "ac/control", 1, true, "Hitler")) {
+    Serial.println("Connected");
+    Serial.println();
+    topicsSubscribe();
+  } else {
+    delay(5000);
   }
-  topicsSubscribe();
+  //topicsSubscribe();
 }
 
 void flashLED() {
