@@ -1,7 +1,16 @@
+#include <esp_err.h>
+#include <esp_log.h>
+#include <nvs_flash.h>
 #include "mqtt_comunication.h"
 
-void app_main(void)
+
+static const char* TAG = "MQTT_APP";
+
+void app_main()
 {
-    mqtt_init_setup();
-    
+    ESP_ERROR_CHECK(nvs_flash_init());
+    wifi_init_sta();
+    configure_gpio(2);
+    mqtt_init();
+    ESP_LOGI(TAG, "Application started");
 }

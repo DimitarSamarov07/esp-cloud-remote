@@ -1,12 +1,6 @@
-//
-// MQTT-communication.h
-//
+#include <soc/gpio_num.h>
 
-// Setup code
-void mqtt_init_setup();
-
-// MQTT main loop
-void mqtt_loop_step();
-
-// Flashes the LED
+void mqtt_init();
+void wifi_init_sta();
+void configure_gpio(gpio_num_t pin);
 void flashLED();

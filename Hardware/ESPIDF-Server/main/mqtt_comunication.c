@@ -6,20 +6,20 @@
 #include "nvs_flash.h"
 #include "esp_event.h"
 #include "esp_netif.h"
-#include "protocol_examples_common.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
 #include "mqtt_client.h"
 #include "driver/gpio.h"
 
-#define mqttACControl "ac/control"
-#define mqttConnectionWifi "connection/wifi"
-#define LED_PIN 2
+#define MQTT_AC_CONTROL_TOPIC "ac/control"
+#define MQTT_WIFI_CONFIG_TOPIC "connection/wifi"
+#define LED_PIN GPIO_NUM_2
+#define MQTT_QOS 1
 
-const char *SSID = "";
-const char *PASSWORD = "";
-int8_t QoS = 1;
+#define WIFI_SSID ""
+#define WIFI_PASSWORD ""
 
+static const char* TAG = "MQTT_APP";
 static esp_mqtt_client_handle_t client;
 
 void configure_gpio(gpio_num_t pin)
@@ -29,105 +29,107 @@ void configure_gpio(gpio_num_t pin)
         .mode = GPIO_MODE_OUTPUT,
         .pull_up_en = GPIO_PULLUP_DISABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_DISABLE};
-    gpio_config(&io_conf);
-}
-void flashLED()
-{
-    gpio_set_level(GPIO_NUM_2, 1);
-    vTaskDelay(100);
-    gpio_set_level(GPIO_NUM_2, 0);
-    vTaskDelay(50);
-    gpio_set_level(GPIO_NUM_2, 1);
-    vTaskDelay(100);
-    gpio_set_level(GPIO_NUM_2, 0);
-    vTaskDelay(1000);
-}
-void topicsSubcride()
-{
-    esp_mqtt_client_subscribe_single(client, mqttACControl, QoS);
-    esp_mqtt_client_subscribe_single(client, mqttConnectionWifi, QoS);
-}
-
-void mqtt_init_setup()
-{
-    esp_mqtt_client_config_t mqtt_cfg = {
-        .broker.address.uri = "mqtt://93.155.224.232:5728",
-
+        .intr_type = GPIO_INTR_DISABLE
     };
-    client = esp_mqtt_client_init(&mqtt_cfg);
-    esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, callback, client );
-    esp_mqtt_client_start(client);
-    configure_gpio(2);
-    topicsSubcride();
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
 }
-void callback(char *topic, char *message, unsigned int length)
+
+void flash_led()
 {
-    char *recievedMessage = "";
-    for (int i = 0; i < length; i++)
+    gpio_set_level(LED_PIN, 1);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    gpio_set_level(LED_PIN, 0);
+    vTaskDelay(50 / portTICK_PERIOD_MS);
+    gpio_set_level(LED_PIN, 1);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    gpio_set_level(LED_PIN, 0);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+}
+
+void mqtt_callback(const char* topic, const char* message, size_t length)
+{
+    char received_message[100] = {0};
+    strncpy(received_message, message, length);
+    received_message[length] = '\0';
+
+    if (strncmp(topic, MQTT_AC_CONTROL_TOPIC, strlen(MQTT_AC_CONTROL_TOPIC)) == 0)
     {
-        recievedMessage += (char)message[i];
-    }
-    if (strcmp(topic, mqttACControl) == 0)
-    {
-        printf("[ESP} Message receieved on topic ac/control \n");
-        if (strcmp(recievedMessage, "TURN_ON") == 0)
+        ESP_LOGI(TAG, "Received AC control message: %s", received_message);
+
+        if (strcmp(received_message, "TURN_ON") == 0)
         {
-            esp_mqtt_client_publish(client, mqttACControl, "[ESP} Turn ON signal sent to AC!", 0, QoS, true);
-            flashLED();
+            esp_mqtt_client_publish(client, MQTT_AC_CONTROL_TOPIC, "AC turned ON", 0, MQTT_QOS, 0);
+            flash_led();
         }
-        else if (strcmp(recievedMessage, "TURN_OFF") == 0)
+        else if (strcmp(received_message, "TURN_OFF") == 0)
         {
-            esp_mqtt_client_publish(client, mqttACControl, "[ESP] Turn OFF signal sent to AC!", 0, QoS, true);
-            flashLED();
-        }
-        else if (strcmp(recievedMessage, "TURN_LED_ON") == 0)
-        {
-            gpio_set_level(GPIO_NUM_2, 1);
-            vTaskDelay(3000);
-        }
-        else if (strcmp(recievedMessage, "TURN_LED_FF") == 0) //strcmp - comares a char array to the desired string and returns 0 if they are the same.
-        {
-            gpio_set_level(GPIO_NUM_2, 0);
-            flashLED();
+            esp_mqtt_client_publish(client, MQTT_AC_CONTROL_TOPIC, "AC turned OFF", 0, MQTT_QOS, 0);
+            flash_led();
         }
         else
         {
-            esp_mqtt_client_publish(client, mqttACControl, "[ESP] Unknown command sent to ac/control", 0, QoS, true);
-            flashLED();
+            ESP_LOGW(TAG, "Unknown AC command: %s", received_message);
         }
     }
-    if (strcmp(mqttConnectionWifi, topic) == 0)
+    else if (strncmp(topic, MQTT_WIFI_CONFIG_TOPIC, strlen(MQTT_WIFI_CONFIG_TOPIC)) == 0)
     {
-        printf("Message received from connection/wifi \n");
-        int delimeterIndex = strcspn(recievedMessage, "/"); //strcspn - returns how much characters are before the first occurance of the desired character. If none are found it returns the length of the string.
-        if(delimeterIndex != strlen(recievedMessage)){ //strlen - returns the length of the char array
-            char *newSSID;
-            char *newPass;
-            strncpy(newSSID, delimeterIndex, strlen(recievedMessage) - delimeterIndex);
-            strncpy(newPass, delimeterIndex + 1, strlen(recievedMessage));
-            printf("[ESP] new SSID: ");
-            print(newSSID);
-            printf("[ESP] new password: ");
-            print(newPass);
-            esp_mqtt_client_publish(client, "ac/report", "Changed WiFi connection.", 0, QoS, true);
-            flashLED();
-        }
-    }
-    else{
-        printf("[ESP] Problem with connecting to WiFi.");
-        esp_mqtt_client_publish(client, "ac/report", "Couldn't change WiFi because it wasn't sent in correct format.", 0, QoS, true);
+        ESP_LOGI(TAG, "Received Wi-Fi config message: %s", received_message);
     }
 }
-void reconnect()
+
+void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event_id, void* event_data)
 {
-    if (esp_wifi_connect != ESP_FAIL)  //TODO: Check for ESP connection
+    esp_mqtt_event_handle_t event = event_data;
+    client = event->client;
+
+    switch (event->event_id)
     {
-        printf("[ESP] Connected! \n");
-        topicsSubcride();
+    case MQTT_EVENT_CONNECTED:
+        ESP_LOGI(TAG, "MQTT Connected also Angel is the best");
+        esp_mqtt_client_subscribe(client, MQTT_AC_CONTROL_TOPIC, MQTT_QOS);
+        esp_mqtt_client_subscribe(client, MQTT_WIFI_CONFIG_TOPIC, MQTT_QOS);
+        break;
+
+    case MQTT_EVENT_DATA:
+        ESP_LOGI(TAG, "Received message on topic: %.*s", event->topic_len, event->topic);
+        mqtt_callback(event->topic, event->data, event->data_len);
+        break;
+
+    default:
+        ESP_LOGI(TAG, "Unhandled MQTT event: %d", event_id);
+        break;
     }
-    else
-    {
-        vTaskDelay(5000);
-    }
+}
+
+void wifi_init_sta()
+{
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    esp_netif_create_default_wifi_sta();
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+    wifi_config_t wifi_config = {
+        .sta = {
+            .ssid = WIFI_SSID,
+            .password = WIFI_PASSWORD,
+            .threshold.authmode = WIFI_AUTH_WPA2_PSK, // Use WPA2 for security
+        },
+    };
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
+    ESP_ERROR_CHECK(esp_wifi_start());
+
+    ESP_LOGI(TAG, "Wi-Fi initialized, connecting to SSID: %s", WIFI_SSID);
+    ESP_ERROR_CHECK(esp_wifi_connect());
+}
+
+void mqtt_init()
+{
+    esp_mqtt_client_config_t mqtt_cfg = {
+        .broker.address.uri = "mqtt://93.155.224.232:5728",
+    };
+    client = esp_mqtt_client_init(&mqtt_cfg);
+    ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL));
+    ESP_ERROR_CHECK(esp_mqtt_client_start(client));
 }
