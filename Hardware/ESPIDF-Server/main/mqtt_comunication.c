@@ -113,7 +113,7 @@ void wifi_init_sta()
         .sta = {
             .ssid = WIFI_SSID,
             .password = WIFI_PASSWORD,
-            .threshold.authmode = WIFI_AUTH_WPA2_PSK, // Use WPA2 for security
+            .threshold.authmode = WIFI_AUTH_WPA2_PSK, 
         },
     };
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
