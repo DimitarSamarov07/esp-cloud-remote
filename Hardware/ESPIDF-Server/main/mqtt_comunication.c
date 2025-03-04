@@ -22,6 +22,7 @@
 static const char* TAG = "MQTT_APP";
 static esp_mqtt_client_handle_t client;
 
+//Configuring GPIO pin to flash the LED
 void configure_gpio(gpio_num_t pin)
 {
     gpio_config_t io_conf = {
@@ -34,6 +35,7 @@ void configure_gpio(gpio_num_t pin)
     ESP_ERROR_CHECK(gpio_config(&io_conf));
 }
 
+//Flashing the LED on the specified pin every 2 secs
 void flash_led()
 {
     gpio_set_level(LED_PIN, 1);
@@ -46,6 +48,7 @@ void flash_led()
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 }
 
+//Callback method that is called every time the ESP is connected to a broker
 void mqtt_callback(const char* topic, const char* message, size_t length)
 {
     char received_message[100] = {0};
@@ -77,6 +80,7 @@ void mqtt_callback(const char* topic, const char* message, size_t length)
     }
 }
 
+//Event handler method that is called on every setup (Basically like Arduino's setup())
 void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event_id, void* event_data)
 {
     esp_mqtt_event_handle_t event = event_data;
@@ -101,6 +105,7 @@ void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event
     }
 }
 
+//Initiating a WIFI connection with the specified SSID and password
 void wifi_init_sta()
 {
     ESP_ERROR_CHECK(esp_netif_init());
@@ -124,6 +129,7 @@ void wifi_init_sta()
     ESP_ERROR_CHECK(esp_wifi_connect());
 }
 
+//Connect to MQTT broker
 void mqtt_init()
 {
     esp_mqtt_client_config_t mqtt_cfg = {
