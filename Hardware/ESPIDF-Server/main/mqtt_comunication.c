@@ -59,12 +59,12 @@ void mqtt_callback(const char* topic, const char* message, size_t length)
     {
         ESP_LOGI(TAG, "Received AC control message: %s", received_message);
 
-        if (strcmp(received_message, "TURN_ON") == 0)
+        if (strcmp(received_message, "TURN_LED_ON") == 0)
         {
             esp_mqtt_client_publish(client, MQTT_AC_CONTROL_TOPIC, "AC turned ON", 0, MQTT_QOS, 0);
             flash_led();
         }
-        else if (strcmp(received_message, "TURN_OFF") == 0)
+        else if (strcmp(received_message, "TURN_LED_OFF") == 0)
         {
             esp_mqtt_client_publish(client, MQTT_AC_CONTROL_TOPIC, "AC turned OFF", 0, MQTT_QOS, 0);
             flash_led();
