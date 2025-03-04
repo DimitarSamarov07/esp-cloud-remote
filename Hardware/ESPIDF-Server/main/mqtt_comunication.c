@@ -16,8 +16,8 @@
 #define LED_PIN GPIO_NUM_2
 #define MQTT_QOS 1
 
-#define WIFI_SSID "OPTELA"
-#define WIFI_PASSWORD ""
+#define WIFI_SSID "Dummy"
+#define WIFI_PASSWORD "karuca12345"
 
 static const char* TAG = "MQTT_APP";
 static esp_mqtt_client_handle_t client;
@@ -96,7 +96,7 @@ void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event
         break;
 
     default:
-        ESP_LOGI(TAG, "Unhandled MQTT event: %d", event_id);
+        ESP_LOGI(TAG, "Unhandled MQTT event: %ld", event_id);
         break;
     }
 }
