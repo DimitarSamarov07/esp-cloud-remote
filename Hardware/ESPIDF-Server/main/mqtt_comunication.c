@@ -16,8 +16,8 @@
 #define LED_PIN GPIO_NUM_2
 #define MQTT_QOS 1
 
-#define WIFI_SSID "Dummy"
-#define WIFI_PASSWORD "karuca12345"
+#define WIFI_SSID "Arabadzhievi"
+#define WIFI_PASSWORD "16042325"
 
 static const char* TAG = "MQTT_APP";
 static esp_mqtt_client_handle_t client;
@@ -89,11 +89,19 @@ void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event
     switch (event->event_id)
     {
     case MQTT_EVENT_CONNECTED:
-        ESP_LOGI(TAG, "MQTT Connected also Angel is the best");
+        ESP_LOGI(TAG, "MQTT Connected");
         esp_mqtt_client_subscribe(client, MQTT_AC_CONTROL_TOPIC, MQTT_QOS);
         esp_mqtt_client_subscribe(client, MQTT_WIFI_CONFIG_TOPIC, MQTT_QOS);
         break;
-
+    case MQTT_EVENT_SUBSCRIBED:
+        ESP_LOGI(TAG, "Subscribed");
+        break;
+    case MQTT_EVENT_UNSUBSCRIBED:
+        ESP_LOGI(TAG, "Unsubscribed");
+        break;
+    case MQTT_EVENT_PUBLISHED:
+        ESP_LOGI(TAG, "Published");
+        break;
     case MQTT_EVENT_DATA:
         ESP_LOGI(TAG, "Received message on topic: %.*s", event->topic_len, event->topic);
         mqtt_callback(event->topic, event->data, event->data_len);
@@ -132,6 +140,7 @@ void wifi_init_sta()
 //Connect to MQTT broker
 void mqtt_init()
 {
+    vTaskDelay(3000 / portTICK_PERIOD_MS);
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = "mqtt://93.155.224.232:5728",
     };
