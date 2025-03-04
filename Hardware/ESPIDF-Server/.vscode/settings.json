@@ -1,6 +1,5 @@
 {
-    "C_Cpp.intelliSenseEngine": "default",
-    "idf.espIdfPathWin": "C:\\Users\\Angel\\esp\\v5.4\\esp-idf",
-    "idf.toolsPathWin": "C:\\Users\\Angel\\.espressif",
-    "idf.pythonInstallPath": "C:\\Users\\Angel\\.espressif\\tools\\idf-python\\3.11.2\\python.exe"
+    "idf.customExtraVars": {
+        "IDF_TARGET": "esp32s3"
+    }
 }

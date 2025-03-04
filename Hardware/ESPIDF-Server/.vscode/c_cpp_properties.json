@@ -1,25 +1,16 @@
 {
     "configurations": [
         {
-            "name": "ESP-IDF",
-            "compilerPath": "${config:idf.toolsPathWin}\\tools\\xtensa-esp-elf\\esp-14.2.0_20241119\\xtensa-esp-elf\\bin\\xtensa-esp32-elf-gcc.exe",
-            "compileCommands": [
-                "${config:idf.buildPath}/compile_commands.json"
-            ],
+            "name": "Win32",
             "includePath": [
-                "${config:idf.espIdfPath}/components/**",
-                "${config:idf.espIdfPathWin}/components/**",
-                "${workspaceFolder}/**",
-                "C:/Users/Angel/esp/v5.4/esp-idf"
+                "C:\\Users\\USER\\esp\\v5.4\\esp-idf\\components",
+                "C:\\Users\\USER\\esp\\v5.4\\esp-idf"
             ],
-            "browse": {
-                "path": [
-                    "${config:idf.espIdfPath}/components",
-                    "${config:idf.espIdfPathWin}/components",
-                    "${workspaceFolder}"
-                ],
-                "limitSymbolsToIncludedHeaders": true
-            }
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ]
         }
     ],
     "version": 4

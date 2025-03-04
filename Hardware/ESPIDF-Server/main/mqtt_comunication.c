@@ -16,7 +16,7 @@
 #define LED_PIN GPIO_NUM_2
 #define MQTT_QOS 1
 
-#define WIFI_SSID ""
+#define WIFI_SSID "OPTELA"
 #define WIFI_PASSWORD ""
 
 static const char* TAG = "MQTT_APP";
