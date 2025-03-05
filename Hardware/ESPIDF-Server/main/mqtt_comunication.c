@@ -64,10 +64,26 @@ void mqtt_callback(const char* topic, const char* message, size_t length)
             esp_mqtt_client_publish(client, MQTT_AC_CONTROL_TOPIC, "AC turned ON", 0, MQTT_QOS, 0);
             flash_led();
         }
+        else if (strcmp(received_message, "The AC is now ON") == 0)
+        {
+
+        }
+        else if (strcmp(received_message, "The AC is now OFF") == 0)
+        {
+
+        }
         else if (strcmp(received_message, "TURN_LED_OFF") == 0)
         {
             esp_mqtt_client_publish(client, MQTT_AC_CONTROL_TOPIC, "AC turned OFF", 0, MQTT_QOS, 0);
             flash_led();
+        }
+        else if (strcmp(received_message, "AC turned ON") == 0)
+        {
+
+        }
+        else if (strcmp(received_message, "AC turned OFF") == 0)
+        {
+
         }
         else
         {
@@ -76,6 +92,7 @@ void mqtt_callback(const char* topic, const char* message, size_t length)
     }
     else if (strncmp(topic, MQTT_WIFI_CONFIG_TOPIC, strlen(MQTT_WIFI_CONFIG_TOPIC)) == 0)
     {
+
         ESP_LOGI(TAG, "Received Wi-Fi config message: %s", received_message);
     }
 }
@@ -92,6 +109,9 @@ void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event
         ESP_LOGI(TAG, "MQTT Connected");
         esp_mqtt_client_subscribe(client, MQTT_AC_CONTROL_TOPIC, MQTT_QOS);
         esp_mqtt_client_subscribe(client, MQTT_WIFI_CONFIG_TOPIC, MQTT_QOS);
+        break;
+    case MQTT_EVENT_DISCONNECTED:
+        ESP_LOGI(TAG, "MQTT Disconnected");
         break;
     case MQTT_EVENT_SUBSCRIBED:
         ESP_LOGI(TAG, "Subscribed");
@@ -113,7 +133,7 @@ void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event
     }
 }
 
-//Initiating a WIFI connection with the specified SSID and password
+//Initiating a WI-FI connection with the specified SSID and password
 void wifi_init_sta()
 {
     ESP_ERROR_CHECK(esp_netif_init());
@@ -143,6 +163,10 @@ void mqtt_init()
     vTaskDelay(3000 / portTICK_PERIOD_MS);
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = "mqtt://93.155.224.232:5728",
+        .session.last_will.msg = "Let me live    *dies*",
+        .session.keepalive = 4,
+        .session.disable_clean_session = false,
+
     };
     client = esp_mqtt_client_init(&mqtt_cfg);
     ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL));
