@@ -1,3 +1,4 @@
+#include <esp_random.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -92,6 +93,9 @@ void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event
 
     switch (event->event_id)
     {
+    case MQTT_EVENT_BEFORE_CONNECT:
+        ESP_LOGI(TAG, "MQTT is preparing to connect...");
+        break;
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT Connected!");
         esp_mqtt_client_subscribe(client, MQTT_AC_CONTROL_TOPIC, MQTT_QOS);
@@ -100,8 +104,9 @@ void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event
 
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGW(TAG, "MQTT Disconnected! Attempting to reconnect...");
-        vTaskDelay(8000 / portTICK_PERIOD_MS);
-        esp_mqtt_client_reconnect(client);
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        esp_mqtt_client_stop(client);
+        esp_mqtt_client_start(client);
         break;
 
     case MQTT_EVENT_ERROR:
@@ -147,11 +152,12 @@ void wifi_init_sta()
 void mqtt_init()
 {
     vTaskDelay(3000 / portTICK_PERIOD_MS);
-
+    char client_id[30];
+    sprintf(client_id, "mqtt_pc2_%ld", esp_random());
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = "mqtt://93.155.224.232:5728",
         .session.keepalive = 20,
-        .credentials.client_id = "mqtt_pc2",
+        .credentials.client_id = client_id,
         .session.disable_clean_session = true,
         .session.disable_keepalive = false,
         .session.last_will.topic = MQTT_AC_CONTROL_TOPIC,
