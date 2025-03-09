@@ -7,7 +7,7 @@ main {
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Poppins", sans-serif;
     margin: 0;
     padding: 0;
     color: #333;
@@ -19,7 +19,7 @@ main {
     margin: 20px auto;
     background: #fff;
     padding: 20px;
-    border: 1px solid #ddd
+    border: 1px solid #ddd;
     border-radius: 8px;
 }
 
@@ -51,27 +51,29 @@ main h2 {
 .connect-heading h1 {
     margin-bottom: 0;
 }
-.connect-heading p{
+
+.connect-heading p {
     margin-top: 2px;
 }
 
 .first-instructions {
     display: flex;
 }
+
 .continue-button:hover {
-    background-color: grey;
+    background-color: #b5b5b5;
 }
 
 .continue-button {
-    border: 1px solid black;
-    border-radius: 10px;
+    border: 2px solid black;
+    border-radius: 22px;
     background-color: transparent;
-    font-size: 16px;
-
+    font-size: 20px;
+    padding: 8px;
 }
 
 .continue-button-wrapper {
     display: flex;
     justify-content: center;
-    margin-top:20px;
+    margin-top: 20px;
 }
