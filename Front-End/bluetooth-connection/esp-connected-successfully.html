@@ -25,42 +25,45 @@
         <p>You have successfully connected to your ESP Cloud Remote! You can view and change its settings from the admin panel</p>
 
         <a href="../index.html" class="admin-panel-btn">
-            <button class="admin-panel">ADMIN PANEL</button>
+            <p class="admin-panel">Admin panel</p>
         </a>
     </section>
 
-    <section class="bluetooth-connection">
-        <h2>Available Bluetooth ESPs</h2>
-        <p>Select an ESP below to connect</p>
-        <div class="esp-list">
-            <ul>
-                <li>
-                    <a href="./esp-choose-wifi.html">
-                        <button class="esp-select-btn">
-                            <span class="esp-name">Ivan's ESP</span>
-                            <span class="esp-module">ESP32-S3-WROOM-2</span>
-                        </button>
-                    </a>
-                </li>
-                <li>
-                    <a href="./esp-choose-wifi.html">
-                        <button class="esp-select-btn">
-                            <span class="esp-name">Goso's ESP</span>
-                            <span class="esp-module">ESP8684-WROOM-02</span>
-                        </button>
-                    </a>
-                </li>
-                <li>
-                    <a href="./esp-choose-wifi.html">
-                        <button class="esp-select-btn">
-                            <span class="esp-name">Hamza's ESP</span>
-                            <span class="esp-module">ESP32-S2-MINI-2U</span>
-                        </button>
-                    </a>
-                </li>
-            </ul>
-            <div class="loading-icon"><img src="../public/images/esp-list-logo.png"></div>
-        </div>
+    <section class="esp-list">
+    <h2>Available Bluetooth ESPs</h2>
+    <p>Select an ESP below to connect</p>
+        <table class="available-esp-table">
+            <tr>
+                <th>Name</th>
+                <th>Module</th>
+            </tr>
+            <tr class="esp-row" onclick="window.location='./esp-choose-wifi.html';">
+                <td class="esp-item">
+                    <img alt="ESP Logo" class="esp-logo" src="../public/images/espressif-black-logo.png">
+                    Ivan's ESP
+                </td>
+                <td>ESP32-S3-WROOM-2</td>
+            </tr>
+            <tr class="esp-row" onclick="window.location='./esp-choose-wifi.html';">
+                <td class="esp-item">
+                    <img alt="ESP Logo" class="esp-logo" src="../public/images/espressif-black-logo.png">
+                    Goso's ESP
+                </td>
+                <td>ESP8684-WROOM-02</td>
+            </tr>
+            <tr class="esp-row" onclick="window.location='./esp-choose-wifi.html';">
+                <td class="esp-item">
+                    <img alt="ESP Logo" class="esp-logo" src="../public/images/espressif-black-logo.png">
+                    Hamza's ESP
+                </td>
+                <td>ESP32-S2-MINI-2U</td>
+            </tr>
+            <tr class="loading-row">
+                <td class="loading-container" colspan="2">
+                    <div class="loading"></div>
+                </td>
+            </tr>
+        </table>
         <a href="./put-esp-in-connection.html">
             <button class="go-back">Go Back</button>
         </a>
