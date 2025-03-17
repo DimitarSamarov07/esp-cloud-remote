@@ -14,11 +14,11 @@
 
 #define MQTT_AC_CONTROL_TOPIC "ac/control"
 #define MQTT_WIFI_CONFIG_TOPIC "connection/wifi"
-#define LED_PIN GPIO_NUM_2
+#define LED_PIN GPIO_NUM_21
 #define MQTT_QOS 1
 
-#define WIFI_SSID "Arabadzhievi"
-#define WIFI_PASSWORD "16042325"
+#define WIFI_SSID "OPTELA"
+#define WIFI_PASSWORD ""
 
 static const char* TAG = "MQTT_APP";
 static esp_mqtt_client_handle_t client;
@@ -137,7 +137,7 @@ void wifi_init_sta()
         .sta = {
             .ssid = WIFI_SSID,
             .password = WIFI_PASSWORD,
-            .threshold.authmode = WIFI_AUTH_WPA2_PSK,
+            // .threshold.authmode = WIFI_AUTH_WPA2_PSK,
         },
     };
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
