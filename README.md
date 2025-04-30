@@ -1,52 +1,58 @@
-# 🌬️ Smart AC Control with ESP32 and ESP-IDF
+# ❄️ Smart AC Control with ESP32 (ESP-IDF + IR + Web UI)
 
-Control your Air Conditioner remotely using an ESP32, ESP-IDF, and a web-based interface. This project enables IR-based or relay-based AC control, allowing temperature management and power toggling from any browser.
+Control your air conditioner using an ESP32 via infrared (IR) signals and a web interface. This project uses **ESP-IDF** and supports both **sending and receiving IR codes**, allowing you to control and learn from physical remotes. You can access the AC controls from **any network** through a web dashboard or MQTT.
 
 ---
 
 ## 🚀 Features
 
-- ✅ Remote AC control (ON/OFF, temperature, fan mode)
-- 🌐 Web-based dashboard (mobile and desktop friendly)
-- 📡 ESP32 with IR LED or relay module
-- ⚙️ Built using ESP-IDF for low-level control
-- 🔒 Wi-Fi and MQTT integration for remote access
+- 🔹 Turn AC on/off
+- 🔹 Set temperature, mode, fan speed
+- 🔹 Receive and decode IR signals from any remote
+- 🔹 Send saved IR codes to your AC
+- 🔹 Host a web interface (on ESP32 or external server)
+- 🔹 Remote access via MQTT
 
 ---
 
-## 🛠️ Hardware Requirements
+## 🧰 Hardware Requirements
 
-| Component          | Description                         |
-|-------------------|-------------------------------------|
-| ESP32 Board        | e.g., ESP32 DevKit V1               |
-| IR LED / Relay     | Depending on how the AC is controlled |
-| Transistor + Resistor | For driving IR LED (if used)       |
-| AC Unit            | That supports IR remote or relay    |
-| Breadboard & Wires | For prototyping                     |
-| Power Supply       | 5V USB or regulated source          |
+A full part list (with links and quantities) is available in the [`Hardware/parts_list.txt`](Hardware/parts_list.txt) file.
 
----
+### Core Components:
 
-## 🧰 Software Stack
-
-- **ESP-IDF** (Espressif IoT Development Framework)
-- **C/C++** for ESP32 firmware
-- **HTML/CSS/JavaScript** for web interface
-- **MQTT** for remote/cloud-based control
+- ✅ ESP32 Development Board  
+- ✅ IR LED (for sending commands)  
+- ✅ IR Receiver Module (e.g., VS1838B)  
+- ✅ NPN Transistor (e.g., 2N2222 or S8050)  
+- ✅ Resistors (for IR LED and transistor base)  
+- ✅ Breadboard & jumper wires  
+- ✅ 5V USB Power Supply  
 
 ---
 
 ## 🌐 Web Interface
 
-The control panel includes:
+The ESP32 hosts a lightweight web dashboard for controlling the AC. From here, you can:
 
-- Power ON/OFF switch
-- Temperature up/down buttons
-- Fan speed and mode selectors
-- Status display from ESP32
-
-Accessible from any device on the same network.
+- Send power, temperature, and mode commands
+- View current connection status
+- Start **IR learning** to capture remote control codes
+- Use it from **any device on any network** (via port forwarding or MQTT)
 
 ---
 
+## 🛰️ IR Receiving Capabilities
+
+This project includes an **IR decoder**.
+
+You can:
+- Point your AC remote at the IR receiver
+- Capture raw IR codes
+- Log and reuse them for future control
+- Use the web UI to initiate IR learning
+
+Perfect for supporting **any AC brand** using IR.
+
+---
 
