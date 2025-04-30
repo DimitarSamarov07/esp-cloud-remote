@@ -41,7 +41,7 @@ ESP32 hosts a sleek and mobile-friendly web UI:
 - 🖱️ Send AC commands (Power, Temp, Mode, Fan)
 - 📲 Use from phone, tablet, or PC
 - 📥 Press a button to start **IR learning**
-- 🌍 Accessible on **any network** (via port forwarding, MQTT, or DDNS)
+- 🌍 Accessible on **any network**
 
 ---
 
