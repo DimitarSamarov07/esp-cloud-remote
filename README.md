@@ -10,7 +10,7 @@ Control your Air Conditioner remotely using an ESP32, ESP-IDF, and a web-based i
 - 🌐 Web-based dashboard (mobile and desktop friendly)
 - 📡 ESP32 with IR LED or relay module
 - ⚙️ Built using ESP-IDF for low-level control
-- 🔒 Optional Wi-Fi or MQTT integration for remote access
+- 🔒 Wi-Fi and MQTT integration for remote access
 
 ---
 
@@ -32,7 +32,7 @@ Control your Air Conditioner remotely using an ESP32, ESP-IDF, and a web-based i
 - **ESP-IDF** (Espressif IoT Development Framework)
 - **C/C++** for ESP32 firmware
 - **HTML/CSS/JavaScript** for web interface
-- Optional: **MQTT** for remote/cloud-based control
+- **MQTT** for remote/cloud-based control
 
 ---
 
