@@ -96,6 +96,12 @@ void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event
     case MQTT_EVENT_BEFORE_CONNECT:
         ESP_LOGI(TAG, "MQTT is preparing to connect...");
         break;
+    case MQTT_EVENT_SUBSCRIBED:
+        ESP_LOGI(TAG, "MQTT subscribed");
+        break;
+    case MQTT_EVENT_PUBLISHED:
+        ESP_LOGI(TAG, "MQTT published");
+        break;
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT Connected!");
         esp_mqtt_client_subscribe(client, MQTT_AC_CONTROL_TOPIC, MQTT_QOS);
