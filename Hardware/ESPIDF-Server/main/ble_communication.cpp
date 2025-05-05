@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstring>
+#include <esp_nimble_hci.h>
 #include <host/util/util.h>
 #include <nimble/nimble_port_freertos.h>
 #include <services/gap/ble_svc_gap.h>
@@ -13,18 +14,19 @@
 #include "host/ble_uuid.h"
 
 // Globals
-static const char *tag = "ESP_Cloud_Remote_BLE";
+static const char* tag = "ESP_Cloud_Remote_BLE";
 uint16_t conn_handle;
+esp_err_t ret;
 static uint8_t own_addr_type;
-char characteristic_value[50] = "I am characteristic value"; // When a client reads a characteristic, he will get this value.
-char characteristic_received_value[500];                     // When client writes to a characteristic , he will set the value of this.
+char characteristic_value[50] = ""; // When a client reads a characteristic, he will get this value.
+char characteristic_received_value[500]; // When client writes to a characteristic , he will set the value of this.
 
-uint16_t min_length = 1;   // Maximum characteristic length
+uint16_t min_length = 1; // Maximum characteristic length
 uint16_t max_length = 700; // Minimum characteristic length
 
 
 // Misc funcs
-void print_addr(const uint8_t *addr)
+void print_addr(const uint8_t* addr)
 {
     const uint8_t* u8p = addr;
     MODLOG_DFLT(INFO, "%02x:%02x:%02x:%02x:%02x:%02x",
@@ -37,7 +39,7 @@ void print_addr(const uint8_t *addr)
 
 // 31175f53-389f-4d19-8f69-6da32a28d50e
 static constexpr ble_uuid128_t ble_scan_service_uuid = BLE_UUID128_INIT(0x0e, 0xd5, 0x28, 0x2a, 0xa3, 0x6d, 0x69, 0x8f,
-                                                                    0x19, 0x4d, 0x9f, 0x38, 0x53, 0x5f, 0x17, 0x31);
+                                                                        0x19, 0x4d, 0x9f, 0x38, 0x53, 0x5f, 0x17, 0x31);
 
 // 22946000-e86b-4831-adc8-27ab2cdb85fb
 static constexpr ble_uuid128_t ble_wifi_ssid_list_chr_uuid = BLE_UUID128_INIT(
@@ -54,8 +56,9 @@ static constexpr ble_uuid128_t ble_should_scan_chr_uuid = BLE_UUID128_INIT(
 //--------------
 
 //4fafc201-1fb5-459e-8fcc-c5c9c331914b
-static constexpr ble_uuid128_t ble_set_service_uuid = BLE_UUID128_INIT(0x4b, 0x91, 0x31, 0xc3, 0xc9, 0xc5, 0xcc, 0x8f, 0x9e,
-                                                                   0x45, 0xb5, 0x1f, 0x01, 0xc2, 0xaf, 0x4f);
+static constexpr ble_uuid128_t ble_set_service_uuid = BLE_UUID128_INIT(0x4b, 0x91, 0x31, 0xc3, 0xc9, 0xc5, 0xcc, 0x8f,
+                                                                       0x9e,
+                                                                       0x45, 0xb5, 0x1f, 0x01, 0xc2, 0xaf, 0x4f);
 // beb5483e-36e1-4688-b7f5-ea07361b26a8
 static constexpr ble_uuid128_t ble_wifi_ssid_set_chr_uuid = BLE_UUID128_INIT(
     0xa8, 0x26, 0x1b, 0x36, 0x07, 0xea, 0xf5, 0xb7, 0x88, 0x46, 0xe1, 0x36, 0x3e, 0x48, 0xb5, 0xbe
@@ -74,12 +77,13 @@ static constexpr ble_uuid128_t ble_wifi_connection_status_chr_uuid = BLE_UUID128
 //---------------------------------------------------
 // Declare some functions and corresponding variables
 //---------------------------------------------------
-
+static int bleprph_gap_event(struct ble_gap_event* event, void* arg);
+#define GATT_SVR_SVC_ALERT_UUID 0x1811
 
 // SCAN SERVICE
 
 static int ssid_list_acc(uint16_t conn_handle, uint16_t attr_handle,
-                         const struct ble_gatt_access_ctxt* ctxt,
+                         struct ble_gatt_access_ctxt* ctxt,
                          void* arg);
 char ssid_list_val_chr_value[1000] = "";
 uint16_t ssid_list_noti_hnd;
@@ -179,9 +183,24 @@ static const struct ble_gatt_svc_def gatt_server_services[] = {
 };
 
 
-
-void ble_init()
+void stopBLE() //! Call this function to stop BLE
 {
+    {
+        // Below is the sequence of APIs to be called to deinit the NimBLE host and ESP controller:
+        printf("\n Stoping BLE and notification task \n");
+        // vTaskDelete(xHandle);
+        if (int ret = nimble_port_stop(); ret == 0)
+        {
+            nimble_port_deinit();
+            ret = esp_nimble_hci_deinit();
+            if (ret != ESP_OK)
+            {
+                {
+                    ESP_LOGE(tag, "esp_nimble_hci_and_controller_deinit() failed with error: %d", ret);
+                }
+            }
+        }
+    }
 }
 
 
@@ -346,7 +365,6 @@ bleprph_advertise()
     if (rc != 0)
     {
         MODLOG_DFLT(ERROR, "error enabling advertisement; rc=%d\n", rc);
-        return;
     }
 }
 
@@ -496,13 +514,60 @@ void bleprph_host_task(void* param)
     nimble_port_freertos_deinit();
 }
 
+void startBLE() //! Call this function to start BLE
+{
+
+    //! Below is the sequence of APIs to be called to init/enable NimBLE host and ESP controller:
+    printf("\n Staring BLE \n");
+    int rc;
+
+    ESP_ERROR_CHECK(ret);
+
+    ESP_ERROR_CHECK(nimble_port_init());
+    ESP_ERROR_CHECK(esp_nimble_hci_init());
+
+    /* Initialize the NimBLE host configuration. */
+    ble_hs_cfg.reset_cb = bleprph_on_reset;
+    ble_hs_cfg.sync_cb = bleprph_on_sync;
+    ble_hs_cfg.gatts_register_cb = gatt_svr_register_cb;
+    ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
+
+    ble_hs_cfg.sm_io_cap = CONFIG_EXAMPLE_IO_TYPE;
+    #ifdef CONFIG_EXAMPLE_BONDING
+        ble_hs_cfg.sm_bonding = 1;
+    #endif
+    #ifdef CONFIG_EXAMPLE_MITM
+        ble_hs_cfg.sm_mitm = 1;
+    #endif
+    #ifdef CONFIG_EXAMPLE_USE_SC
+        ble_hs_cfg.sm_sc = 1;
+    #else
+        ble_hs_cfg.sm_sc = 0;
+    #endif
+    #ifdef CONFIG_EXAMPLE_BONDING
+        ble_hs_cfg.sm_our_key_dist = 1;
+        ble_hs_cfg.sm_their_key_dist = 1;
+    #endif
+
+    rc = gatt_svr_init();
+    assert(rc == 0);
+
+    /* Set the default device name. */
+    rc = ble_svc_gap_device_name_set("ESP_Cloud_Remote_BLE"); // Set the name of this device
+    assert(rc == 0);
+
+    /* XXX Need to have template for store */
+
+    nimble_port_freertos_init(bleprph_host_task);
+    printf("characteristic_value at end of startBLE=%s\n", characteristic_value);
+}
 
 //--------------------------------------
 // Declare previously defined functions
 //--------------------------------------
 
 static int ssid_list_acc(uint16_t conn_handle, uint16_t attr_handle,
-                         const struct ble_gatt_access_ctxt* ctxt,
+                         struct ble_gatt_access_ctxt* ctxt,
                          void* arg)
 {
     int rc;
@@ -511,14 +576,14 @@ static int ssid_list_acc(uint16_t conn_handle, uint16_t attr_handle,
     {
     case BLE_GATT_ACCESS_OP_READ_CHR:
         //!! In case user accessed this characterstic to read its value, bellow lines will execute
-            rc = os_mbuf_append(ctxt->om, &ssid_list_val_chr_value,
-                                sizeof ssid_list_val_chr_value);
+        rc = os_mbuf_append(ctxt->om, &ssid_list_val_chr_value,
+                            sizeof ssid_list_val_chr_value);
         return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
 
     case BLE_GATT_ACCESS_OP_WRITE_CHR:
         //!! In case user accessed this characterstic to write, bellow lines will executed.
-            rc = gatt_svr_chr_write(ctxt->om, min_length, max_length, &characteristic_received_value, nullptr);
-        //!! Function "gatt_svr_chr_write" will fire.
+        rc = gatt_svr_chr_write(ctxt->om, min_length, max_length, &characteristic_received_value, nullptr);
+    //!! Function "gatt_svr_chr_write" will fire.
         printf("Received=%s\n", characteristic_received_value); // Print the received value
         return rc;
     default:
