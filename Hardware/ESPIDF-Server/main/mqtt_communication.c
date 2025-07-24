@@ -57,7 +57,27 @@ static esp_http_client_handle_t http_client; //Handle for the HTTP client
 //     vTaskDelay(1000 / portTICK_PERIOD_MS);
 // }
 
-//Callback method that is called every time the ESP is connected to a broker
+
+/**
+ * @brief Handles incoming MQTT messages and processes them based on the topic received.
+ * This callback function processes messages received on specific MQTT topics.
+ * It differentiates between the topics "ac/control" and "connection/wifi" and performs
+ * actions accordingly. It also provides logging for diagnostic purposes.
+ * @param topic The MQTT topic on which the message is received.
+ * @param message The payload of the MQTT message.
+ * @param length The length of the message payload.
+ * The function performs the following actions:
+ * - For the "ac/control" topic:
+ *   - Processes specific commands such as "TURN_LED_ON", "TURN_LED_OFF".
+ *   - Publishes response messages or handles recognized last will messages.
+ *   - Logs warnings for unrecognized commands.
+ * - For the "connection/wifi" topic:
+ *   - Logs the received Wi-Fi configuration message contents.
+ *
+ * Note:
+ * - Messages are truncated if their length exceeds 100 characters.
+ * - Logs messages at different levels (info, warning) for debugging.
+ */
 void mqtt_callback(const char* topic, const char* message, size_t length)
 {
     char received_message[100] = {0};
@@ -94,7 +114,37 @@ void mqtt_callback(const char* topic, const char* message, size_t length)
     }
 }
 
-//Event handler method that is called on every setup (Basically like Arduino's setup())
+
+/**
+ * @brief Handles various MQTT events triggered during client operations.
+ *
+ * This function processes MQTT events such as connection, disconnection, data reception,
+ * and error handling. The operations performed for each event include logging, subscribing
+ * to topics, and invoking appropriate callbacks or actions to manage the MQTT client status.
+ *
+ * The function handles the following events:
+ * - **MQTT_EVENT_BEFORE_CONNECT**:
+ *   Logs a message indicating that the MQTT client is preparing to connect.
+ * - **MQTT_EVENT_SUBSCRIBED**:
+ *   Logs a message indicating a successful subscription to topics.
+ * - **MQTT_EVENT_PUBLISHED**:
+ *   Logs a message indicating that a message has been successfully published.
+ * - **MQTT_EVENT_CONNECTED**:
+ *   Logs a message indicating successful connection and subscribes to predefined topics.
+ * - **MQTT_EVENT_DISCONNECTED**:
+ *   Logs a warning about disconnection, delays for reconnection attempts, and restarts the client.
+ * - **MQTT_EVENT_ERROR**:
+ *   Logs an error message when an issue is encountered.
+ * - **MQTT_EVENT_DATA**:
+ *   Logs the received topic and message data, and invokes the mqtt_callback to process the data.
+ * - **default**:
+ *   Logs unhandled events for debugging purposes.
+ *
+ * @param handler_args A pointer to additional arguments passed to the handler.
+ * @param base The base identifier for the event.
+ * @param event_id The specific event ID of the triggered MQTT event.
+ * @param event_data A pointer to the event data structure containing relevant MQTT information.
+ */
 void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event_id, void* event_data)
 {
     esp_mqtt_event_handle_t event = event_data;
@@ -139,8 +189,44 @@ void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event
     }
 }
 
+/**
+ * @brief Buffer used for storing response data received during HTTP events.
+ * This static character array is allocated to temporarily hold response data
+ * such as JSON payloads received from an HTTP server. The buffer ensures that
+ * response data can be processed, parsed, or logged without overflow.
+ *
+ * Characteristics:
+ * - Maximum length of 256 bytes.
+ * - Ensures data is null-terminated after copying to prevent memory access violations.
+ *
+ * Usage:
+ * - Commonly used in conjunction with the `_http_event_handle` function to store
+ *   event payload, such as JSON-formatted strings, for further processing.
+ * - Alerts are logged if the incoming data exceeds the buffer's capacity.
+ */
 static char response_buffer[256];
 
+/**
+ * @brief Handles HTTP client events and processes data based on the event type.
+ * This function processes a variety of HTTP client events such as connection, data reception, and
+ * errors. It handles incoming JSON payloads, extracts specific fields (e.g., username and password),
+ * and saves them securely in NVS. Additionally, it logs detailed information for each event.
+ *
+ * @param evt Pointer to the HTTP client event structure containing event details.
+ * - HTTP_EVENT_ERROR: Indicates an error in the HTTP connection.
+ * - HTTP_EVENT_ON_CONNECTED: Triggered upon successful connection to the server.
+ * - HTTP_EVENT_HEADER_SENT: Occurs when HTTP request headers have been sent.
+ * - HTTP_EVENT_ON_HEADER: Triggered when an HTTP response header is received.
+ * - HTTP_EVENT_ON_DATA: Fired when part of the response body data is received.
+ *   - Processes JSON payload, logs errors, saves credentials to NVS if valid.
+ * - HTTP_EVENT_ON_FINISH: Called after the complete HTTP response has been received.
+ * - HTTP_EVENT_DISCONNECTED: Indicates the HTTP connection has been closed.
+ * - HTTP_EVENT_REDIRECT: Triggered if a redirection HTTP response is received.
+ * For unhandled event IDs, it logs a warning.
+ *
+ * @return Returns `ESP_OK` on successful handling of the event. Logs errors for invalid data
+ *         or failures in various operations but always returns `ESP_OK`.
+ */
 esp_err_t _http_event_handle(esp_http_client_event_t* evt)
 {
     switch (evt->event_id)
@@ -261,6 +347,18 @@ void wifi_init_sta()
     ESP_ERROR_CHECK(esp_wifi_connect());
 }
 
+/**
+ * @brief Saves user credentials to Non-Volatile Storage (NVS).
+ * This function stores the given username and password securely in the ESP32's
+ * NVS. Upon successful execution, the credentials are committed for persistent storage.
+ * Errors during saving or committing to NVS are logged for debugging.
+ *
+ * @param username The username to save in NVS. Must be a null-terminated string.
+ * @param password The password to save in NVS. Must be a null-terminated string.
+ * @return
+ * - ESP_OK if the credentials were saved successfully.
+ * - Appropriate ESP_ERR_* code if an error occurred during the operation (e.g., opening, writing, or committing).
+ */
 esp_err_t save_credentials_nvs(const char* username, const char* password)
 {
     nvs_handle_t nvs_handle;
@@ -392,6 +490,21 @@ void mqtt_first_init()
     esp_http_client_cleanup(http_client);
 }
 
+/**
+ * @brief Loads MQTT credentials (username and password) from NVS storage.
+ * This function retrieves MQTT credentials stored in the ESP32's Non-Volatile Storage (NVS).
+ * If successful, it populates the provided buffers with the username and password values.
+ * Logs error or success messages depending on the status of the operations.
+ *
+ * @param username_out Pointer to a buffer to store the MQTT username.
+ * @param username_size The size of the buffer provided for the MQTT username.
+ * @param password_out Pointer to a buffer to store the MQTT password.
+ * @param password_size The size of the buffer provided for the MQTT password.
+ *
+ * Note:
+ * - The function only reads from NVS and does not modify it.
+ * - Logs errors for any failed operation.
+ */
 void load_credentials_nvs(char* username_out, size_t username_size, char* password_out, size_t password_size)
 {
     nvs_handle_t nvs_handle;
