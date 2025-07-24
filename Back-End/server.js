@@ -52,10 +52,12 @@ app.get('/', (req, res) => {
 });
 
 app.post('/credentials', async (req, res) => {
-    let { usernameFromDevice, passwordFromDevice } = req.query;
-
+    let {usernameFromDevice,passwordFromDevice} = req.body;
+    console.log(usernameFromDevice)
+    console.log(passwordFromDevice);
 
     if (!passwordFromDevice) {
+        console.log(passwordFromDevice);
         return res.status(400).json({ error: 'Password is required.' });
     }
 
