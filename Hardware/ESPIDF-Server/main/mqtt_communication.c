@@ -12,7 +12,8 @@
 #include "mqtt_client.h"
 #include "driver/gpio.h"
 #include "esp_http_client.h"
-#include "../components/cJSON/cJSON.h"
+#include "cJSON.h"
+
 
 
 #define MQTT_AC_CONTROL_TOPIC "ac/control"
