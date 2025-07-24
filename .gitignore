@@ -131,3 +131,6 @@ dist
 
 # Ignore project .idea files
 .idea/
+
+# Certificate and key
+/Back-End/certs
