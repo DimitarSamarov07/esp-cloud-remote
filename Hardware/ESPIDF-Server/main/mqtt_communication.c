@@ -3,14 +3,11 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "esp_system.h"
 #include "nvs.h"
 #include "esp_event.h"
 #include "esp_netif.h"
 #include "esp_log.h"
-#include "esp_wifi.h"
 #include "mqtt_client.h"
-#include "driver/gpio.h"
 #include "esp_http_client.h"
 #include "cJSON.h"
 
@@ -262,53 +259,6 @@ esp_err_t _http_event_handle(esp_http_client_event_t* evt)
     return ESP_OK;
 }
 
-
-/**
- * @brief Initializes and configures Wi-Fi in Station (STA) mode for the ESP32.
- * This function sets up the Wi-Fi interface, initializes the default event loop,
- * and configures the Wi-Fi connection with predefined SSID and password.
- * It ensures the device connects to a specified Wi-Fi network.
- *
- * The initialization process includes the following steps:
- * - Initializes the network interface with `esp_netif_init`.
- * - Creates the default Wi-Fi station (STA) interface.
- * - Configures Wi-Fi using default initialization configuration and credentials.
- * - Sets Wi-Fi mode to STA.
- * - Starts the Wi-Fi driver and connects to the configured Wi-Fi network.
- *
- * Diagnostic messages are logged to provide insights during the initialization and
- * connection process.
- *
- * @note This function uses predefined macros for SSID and password
- *       (WIFI_SSID and WIFI_PASSWORD).
- * @note An authentication threshold is set to enforce WPA2-PSK security.
- * @note If any function in the configuration process returns an error,
- *       the program execution will stop as the error will be checked using `ESP_ERROR_CHECK`.
- */
-void wifi_init_sta()
-{
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    esp_netif_create_default_wifi_sta();
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-
-    wifi_config_t wifi_config = {
-        .sta = {
-            .ssid = WIFI_SSID,
-            .password = WIFI_PASSWORD,
-            .threshold.authmode = WIFI_AUTH_WPA2_PSK,
-        },
-    };
-
-
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
-    ESP_ERROR_CHECK(esp_wifi_start());
-
-    ESP_LOGI(TAG, "Wi-Fi initialized, connecting to SSID: %s", WIFI_SSID);
-    ESP_ERROR_CHECK(esp_wifi_connect());
-}
 
 /**
  * @brief Saves the setup flag into NVS.
