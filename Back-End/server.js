@@ -22,8 +22,8 @@ const port = 8690;
 const dbConfig = {
     host: 'localhost',
     port: 3306,
-    user: 'root',
-    password: 'a1n2g3e4l5',
+    user: '',
+    password: '',
     database: 'esp_remote',
 };
 
@@ -65,9 +65,20 @@ app.post('/credentials', async (req, res) => {
         let username = "mqtt_pc_" + Str_Random(16);
         const hashedPass = await hashPassword(passwordFromDevice);
         try {
-            await connection.execute(`INSERT INTO Users(Username, Password) VALUES (?, ?)`, [username, hashedPass]);
-            return res.send({ username, password: passwordFromDevice }).status(200);
+            const [result] = await connection.execute(
+                `INSERT INTO Users(Username, Password) VALUES (?, ?)`,
+                [username, hashedPass]
+            );
+            const userId = result.insertId;
+            await connection.execute(
+                `INSERT INTO ACL_Table (UserID, TopicID, RW) SELECT ?, ID, 3 FROM Topics`,
+                [userId]
+            );
+
+            return res.status(200).send({ username, password: passwordFromDevice });
+
         } catch (err) {
+            console.error('Registration error:', err);
             return res.status(500).json({ error: 'Database error during registration.' });
         }
     } else {
