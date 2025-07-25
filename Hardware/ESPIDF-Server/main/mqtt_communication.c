@@ -29,34 +29,6 @@ static esp_mqtt_client_handle_t mqtt_client;
 static esp_http_client_handle_t http_client;
 
 
-//IMPORTANT: Useless code for now so it's commented out. For your sake I hope you do not uncomment it.
-//Configuring GPIO pin to flash the LED
-// void configure_gpio(gpio_num_t pin)
-// {
-//     gpio_config_t io_conf = {
-//         .pin_bit_mask = (1ULL << pin),
-//         .mode = GPIO_MODE_OUTPUT,
-//         .pull_up_en = GPIO_PULLUP_DISABLE,
-//         .pull_down_en = GPIO_PULLDOWN_DISABLE,
-//         .intr_type = GPIO_INTR_DISABLE
-//     };
-//     ESP_ERROR_CHECK(gpio_config(&io_conf));
-// }
-//
-// //Flashing the LED on the specified pin every 2 secs
-// void flash_led()
-// {
-//     gpio_set_level(LED_PIN, 1);
-//     vTaskDelay(100 / portTICK_PERIOD_MS);
-//     gpio_set_level(LED_PIN, 0);
-//     vTaskDelay(50 / portTICK_PERIOD_MS);
-//     gpio_set_level(LED_PIN, 1);
-//     vTaskDelay(100 / portTICK_PERIOD_MS);
-//     gpio_set_level(LED_PIN, 0);
-//     vTaskDelay(1000 / portTICK_PERIOD_MS);
-// }
-
-
 /**
  * @brief Handles incoming MQTT messages and processes them based on the topic received.
  * This callback function processes messages received on specific MQTT topics.
@@ -216,24 +188,18 @@ esp_err_t _http_event_handle(esp_http_client_event_t* evt)
     switch (evt->event_id)
     {
     case HTTP_EVENT_ERROR:
-        ESP_LOGI(TAG, "HTTP_EVENT_ERROR");
+        ESP_LOGE(TAG, "HTTP_EVENT_ERROR");
         break;
-
     case HTTP_EVENT_ON_CONNECTED:
-        ESP_LOGI(TAG, "HTTP_EVENT_ON_CONNECTED");
         break;
-
     case HTTP_EVENT_HEADER_SENT:
-        ESP_LOGI(TAG, "HTTP_EVENT_HEADER_SENT");
         break;
 
     case HTTP_EVENT_ON_HEADER:
-        ESP_LOGI(TAG, "HTTP_EVENT_ON_HEADER");
+
         break;
 
     case HTTP_EVENT_ON_DATA:
-        ESP_LOGI(TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
-
         if (evt->data_len >= sizeof(response_buffer))
         {
             ESP_LOGE(TAG, "Response too long for buffer");
@@ -241,8 +207,6 @@ esp_err_t _http_event_handle(esp_http_client_event_t* evt)
         }
         memcpy(response_buffer, evt->data, evt->data_len);
         response_buffer[evt->data_len] = '\0';
-
-        ESP_LOGI(TAG, "Received JSON: %s", response_buffer);
 
         cJSON* json = cJSON_Parse(response_buffer);
         if (!json)
@@ -256,12 +220,10 @@ esp_err_t _http_event_handle(esp_http_client_event_t* evt)
 
         if (cJSON_IsString(username) && cJSON_IsString(password))
         {
-            ESP_LOGI(TAG, "Username: %s", username->valuestring);
-            ESP_LOGI(TAG, "Password: %s", password->valuestring);
 
             nvs_handle_t nvs_handle;
-            esp_err_t err = nvs_open("mqtt_creds", NVS_READWRITE, &nvs_handle);
-            if (err == ESP_OK)
+            esp_err_t nvs = nvs_open("mqtt_creds", NVS_READWRITE, &nvs_handle);
+            if (nvs == ESP_OK)
             {
                 nvs_set_str(nvs_handle, "username", username->valuestring);
                 nvs_set_str(nvs_handle, "password", password->valuestring);
@@ -271,7 +233,7 @@ esp_err_t _http_event_handle(esp_http_client_event_t* evt)
             }
             else
             {
-                ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(err));
+                ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(nvs));
             }
         }
         else
@@ -283,15 +245,13 @@ esp_err_t _http_event_handle(esp_http_client_event_t* evt)
         break;
 
     case HTTP_EVENT_ON_FINISH:
-        ESP_LOGI(TAG, "HTTP_EVENT_ON_FINISH");
         break;
 
     case HTTP_EVENT_DISCONNECTED:
-        ESP_LOGI(TAG, "HTTP_EVENT_DISCONNECTED");
+
         break;
 
     case HTTP_EVENT_REDIRECT:
-        ESP_LOGI(TAG, "HTTP_EVENT_REDIRECT");
         break;
 
     default:
@@ -335,8 +295,8 @@ void wifi_init_sta()
 
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = WIFI_SSID,  // Initialize ssid array to zero
-            .password = WIFI_PASSWORD,  // Initialize password array to zero
+            .ssid = WIFI_SSID,
+            .password = WIFI_PASSWORD,
             .threshold.authmode = WIFI_AUTH_WPA2_PSK,
         },
     };
@@ -367,7 +327,6 @@ esp_err_t save_setup_flag(bool isSetupRan)
     if (err == ESP_OK)
     {
         nvs_commit(nvs);
-        ESP_LOGI(TAG, "NVS: Setup flag saved");
     }
     else
     {
@@ -437,10 +396,6 @@ esp_err_t save_credentials_nvs(const char* username, const char* password)
     {
         ESP_LOGE(TAG, "NVS: Error committing NVS: %s", esp_err_to_name(err));
     }
-    else
-    {
-        ESP_LOGI(TAG, "NVS: Credentials saved to NVS");
-    }
 
 close_nvs:
     nvs_close(nvs_handle);
@@ -475,21 +430,19 @@ void mqtt_first_init(const char* username, const char* password)
         ESP_LOGE(TAG, "HTTP client initialization failed");
         return;
     }
-    cJSON *root = cJSON_CreateObject();
+    cJSON* root = cJSON_CreateObject();
     if (username != NULL)
     {
         cJSON_AddStringToObject(root, "usernameFromDevice", username);
-        ESP_LOGI(TAG, "Mode: Login");
     }
     else
     {
         cJSON_AddNullToObject(root, "usernameFromDevice");
-        ESP_LOGI(TAG, "Mode: Registration");
+
     }
     cJSON_AddStringToObject(root, "passwordFromDevice", password);
 
     char* post_data = cJSON_PrintUnformatted(root);
-    ESP_LOGI(TAG, "HTTP POST payload: %s", post_data);
 
     esp_http_client_set_header(http_client, "Content-Type", "application/json");
     esp_http_client_set_post_field(http_client, post_data, strlen(post_data));
@@ -498,7 +451,6 @@ void mqtt_first_init(const char* username, const char* password)
     if (err == ESP_OK)
     {
         int status_code = esp_http_client_get_status_code(http_client);
-        ESP_LOGI(TAG, "HTTP POST Status = %d", status_code);
         if (status_code == 200)
         {
             int content_length = esp_http_client_get_content_length(http_client);
@@ -511,17 +463,14 @@ void mqtt_first_init(const char* username, const char* password)
                     if (read_len >= 0)
                     {
                         response_buffer[read_len] = '\0';
-                        ESP_LOGI(TAG, "HTTP Response Body:\n%s", response_buffer);
-                        cJSON *json = cJSON_Parse(response_buffer);
+                        cJSON* json = cJSON_Parse(response_buffer);
                         if (json != NULL)
                         {
-                            cJSON *username_item = cJSON_GetObjectItem(json, "username");
+                            cJSON* username_item = cJSON_GetObjectItem(json, "username");
 
 
-                            if (username_item != NULL && cJSON_IsString(username_item) )
+                            if (username_item != NULL && cJSON_IsString(username_item))
                             {
-                                ESP_LOGI(TAG, "Received username: %s, password: %s",
-                                         username_item->valuestring, password);
                                 save_credentials_nvs(username_item->valuestring, password);
                             }
                             else
@@ -593,19 +542,11 @@ void load_credentials_nvs(char* username_out, size_t username_size, char* passwo
     {
         ESP_LOGE(TAG, "NVS: Failed to get username: %s", esp_err_to_name(err));
     }
-    else
-    {
-        ESP_LOGI(TAG, "NVS: Loaded username: %s", username_out);
-    }
 
     err = nvs_get_str(nvs_handle, "password", password_out, &password_size);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "NVS: Failed to get password: %s", esp_err_to_name(err));
-    }
-    else
-    {
-        ESP_LOGI(TAG, "NVS: Loaded password: %s", password_out);
     }
 
     nvs_close(nvs_handle);
@@ -642,8 +583,6 @@ void mqtt_init()
     char password[64] = {0};
     load_credentials_nvs(username, sizeof(username), password, sizeof(password));
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-    printf(username);
-    printf(password);
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = "mqtt://93.155.224.232:5728",
         .credentials.username = username,
