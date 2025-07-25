@@ -14,21 +14,19 @@
 #include "esp_http_client.h"
 #include "cJSON.h"
 
-
-
 #define MQTT_AC_CONTROL_TOPIC "ac/control"
 #define MQTT_WIFI_CONFIG_TOPIC "connection/wifi"
 #define LED_PIN GPIO_NUM_21
 #define MQTT_QOS 1
 
 //TODO: Add connections without password.
-#define WIFI_SSID "Arabadzhievi"
+#define WIFI_SSID "Angel"
 #define WIFI_PASSWORD "16042325"
 
 
 static const char* TAG = "ESP32";
-static esp_mqtt_client_handle_t mqtt_client; //Handle for the MQTT client
-static esp_http_client_handle_t http_client; //Handle for the HTTP client
+static esp_mqtt_client_handle_t mqtt_client;
+static esp_http_client_handle_t http_client;
 
 
 //IMPORTANT: Useless code for now so it's commented out. For your sake I hope you do not uncomment it.
@@ -190,21 +188,6 @@ void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event
     }
 }
 
-/**
- * @brief Buffer used for storing response data received during HTTP events.
- * This static character array is allocated to temporarily hold response data
- * such as JSON payloads received from an HTTP server. The buffer ensures that
- * response data can be processed, parsed, or logged without overflow.
- *
- * Characteristics:
- * - Maximum length of 256 bytes.
- * - Ensures data is null-terminated after copying to prevent memory access violations.
- *
- * Usage:
- * - Commonly used in conjunction with the `_http_event_handle` function to store
- *   event payload, such as JSON-formatted strings, for further processing.
- * - Alerts are logged if the incoming data exceeds the buffer's capacity.
- */
 static char response_buffer[256];
 
 /**
@@ -256,8 +239,6 @@ esp_err_t _http_event_handle(esp_http_client_event_t* evt)
             ESP_LOGE(TAG, "Response too long for buffer");
             break;
         }
-
-    // Copy and null-terminate safely
         memcpy(response_buffer, evt->data, evt->data_len);
         response_buffer[evt->data_len] = '\0';
 
@@ -322,7 +303,28 @@ esp_err_t _http_event_handle(esp_http_client_event_t* evt)
 }
 
 
-//Initiating a WI-FI connection with the specified SSID and password
+/**
+ * @brief Initializes and configures Wi-Fi in Station (STA) mode for the ESP32.
+ * This function sets up the Wi-Fi interface, initializes the default event loop,
+ * and configures the Wi-Fi connection with predefined SSID and password.
+ * It ensures the device connects to a specified Wi-Fi network.
+ *
+ * The initialization process includes the following steps:
+ * - Initializes the network interface with `esp_netif_init`.
+ * - Creates the default Wi-Fi station (STA) interface.
+ * - Configures Wi-Fi using default initialization configuration and credentials.
+ * - Sets Wi-Fi mode to STA.
+ * - Starts the Wi-Fi driver and connects to the configured Wi-Fi network.
+ *
+ * Diagnostic messages are logged to provide insights during the initialization and
+ * connection process.
+ *
+ * @note This function uses predefined macros for SSID and password
+ *       (WIFI_SSID and WIFI_PASSWORD).
+ * @note An authentication threshold is set to enforce WPA2-PSK security.
+ * @note If any function in the configuration process returns an error,
+ *       the program execution will stop as the error will be checked using `ESP_ERROR_CHECK`.
+ */
 void wifi_init_sta()
 {
     ESP_ERROR_CHECK(esp_netif_init());
@@ -346,6 +348,52 @@ void wifi_init_sta()
 
     ESP_LOGI(TAG, "Wi-Fi initialized, connecting to SSID: %s", WIFI_SSID);
     ESP_ERROR_CHECK(esp_wifi_connect());
+}
+
+/**
+ * @brief Saves the setup flag into NVS.
+ */
+esp_err_t save_setup_flag(bool isSetupRan)
+{
+    nvs_handle_t nvs;
+    esp_err_t err = nvs_open("mqtt_creds", NVS_READWRITE, &nvs);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "NVS: Error opening NVS for setup flag: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    err = nvs_set_u8(nvs, "setup_done", isSetupRan);
+    if (err == ESP_OK)
+    {
+        nvs_commit(nvs);
+        ESP_LOGI(TAG, "NVS: Setup flag saved");
+    }
+    else
+    {
+        ESP_LOGE(TAG, "NVS: Error saving setup flag: %s", esp_err_to_name(err));
+    }
+    nvs_close(nvs);
+    return err;
+}
+
+/**
+ * @brief Checks the setup flag from NVS.
+ *
+ * @return true if setup is done (setup_done == 1), false otherwise.
+ */
+bool is_setup_done()
+{
+    nvs_handle_t nvs;
+    esp_err_t err = nvs_open("mqtt_creds", NVS_READONLY, &nvs);
+    if (err != ESP_OK)
+    {
+        return false;
+    }
+    uint8_t flag = 0;
+    err = nvs_get_u8(nvs, "setup_done", &flag);
+    nvs_close(nvs);
+    return (err == ESP_OK && flag == 1);
 }
 
 /**
@@ -399,31 +447,64 @@ close_nvs:
     return err;
 }
 
-//TODO: Make a hasBeenSetup bool that is set to true once the configuration of username and password is done. If it's false it has to do setup.
-void mqtt_first_init()
+/**
+ * @brief Makes an HTTP POST request to the credentials endpoint.
+ *
+ * The function constructs a JSON body based on the passed credentials:
+ * - If `username` is NULL, it sends a registration request (with username set as null).
+ * - Otherwise, it sends a login request.
+ *
+ * It then parses the HTTP response (expected to be JSON) and, if found,
+ * saves the returned credentials to NVS.
+ *
+ * @param username User name for login; if NULL, registration mode is assumed.
+ * @param password Password for login or registration.
+ */
+void mqtt_first_init(const char* username, const char* password)
 {
+    const char* url = "http://93.155.224.232:8690/credentials";
     esp_http_client_config_t config = {
-        .url = "http://93.155.224.232:8690/auth/getCredentials",
-        .method = HTTP_METHOD_GET,
+        .url = url,
+        .method = HTTP_METHOD_POST,
         .event_handler = _http_event_handle,
     };
+
     http_client = esp_http_client_init(&config);
     if (!http_client)
     {
         ESP_LOGE(TAG, "HTTP client initialization failed");
         return;
     }
+    cJSON *root = cJSON_CreateObject();
+    if (username != NULL)
+    {
+        cJSON_AddStringToObject(root, "usernameFromDevice", username);
+        ESP_LOGI(TAG, "Mode: Login");
+    }
+    else
+    {
+        cJSON_AddNullToObject(root, "usernameFromDevice");
+        ESP_LOGI(TAG, "Mode: Registration");
+    }
+    cJSON_AddStringToObject(root, "passwordFromDevice", password);
+
+    char* post_data = cJSON_PrintUnformatted(root);
+    ESP_LOGI(TAG, "HTTP POST payload: %s", post_data);
+
+    esp_http_client_set_header(http_client, "Content-Type", "application/json");
+    esp_http_client_set_post_field(http_client, post_data, strlen(post_data));
+
     esp_err_t err = esp_http_client_perform(http_client);
     if (err == ESP_OK)
     {
         int status_code = esp_http_client_get_status_code(http_client);
-        ESP_LOGI(TAG, "HTTP GET Status = %d", status_code);
+        ESP_LOGI(TAG, "HTTP POST Status = %d", status_code);
         if (status_code == 200)
         {
-            const int content_length = esp_http_client_get_content_length(http_client);
+            int content_length = esp_http_client_get_content_length(http_client);
             if (content_length > 0)
             {
-                char* response_buffer = (char*)malloc(content_length + 1);
+                char* response_buffer = malloc(content_length + 1);
                 if (response_buffer != NULL)
                 {
                     int read_len = esp_http_client_read_response(http_client, response_buffer, content_length);
@@ -431,56 +512,52 @@ void mqtt_first_init()
                     {
                         response_buffer[read_len] = '\0';
                         ESP_LOGI(TAG, "HTTP Response Body:\n%s", response_buffer);
-
-
-                        cJSON* json = cJSON_Parse(response_buffer);
-                        if (json == NULL)
+                        cJSON *json = cJSON_Parse(response_buffer);
+                        if (json != NULL)
                         {
-                            const char* error_ptr = cJSON_GetErrorPtr();
-                            if (error_ptr != NULL)
-                            {
-                                ESP_LOGE(TAG, "JSON Parse error: %s", error_ptr);
-                            }
-                        }
-                        else
-                        {
-                            cJSON* username_item = cJSON_GetObjectItem(json, "username");
-                            cJSON* password_item = cJSON_GetObjectItem(json, "password");
+                            cJSON *username_item = cJSON_GetObjectItem(json, "username");
 
-                            if (username_item != NULL && cJSON_IsString(username_item) &&
-                                password_item != NULL && cJSON_IsString(password_item))
+
+                            if (username_item != NULL && cJSON_IsString(username_item) )
                             {
-                                ESP_LOGI(TAG, "Username: %s, Password: %s", username_item->valuestring,
-                                         password_item->valuestring);
-                                save_credentials_nvs(username_item->valuestring, password_item->valuestring);
+                                ESP_LOGI(TAG, "Received username: %s, password: %s",
+                                         username_item->valuestring, password);
+                                save_credentials_nvs(username_item->valuestring, password);
                             }
                             else
                             {
-                                ESP_LOGW(TAG, "Could not find username and/or password in JSON or they are not strings")
-                                ;
+                                ESP_LOGW(TAG, "Credentials not found or invalid in the JSON response");
                             }
                             cJSON_Delete(json);
+                        }
+                        else
+                        {
+                            const char* err_ptr = cJSON_GetErrorPtr();
+                            if (err_ptr)
+                            {
+                                ESP_LOGE(TAG, "JSON Parse error: %s", err_ptr);
+                            }
                         }
                     }
                     else
                     {
-                        ESP_LOGE(TAG, "Failed to read response");
+                        ESP_LOGE(TAG, "Failed to read HTTP response");
                     }
                     free(response_buffer);
                 }
                 else
                 {
-                    ESP_LOGE(TAG, "Failed to allocate memory for response buffer");
+                    ESP_LOGE(TAG, "Failed to allocate memory for HTTP response");
                 }
             }
             else
             {
-                ESP_LOGW(TAG, "Empty response body");
+                ESP_LOGW(TAG, "Empty HTTP response body");
             }
         }
         else
         {
-            ESP_LOGE(TAG, "HTTP request failed with status code %d", status_code);
+            ESP_LOGE(TAG, "HTTP request returned status code %d", status_code);
         }
     }
     else
@@ -489,22 +566,17 @@ void mqtt_first_init()
     }
 
     esp_http_client_cleanup(http_client);
+    cJSON_Delete(root);
+    free(post_data);
 }
 
 /**
  * @brief Loads MQTT credentials (username and password) from NVS storage.
- * This function retrieves MQTT credentials stored in the ESP32's Non-Volatile Storage (NVS).
- * If successful, it populates the provided buffers with the username and password values.
- * Logs error or success messages depending on the status of the operations.
  *
  * @param username_out Pointer to a buffer to store the MQTT username.
- * @param username_size The size of the buffer provided for the MQTT username.
+ * @param username_size The size of the provided username buffer.
  * @param password_out Pointer to a buffer to store the MQTT password.
- * @param password_size The size of the buffer provided for the MQTT password.
- *
- * Note:
- * - The function only reads from NVS and does not modify it.
- * - Logs errors for any failed operation.
+ * @param password_size The size of the provided password buffer.
  */
 void load_credentials_nvs(char* username_out, size_t username_size, char* password_out, size_t password_size)
 {
@@ -512,42 +584,67 @@ void load_credentials_nvs(char* username_out, size_t username_size, char* passwo
     esp_err_t err = nvs_open("mqtt_creds", NVS_READONLY, &nvs_handle);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Error opening NVS: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "NVS: Error opening NVS for loading credentials: %s", esp_err_to_name(err));
         return;
     }
 
     err = nvs_get_str(nvs_handle, "username", username_out, &username_size);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to get username: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "NVS: Failed to get username: %s", esp_err_to_name(err));
     }
     else
     {
-        ESP_LOGI(TAG, "Loaded username: %s", username_out);
+        ESP_LOGI(TAG, "NVS: Loaded username: %s", username_out);
     }
 
     err = nvs_get_str(nvs_handle, "password", password_out, &password_size);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to get password: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "NVS: Failed to get password: %s", esp_err_to_name(err));
     }
     else
     {
-        ESP_LOGI(TAG, "Loaded password: %s", password_out);
+        ESP_LOGI(TAG, "NVS: Loaded password: %s", password_out);
     }
 
     nvs_close(nvs_handle);
 }
 
-//Connect to MQTT broker
+/**
+ * @brief Initializes the MQTT client with the required configuration and starts the client.
+ *
+ * This function performs the following operations:
+ * - Loads MQTT client credentials (username and password) from NVS storage.
+ * - Configures the MQTT client's parameters including broker URI, keepalive settings,
+ *   clean session settings, and a last will message.
+ * - Initializes the MQTT client with the specified configuration.
+ * - Registers an event handler to manage incoming MQTT events.
+ * - Starts the MQTT client to enable communication with the broker.
+ *
+ * The MQTT client is configured to use the following settings:
+ * - Broker URI: "mqtt://93.155.224.232:5728"
+ * - Keepalive interval: 20 seconds
+ * - Last will topic: "ac/control"
+ * - Last will message: "ESP32 Disconnected"
+ * - Last will QoS: 1
+ * - Last will retain: true
+ *
+ * Note:
+ * - The username and password are loaded from NVS and used for authentication.
+ * - A slight delay is introduced prior to the MQTT client initialization to ensure
+ *   all systems are ready.
+ * - Errors during client initialization or event registration are checked and handled.
+ */
 void mqtt_init()
 {
     char username[64] = {0};
     char password[64] = {0};
     load_credentials_nvs(username, sizeof(username), password, sizeof(password));
     vTaskDelay(1000 / portTICK_PERIOD_MS);
+    printf(username);
+    printf(password);
     esp_mqtt_client_config_t mqtt_cfg = {
-        .broker.address.uri = "mqtt://93.155.224.232:5728",
         .broker.address.uri = "mqtt://93.155.224.232:5728",
         .credentials.username = username,
         .session.keepalive = 20,
