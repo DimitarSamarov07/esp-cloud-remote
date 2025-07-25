@@ -12,6 +12,7 @@
 
 static const char* TAG = "WIFI_CONTROL";
 
+// You must use this if you want to disconnect on purpose. First set it and THEN call the disconnect method
 static bool is_user_initiated_disconnect = false;
 
 int IS_WIFI_CONNECTED = 0;
@@ -21,6 +22,17 @@ int IS_WIFI_CONNECTED = 0;
 #define WIFI_PASSWORD "23111980g"
 
 
+/**
+ * @brief Event handler for WiFi and IP events
+ * 
+ * Handles various WiFi and IP events including disconnections and IP address assignments.
+ * Manages automatic reconnection attempts when disconnected, unless the disconnect was user-initiated.
+ *
+ * @param arg          Event handler argument (unused)
+ * @param event_base   Base of the event (WIFI_EVENT or IP_EVENT) 
+ * @param event_id     ID of the specific event that occurred
+ * @param event_data   Data associated with the event
+ */
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                int32_t event_id, void* event_data)
 {
@@ -33,17 +45,21 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
         ESP_LOGI(TAG, "IP event: %ld", event_id);
     }
 
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        wifi_event_sta_disconnected_t *disconn = event_data;
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
+    {
+        wifi_event_sta_disconnected_t* disconn = event_data;
         ESP_LOGW(TAG, "WiFi disconnected, reason: %d", disconn->reason);
 
         IS_WIFI_CONNECTED = 0;
 
-        if (!is_user_initiated_disconnect) {
+        if (!is_user_initiated_disconnect)
+        {
             ESP_LOGI(TAG, "Reconnecting to WiFi...");
             vTaskDelay(pdMS_TO_TICKS(1000));
             esp_wifi_connect();
-        } else {
+        }
+        else
+        {
             ESP_LOGI(TAG, "Disconnect was user-initiated; not reconnecting.");
             is_user_initiated_disconnect = false; // Reset flag
         }
@@ -55,15 +71,15 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
     }
 }
 
+/**
+ * @brief Initializes the WiFi system
+ * 
+ * Sets up the network interface, event loop, and WiFi configuration.
+ * Registers event handlers for WiFi and IP events.
+ * Creates the default WiFi station interface.
+ */
 void wifi_init_setup()
 {
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK(ret);
-
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
@@ -76,26 +92,11 @@ void wifi_init_setup()
 }
 
 /**
- * @brief Initializes and configures Wi-Fi in Station (STA) mode for the ESP32.
- * This function sets up the Wi-Fi interface, initializes the default event loop,
- * and configures the Wi-Fi connection with predefined SSID and password.
- * It ensures the device connects to a specified Wi-Fi network.
- *
- * The initialization process includes the following steps:
- * - Initializes the network interface with `esp_netif_init`.
- * - Creates the default Wi-Fi station (STA) interface.
- * - Configures Wi-Fi using default initialization configuration and credentials.
- * - Sets Wi-Fi mode to STA.
- * - Starts the Wi-Fi driver and connects to the configured Wi-Fi network.
- *
- * Diagnostic messages are logged to provide insights during the initialization and
- * connection process.
- *
- * @note This function uses predefined macros for SSID and password
- *       (WIFI_SSID and WIFI_PASSWORD).
- * @note An authentication threshold is set to enforce WPA2-PSK security.
- * @note If any function in the configuration process returns an error,
- *       the program execution will stop as the error will be checked using `ESP_ERROR_CHECK`.
+ * @brief Initializes and starts the WiFi station
+ * 
+ * Configures the WiFi station with SSID and password.
+ * Sets the authentication mode and starts the WiFi connection.
+ * Attempts to connect to the configured access point.
  */
 void wifi_init_sta()
 {
