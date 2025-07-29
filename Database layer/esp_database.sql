@@ -185,3 +185,29 @@ BEGIN
     COMMIT;
 END;
 
+DELIMITER $$
+
+CREATE PROCEDURE DeleteAirConditionerByDeviceID(IN inputDeviceID VARCHAR(36))
+BEGIN
+    DECLARE acID BIGINT DEFAULT NULL;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET acID = NULL;
+
+    -- Try to get the ID
+    SELECT ID INTO acID FROM AirConditioners WHERE DeviceID = inputDeviceID LIMIT 1;
+
+    -- Check if found
+    IF acID IS NOT NULL THEN
+        DELETE FROM AirConditionersState WHERE ID = acID;
+        DELETE FROM AirConditioners WHERE ID = acID;
+        SELECT 'Deleted' AS status;
+    ELSE
+        SELECT 'NotFound' AS status;
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+drop procedure DeleteAirConditionerByDeviceID;
+
+
