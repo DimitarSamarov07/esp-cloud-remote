@@ -15,7 +15,6 @@ export enum FanSpeed {
 }
 
 class AirConditionerStatus{
-    IsOnline: boolean;
     IsPowered: boolean | null;
     Temperature: number | null;
     TargetTemperature: number | null;
@@ -24,8 +23,7 @@ class AirConditionerStatus{
     Swing: boolean | null;
     LastUpdated: Moment | null;
 
-    constructor(isOnline: boolean, isPowered: boolean | null, temperature: number | null,targetTemperature: number | null, mode: Mode | null, fanspeed: number | FanSpeed | null, swing: boolean | null,lastUpdated: Moment | null) {
-        this.IsOnline = isOnline;
+    constructor( isPowered: boolean | null, temperature: number | null,targetTemperature: number | null, mode: Mode | null, fanspeed: number | FanSpeed | null, swing: boolean | null,lastUpdated: Moment | null) {
         this.IsPowered = isPowered;
         this.Temperature = temperature;
         this.TargetTemperature = targetTemperature;
@@ -35,3 +33,5 @@ class AirConditionerStatus{
         this.LastUpdated = lastUpdated;
     }
 }
+
+export default AirConditionerStatus;

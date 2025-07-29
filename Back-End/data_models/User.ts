@@ -1,4 +1,4 @@
-class User {
+export class User {
     Email: string;
     Username: string;
     Password: string;
@@ -8,7 +8,4 @@ class User {
         this.Username = username;
         this.Password = password;
     }
-
 }
-
-export default User;
