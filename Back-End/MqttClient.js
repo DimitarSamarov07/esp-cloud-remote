@@ -1,15 +1,17 @@
 import mqtt from 'mqtt';
 //import AirConditioner, {FanSpeed, Mode} from "./data_models/AirConditioner.ts";
 import moment from "moment";
+import dotenv from 'dotenv';
+
+dotenv.config()
+
 
 const processEnv = process.env;
 const statusTopic = processEnv.AC_STATUS_TOPIC;
 const wifiTopic = processEnv.WIFI_CONTROL_TOPIC;
 const protocol = 'mqtt'
-const host = '93.155.224.232'
-const port = '5728'
-
-const connectUrl = `${protocol}://${host}:${port}`
+const url = processEnv.MQTT_BROKER_URL
+const connectUrl = `${protocol}://${url}`
 
 function isValidMode(value) {
     return Object.values(Mode).includes(value);
@@ -28,11 +30,11 @@ class MqttClient {
         this.client.on('connect', () => {
             console.log(`[${this.clientId}] Connected`);
 
-            this.subscribe('ac/status')
+            this.subscribe(processEnv.AC_STATUS_TOPIC)
         })
         this.client.on('message', (topic, message) => {
             if (!this.subscribedTopics.has(topic)) return;
-            console.log(`[${this.clientId}] 📩 Message on '${topic}': ${message}`);
+            console.log(`[${this.clientId}] Message on '${topic}': ${message}`);
 
             if (topic === statusTopic) {
                 this._handleAcStatus(message);
@@ -41,7 +43,7 @@ class MqttClient {
 
         this.client.on('error', (err) => {
             console.error(`[${this.clientId}] Couldn't connect because of an error:`, err.message);
-            console.error(err); // Optional: log full stack trace
+            console.error(err);
         });
         this.client.on('disconnect', () => {
             console.log(`[${this.clientId}] Disconnected`)

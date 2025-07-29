@@ -6,9 +6,11 @@ import bcrypt from 'bcrypt';
 import MqttClient from './MqttClient.js';
 import * as AirConditionerController from "./controllers/AirConditioner.controller.js";
 import airConditionerRoutes from './routes/AirConditioner.routes.js';
+import dotenv from 'dotenv'
+import mysql from "mysql2/promise";
 
-
-
+dotenv.config()
+const processEnv = process.env;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -26,17 +28,16 @@ app.use('/airconditioner', airConditionerRoutes);
 const dbConfig = {
     host: 'localhost',
     port: 3306,
-    user: 'root',
-    password: 'a1n2g3e4l5',
-    database: 'esp_remote_db',
+    user: processEnv.DB_USER,
+    password: processEnv.DB_PASSWORD,
+    database: processEnv.DATABASE,
 };
 
-// const connection = await mysql.createConnection(dbConfig);
+const connection = await mysql.createConnection(dbConfig);
 const saltRounds = 14;
 const deviceStatusMap = new Map();
-const deviceId = 'debel';
+const deviceId = '';
 
-deviceStatusMap.set(deviceId, 'duhai');
 const esp = new MqttClient({
     clientId: 'mqtt_pc1',
     clean: false,
