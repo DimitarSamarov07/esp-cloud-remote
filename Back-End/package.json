@@ -4,7 +4,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --import=tsx server.js"
   },
   "keywords": [],
   "author": "",
@@ -12,9 +13,15 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "express": "^4.21.0",
+    "dotenv": "^17.2.1",
+    "express": "^4.21.2",
+    "moment": "^2.30.1",
     "mqtt": "^5.13.3",
     "mysql2": "^3.14.2",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "tsx": "^4.20.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3"
   }
 }
