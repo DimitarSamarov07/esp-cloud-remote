@@ -2,12 +2,12 @@ import mysql from 'mysql2/promise'
 import dotenv from 'dotenv'
 
 dotenv.config()
-
+const processEnv = process.env;
 export const pool = mysql.createPool({
     host: "localhost",
-    user: "root",
-    password: "a1n2g3e4l5",
-    database: "esp_remote_db",
+    user: processEnv.DB_USER,
+    password: processEnv.DB_PASSWORD,
+    database: processEnv.DATABASE,
     waitForConnections: true,
     connectionLimit: 10,
     maxIdle: 10, // max idle connections, the default value is the same as `connectionLimit`
