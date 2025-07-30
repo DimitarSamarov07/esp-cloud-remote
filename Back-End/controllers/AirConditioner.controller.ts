@@ -18,30 +18,38 @@ interface CreateAirConditionerUpdateRequest {
 }
 
 
+
 /**
- * Handles the request to retrieve an air conditioner by its unique device ID.
+ * Retrieves an air conditioner record by its unique ID.
  *
- * This function extracts the device ID from the request parameters and queries
- * the database to find an air conditioner matching the provided ID. Appropriate
- * HTTP status codes and responses are returned based on the presence or absence
- * of the device ID and the query result.
+ * @param {Request} req - The request object, containing parameters and other metadata.
+ * @param {Response} res - The response object used to send back the desired data or error codes.
  *
- * @param {Request} req - The incoming HTTP request object containing the device ID in its parameters.
- * @param {Response} res - The HTTP response object used to send back the query results or error messages.
- * @returns {Promise<void>} A promise representing the asynchronous operation of querying the database and sending the HTTP response.
+ * @async
+ * @function getAirConditionerByID
  *
- * @throws {Error} If the database query fails for any reason.
+ * @throws Will send a 406 status if the `deviceID` parameter is not provided.
+ * @throws Will send a 404 status if an air conditioner with the given ID is not found.
+ * @throws Will send a 500 status in the case of an internal server error.
+ *
+ * @returns {Promise<void>} Sends the requested air conditioner details if found,
+ *                          otherwise responds with an appropriate status and message.
  */
 export const getAirConditionerByID = async (req: Request, res: Response) => {
-    const {deviceID} = req.params;
-    if (!deviceID) {
-        return res.status(406).send('Please provide a valid device ID!');
+    try {
+        const {deviceID} = req.params;
+        if (!deviceID) {
+            return res.sendStatus(406).send('Please provide a valid device ID!');
+        }
+        const [rows] = await pool.query(DatabaseQueries.SELECT_AIR_CONDITIONER_BY_ID, [deviceID]);
+        if (!rows) {
+            return res.sendStatus(404).send('No Air conditioner found!.');
+        }
+        return res.sendStatus(200).send(rows);
+    } catch (err) {
+        console.error('Error getting AC:', err);
+        return res.sendStatus(500).json({error: 'Internal server error'});
     }
-    const [rows] = await pool.query(DatabaseQueries.SELECT_AIR_CONDITIONER_BY_ID, [deviceID]);
-    if (!rows) {
-        return res.status(404).send('No Air conditioner found!.');
-    }
-    return res.status(200).send(rows);
 }
 
 
@@ -65,13 +73,13 @@ export const getAirConditionerByID = async (req: Request, res: Response) => {
  *  - Returns HTTP 500 in case of a server error during processing.
  */
 export const createAirConditioner = async (req: Request, res: Response) => {
-    const {user, device, airConditioner, status} = req.body as CreateAirConditionerRequest;
-
-    if (!user || !device || !airConditioner || !status) {
-        return res.status(406).send('Please provide all the necessary arguments!');
-    }
-
     try {
+        const {user, device, airConditioner, status} = req.body as CreateAirConditionerRequest;
+
+        if (!user || !device || !airConditioner || !status) {
+            return res.sendStatus(406).send('Please provide all the necessary arguments!');
+        }
+
         const params = [
             user.Username,
             user.Email,
@@ -95,25 +103,23 @@ export const createAirConditioner = async (req: Request, res: Response) => {
         const [rows] = await pool.query(DatabaseQueries.CREATE_AIR_CONDITIONER, params );
 
         if (!rows) {
-            return res.status(422).send('The AC was NOT created successfully');
+            return res.sendStatus(422).send('The AC was NOT created successfully');
         }
 
-        return res.status(201).send({
-            message: 'The AC was created successfully',
-            data: rows
-        });
+        return res.sendStatus(201).send({message: 'The AC was created successfully'});
     } catch (error) {
-        return res.status(500).send('Error in creating ac: ' + error);
+        return res.sendStatus(500).send('Internal server error. Please try again later.');
     }
 }
 
 /**
- * Updates the details of an air conditioner by its ID.
+ * Updates the details of the air conditioner by its ID.
  *
- * This function handles the HTTP request to update an air conditioner's information in the database.
+ * This function handles the HTTP request to update air conditioner's information in the database.
  * It extracts the `deviceId` from the request parameters and the air conditioner details and status
  * from the request body. The updated information is then stored in the database.
  *
+ * @Note Provide null if you do not wish to change a parameter.
  * @param {Request} req - The HTTP request object, which should include the `deviceId` in the route
  * parameters and the updated air conditioner details and status in the request body.
  * @param {Response} res - The HTTP response object for sending back success or error messages.
@@ -124,8 +130,8 @@ export const updateAirConditionerByID = async (req: Request, res: Response) => {
     try {
         const {deviceId} = req.params;
         const {airConditioner, status} = req.body as CreateAirConditionerUpdateRequest;
-        if (!deviceId) {
-            return res.status(406).json({error: 'AirConditioner ID is required'});
+        if (!deviceId || !airConditioner || !status) {
+            return res.sendStatus(406).json({error: 'Please provide all the necessary arguments!'});
         }
 
 
@@ -144,10 +150,10 @@ export const updateAirConditionerByID = async (req: Request, res: Response) => {
         ];
         await pool.query(DatabaseQueries.UPDATE_AIR_CONDITIONER_BY_ID, params);
 
-        return res.status(200).json({ message: 'Air conditioner updated successfully.' });
+        return res.sendStatus(200).json({message: 'Air conditioner updated successfully.'});
     } catch (err) {
         console.error('Error updating AC:', err);
-        return res.status(500).json({ error: 'Internal server error' });
+        return res.sendStatus(500).json({error: 'Internal server error. Please try again later.'});
     }
 }
 /**
@@ -162,20 +168,26 @@ export const updateAirConditionerByID = async (req: Request, res: Response) => {
  * @throws Will send a 406 HTTP status if the `deviceId` is not provided.
  * @throws Will send a 200 HTTP status if the air conditioner is deleted successfully.
  * @throws Will send a 410 HTTP status if the specified air conditioner device ID does not exist.
+ * @throws Will respond with a 500 status code if an internal server error occurs.
  */
 export const deleteAirConditionerByID = async (req: Request, res: Response) => {
-    const {deviceId} = req.params;
+    try {
+        const {deviceId} = req.params;
 
-    if (!deviceId) {
-        return res.status(406).send('Please provide a valid device ID!');
-    }
-    const [rows] = await pool.query(DatabaseQueries.DELETE_AIR_CONDITIONER_BY_ID, [deviceId]);
-    // @ts-ignore
-    const result = rows[0][0]; //First result set, first row
+        if (!deviceId) {
+            return res.sendStatus(406).send('Please provide a valid device ID!');
+        }
+        const [rows] = await pool.query(DatabaseQueries.DELETE_AIR_CONDITIONER_BY_ID, [deviceId]);
+        // @ts-ignore
+        const result = rows[0][0]; //First result set, first row
 
-    if (result.status.toString().toLowerCase() == 'deleted') {
-        return res.sendStatus(200);
-    } else if (result.status.toString().toLowerCase() == 'notfound') {
-        return res.sendStatus(410);
+        if (result.status.toString().toLowerCase() == 'deleted') {
+            return res.sendStatus(200);
+        } else if (result.status.toString().toLowerCase() == 'notfound') {
+            return res.sendStatus(410);
+        }
+    } catch (err) {
+        console.error('Error deleting AC:', err);
+        return res.sendStatus(500).json({error: 'Internal server error. Please try again later.'});
     }
 }
