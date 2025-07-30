@@ -95,10 +95,8 @@ VALUES ('device-uuid-003', 'Kitchen AC', 'CoolBrand', 'CB-1234'),
 
 -- Insert sample AirConditionersState
 INSERT INTO AirConditionersState (ID, IsOnline, IsPowered, CurrentTemp, TargetTemp, FanSpeed, Mode, Swing, LastUpdated)
-VALUES (1, TRUE, TRUE, 24.5, 22.0, 'Auto', 'Cool', TRUE,'2025-04-01 00:00:00'),
-       (2, FALSE, FALSE, 25, 26, 'Low', 'Heat', FALSE, '2025-03-01 00:00:00'),
-       (3, TRUE, TRUE, 23.5, 22.0, 'Auto', 'Cool', TRUE,'2025-01-01 00:00:00');
-
+VALUES ( 1,TRUE, TRUE, 24.5, 22.0, 'Auto', 'Cool', TRUE,'2025-04-01 00:00:00'),
+       ( 2,FALSE, FALSE, 25, 26, 'Low', 'Heat', FALSE, '2025-03-01 00:00:00');
 
 DELIMITER //
 
