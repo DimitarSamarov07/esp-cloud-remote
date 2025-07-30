@@ -90,14 +90,14 @@ app.get('/status', (req, res) => {
 
 
 app.post('/credentials', async (req, res) => {
-    let {usernameFromDevice,passwordFromDevice} = req.body;
+    let {usernameFromDevice,email,passwordFromDevice} = req.body;
 
     if (!passwordFromDevice) {
         return res.status(400).json({ error: 'Password is required.' });
     }
 
     if (!usernameFromDevice) {
-        await register(res, usernameFromDevice, passwordFromDevice);
+        await register(res, usernameFromDevice,email, passwordFromDevice);
     } else {
         try {
             const [rows] = await connection.execute(`SELECT Password
@@ -119,22 +119,17 @@ app.post('/credentials', async (req, res) => {
     }
 });
 
-async function register(res, usernameFromDevice, passwordFromDevice) {
+async function register(res, usernameFromDevice,email, passwordFromDevice) {
     let username = "mqtt_pc_" + Str_Random(16);
     const hashedPass = await hashPassword(passwordFromDevice);
     try {
         const [result] = await connection.execute(
-            `INSERT INTO Users(Username, Password)
-             VALUES (?, ?)`,
-            [username, hashedPass]
+            `INSERT INTO Users(Username,Email, Password, IsAdmin)
+             VALUES (?, ?, ?,0)`,
+            [username,email, hashedPass]
         );
         const userId = result.insertId;
-        await connection.execute(
-            `INSERT INTO ACL_Table (UserID, TopicID, RW)
-             SELECT ?, ID, 3
-             FROM Topics`,
-            [userId]
-        );
+
 
         return res.status(200).send({username, password: passwordFromDevice});
 
