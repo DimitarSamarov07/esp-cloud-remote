@@ -94,9 +94,10 @@ VALUES ('device-uuid-003', 'Kitchen AC', 'CoolBrand', 'CB-1234'),
        ('device-uuid-002', 'Bedroom AC', 'AirTech', 'AT-5678');
 
 -- Insert sample AirConditionersState
-INSERT INTO AirConditionersState (ID, IsOnline, IsPowered, CurrentTemp, TargetTemp, FanSpeed, Mode, Swing)
-VALUES (1, TRUE, TRUE, 24.5, 22.0, 'Auto', 'Cool', TRUE),
-       (2, FALSE, FALSE, 25, 26, 'Low', 'Heat', FALSE);
+INSERT INTO AirConditionersState (ID, IsOnline, IsPowered, CurrentTemp, TargetTemp, FanSpeed, Mode, Swing, LastUpdated)
+VALUES (1, TRUE, TRUE, 24.5, 22.0, 'Auto', 'Cool', TRUE,'2025-04-01 00:00:00'),
+       (2, FALSE, FALSE, 25, 26, 'Low', 'Heat', FALSE, '2025-03-01 00:00:00'),
+       (3, TRUE, TRUE, 23.5, 22.0, 'Auto', 'Cool', TRUE,'2025-01-01 00:00:00');
 
 
 DELIMITER //
@@ -141,9 +142,8 @@ BEGIN
     VALUES (in_device_id, in_ac_name, in_ac_brand, in_ac_model, in_ac_last_seen);
     SET ac_id = LAST_INSERT_ID();
 
-    INSERT INTO AirConditionersState (ID, IsOnline, IsPowered, CurrentTemp, TargetTemp, FanSpeed, Mode, Swing,
-                                      LastUpdated)
-    VALUES (ac_id, in_is_powered, in_current_temp, in_target_temp, in_fan_speed, in_mode, in_swing, in_last_updated);
+    INSERT INTO AirConditionersState (ID, IsOnline, IsPowered, CurrentTemp, TargetTemp, FanSpeed, Mode, Swing, LastUpdated)
+    VALUES (ac_id,in_is_online,in_is_powered, in_current_temp, in_target_temp,in_fan_speed, in_mode, in_swing, in_last_updated);
     COMMIT;
 END //
 
