@@ -206,6 +206,4 @@ END$$
 DELIMITER ;
 
 
-drop procedure DeleteAirConditionerByDeviceID;
-
 
