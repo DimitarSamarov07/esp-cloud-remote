@@ -39,6 +39,8 @@ const deviceId = '';
 
 const esp = new MqttClient({
     clientId: 'mqtt_pc1',
+    username: processEnv.MQTT_USERNAME,
+    password: processEnv.MQTT_PASSWORD,
     clean: false,
     connectTimeout: 1000,
     reconnectPeriod: 20000,
