@@ -18,7 +18,6 @@ const app = express();
 app.use(express.json());
 const port = 8690;
 
-app.use('/airconditioner', airConditionerRoutes);
 // IMPORTANT: HTTPS config SHOULD BE UNCOMMENTED IN PRODUCTION
 // const options = {
 //     key: fs.readFileSync(path.join(__dirname, 'certs/key.pem')),
@@ -44,6 +43,14 @@ const esp = new MqttClient({
     connectTimeout: 1000,
     reconnectPeriod: 20000,
 });
+app.use((req, res, next) => {
+    req.mqttClient = esp;
+    next();
+});
+esp.registerControllerHandler('ac/status', AirConditionerController.getAirConditionerByID);
+
+
+app.use('/airconditioner', airConditionerRoutes);
 
 let sendOptions = { root: path.join(__dirname, '../Front-End') };
 app.use(express.json());

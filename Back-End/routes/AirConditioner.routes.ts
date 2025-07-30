@@ -3,9 +3,9 @@ import * as AirConditionerController from "../controllers/AirConditioner.control
 
 const router = Router();
 
-router.get('/:deviceId', AirConditionerController.getAirConditionerByID);
+router.get('/:deviceID', AirConditionerController.getAirConditionerByID);
 router.post('/', AirConditionerController.createAirConditioner);
-router.put('/:deviceId', AirConditionerController.updateAirConditionerByID);
-router.delete('/:deviceId', AirConditionerController.deleteAirConditionerByID);
+router.put('/:deviceID', AirConditionerController.updateAirConditionerByID);
+router.delete('/:deviceID', AirConditionerController.deleteAirConditionerByID);
 
 export default router;

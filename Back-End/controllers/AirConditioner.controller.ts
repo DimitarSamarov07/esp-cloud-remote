@@ -1,10 +1,11 @@
 import {Request, Response} from 'express';
-import {pool} from "../Pool.ts";
+import {pool} from "../services/Pool.ts";
 import DatabaseQueries from "../DatabaseQueries.ts";
 import {User} from "../data_models/User.ts";
 import AirConditioner from "../data_models/AirConditioner.ts";
 import Device from "../data_models/Device.ts";
 import AirConditionerStatus from "../data_models/AirConditionerStatus.ts";
+import {fetchAirConditionerStatus} from "../services/AirConditioner.ts";
 
 interface CreateAirConditionerRequest {
     user: User;
@@ -38,20 +39,15 @@ interface CreateAirConditionerUpdateRequest {
 export const getAirConditionerByID = async (req: Request, res: Response) => {
     try {
         const {deviceID} = req.params;
-        if (!deviceID) {
-            return res.sendStatus(406).send('Please provide a valid device ID!');
-        }
-        const [rows] = await pool.query(DatabaseQueries.SELECT_AIR_CONDITIONER_BY_ID, [deviceID]);
-        if (!rows) {
-            return res.sendStatus(404).send('No Air conditioner found!.');
-        }
-        return res.sendStatus(200).send(rows);
-    } catch (err) {
-        console.error('Error getting AC:', err);
-        return res.sendStatus(500).json({error: 'Internal server error'});
-    }
-}
+        //@ts-ignore
+        const mqttClient: any = req.mqttClient;
 
+        const status = await fetchAirConditionerStatus(deviceID, mqttClient);
+        return res.status(200).json(status);
+    } catch (err: any) {
+        return res.status(500).json({error: err.message || 'Internal server error'});
+    }
+};
 
 /**
  * Asynchronous function to create a new air conditioner entry in the database.
@@ -128,15 +124,15 @@ export const createAirConditioner = async (req: Request, res: Response) => {
  */
 export const updateAirConditionerByID = async (req: Request, res: Response) => {
     try {
-        const {deviceId} = req.params;
+        const {deviceID} = req.params;
         const {airConditioner, status} = req.body as CreateAirConditionerUpdateRequest;
-        if (!deviceId || !airConditioner || !status) {
+        if (!deviceID || !airConditioner || !status) {
             return res.sendStatus(406).json({error: 'Please provide all the necessary arguments!'});
         }
 
 
         const params = [
-            deviceId,
+            deviceID,
             airConditioner.Name ?? null,
             airConditioner.Brand ?? null,
             airConditioner.Model ?? null,
@@ -152,7 +148,6 @@ export const updateAirConditionerByID = async (req: Request, res: Response) => {
 
         return res.sendStatus(200).json({message: 'Air conditioner updated successfully.'});
     } catch (err) {
-        console.error('Error updating AC:', err);
         return res.sendStatus(500).json({error: 'Internal server error. Please try again later.'});
     }
 }
@@ -172,12 +167,12 @@ export const updateAirConditionerByID = async (req: Request, res: Response) => {
  */
 export const deleteAirConditionerByID = async (req: Request, res: Response) => {
     try {
-        const {deviceId} = req.params;
+        const {deviceID} = req.params;
 
-        if (!deviceId) {
+        if (!deviceID) {
             return res.sendStatus(406).send('Please provide a valid device ID!');
         }
-        const [rows] = await pool.query(DatabaseQueries.DELETE_AIR_CONDITIONER_BY_ID, [deviceId]);
+        const [rows] = await pool.query(DatabaseQueries.DELETE_AIR_CONDITIONER_BY_ID, [deviceID]);
         // @ts-ignore
         const result = rows[0][0]; //First result set, first row
 
@@ -187,7 +182,6 @@ export const deleteAirConditionerByID = async (req: Request, res: Response) => {
             return res.sendStatus(410);
         }
     } catch (err) {
-        console.error('Error deleting AC:', err);
         return res.sendStatus(500).json({error: 'Internal server error. Please try again later.'});
     }
 }

@@ -1,13 +1,11 @@
 import mqtt from 'mqtt';
-//import AirConditioner, {FanSpeed, Mode} from "./data_models/AirConditioner.ts";
-import moment from "moment";
 import dotenv from 'dotenv';
+import {fetchAirConditionerStatus} from "./services/AirConditioner.js";
 
 dotenv.config()
 
-
 const processEnv = process.env;
-const statusTopic = processEnv.AC_STATUS_TOPIC;
+const statusTopic = processEnv.AC_STATUS_TOPIC;// New topic for triggering Express routes
 const wifiTopic = processEnv.WIFI_CONTROL_TOPIC;
 const protocol = 'mqtt'
 const url = processEnv.MQTT_BROKER_URL
@@ -27,15 +25,16 @@ class MqttClient {
         this.clientId = options.clientId
         this.subscribedTopics = new Set();
         this.subscribedTopics.add(statusTopic)
+        this.statusMap = new Map();
+        this.controllerHandlers = {};
+
         this.client.on('connect', () => {
             console.log(`[${this.clientId}] Connected`);
-
             this.subscribe(processEnv.AC_STATUS_TOPIC)
         })
+
         this.client.on('message', (topic, message) => {
             if (!this.subscribedTopics.has(topic)) return;
-            console.log(`[${this.clientId}] Message on '${topic}': ${message}`);
-
             if (topic === statusTopic) {
                 this._handleAcStatus(message);
             }
@@ -45,69 +44,36 @@ class MqttClient {
             console.error(`[${this.clientId}] Couldn't connect because of an error:`, err.message);
             console.error(err);
         });
+
         this.client.on('disconnect', () => {
             console.log(`[${this.clientId}] Disconnected`)
         })
-
     }
 
-    _handleAcStatus(message) {
+    registerControllerHandler(topic, handler) {
+        this.controllerHandlers[topic] = handler;
+    }
+
+    async _handleAcStatus(message) {
         try {
-            const raw = JSON.parse(message.toString());
-
-            const {
-                deviceId,
-                isOnline,
-                isPowered,
-                temperature,
-                mode,
-                fanSpeed,
-                swing,
-                lastSeen,
-            } = raw;
-
-            if (typeof deviceId !== 'string' || typeof isOnline !== 'boolean') {
-                throw new Error('Invalid deviceId or isOnline field');
-            }
-
-            const parsedMode = isValidMode(mode) ? mode : null;
-            const parsedFanSpeed = isValidFanSpeed(fanSpeed)
-                ? fanSpeed
-                : typeof fanSpeed === 'number'
-                    ? fanSpeed
-                    : null;
-            const parsedTemp = typeof temperature === 'number' ? temperature : null;
-            const parsedPower = typeof isPowered === 'boolean' ? isPowered : null;
-            const parsedSwing = typeof swing === 'boolean' ? swing : null;
-            const parsedLastSeen = lastSeen ? moment(lastSeen) : null;
-
-            const status = new AirConditioner(
-                deviceId,
-                isOnline,
-                parsedPower,
-                parsedTemp,
-                parsedMode,
-                parsedFanSpeed,
-                parsedSwing,
-                parsedLastSeen
-            );
-
-            console.log(`[${this.clientId}] AC status parsed:`, status);
-
-            if (typeof this.onAcStatusReceived === 'function') {
-                this.onAcStatusReceived(status);
-            }
+            const body = JSON.parse(message.toString());
+            const deviceID = body.deviceID;
+            const responseTopic = `ac/status/response/${deviceID}`;
+            const status = await fetchAirConditionerStatus(deviceID, this); // assuming `this` is your MQTT client
+            this.publish(responseTopic, JSON.stringify(status));
         } catch (err) {
-            console.error(`[${this.clientId}] Failed to parse AC status:`, err.message || err);
+            console.error(`[${this.clientId}] Failed to parse AC status or fetch data:`, err.message || err);
         }
     }
 
+    getStatusByDeviceId(deviceId) {
+        return this.statusMap.get(deviceId);
+    }
+
     publish(topic, message) {
-        this.client.publish(topic, message, {qos: 1}, (error) => {
+        this.client.publish(topic, message, {qos: 1, retain: true}, (error) => {
             if (error) {
                 console.log(`[${this.clientId}] Publish failed`);
-            } else {
-                console.log(`[${this.clientId}] Published to ${topic}`);
             }
         });
     }
@@ -117,7 +83,6 @@ class MqttClient {
             if (error) {
                 console.error(`[${this.clientId}] Subscribe error`, error);
             } else {
-                console.log(`[${this.clientId}] Subscribed to ${topic}`);
                 this.subscribedTopics.add(topic);
             }
         });
@@ -127,9 +92,6 @@ class MqttClient {
         this.client.publish(wifiTopic, `${ssid}/${pass}`);
         console.log(`[${this.clientId}] Sent WiFi credentials`);
     }
-
-
 }
 
 export default MqttClient;
-
