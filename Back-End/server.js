@@ -90,38 +90,42 @@ app.get('/status', (req, res) => {
     res.send(result);
 });
 
+app.post('/register', async (req, res) => {
+    let {username, email, password} = req.body;
+    await register(res, email, password);
+})
 
-app.post('/credentials', async (req, res) => {
-    let {usernameFromDevice,email,passwordFromDevice} = req.body;
+app.get('/validateCredentials', async (req, res) => {
+    let {username, password} = req.body;
 
-    if (!passwordFromDevice) {
-        return res.status(400).json({ error: 'Password is required.' });
+    if (!password || !username) {
+        return res.status(200).json({ result: "deny", error: 'Missing username or password' });
     }
 
-    if (!usernameFromDevice) {
-        await register(res, usernameFromDevice,email, passwordFromDevice);
-    } else {
-        try {
-            const [rows] = await connection.execute(`SELECT Password
-                                                     FROM Users
-                                                     WHERE Username = ?`, [usernameFromDevice]);
-            if (rows.length === 0) {
-                return res.status(401).json({error: 'User not found.'});
-            }
-
-            const match = await bcrypt.compare(passwordFromDevice, rows[0].Password);
-            if (match) {
-                return res.json({success: true, username: usernameFromDevice});
-            } else {
-                return res.status(403).json({error: 'Invalid credentials.'});
-            }
-        } catch (err) {
-            return res.status(500).json({error: 'Database error during login.'});
+    try {
+        const [rows] = await connection.execute(
+            `SELECT Password FROM Users WHERE Username = ?`,
+            [username]
+        );
+        if (rows.length === 0) {
+            return res.status(200).json({ result: "deny", error: 'User not found.' });
         }
+
+        const match = await bcrypt.compare(password, rows[0].Password);
+        if (match) {
+            return res.status(200).json({ result: "allow" });
+        } else {
+            return res.status(200).json({ result: "deny", error: 'Invalid credentials.' });
+        }
+    } catch (err) {
+        console.error(err);
+        return res.status(200).json({ result: "deny", error: 'Internal server error.' });
     }
 });
 
-async function register(res, usernameFromDevice,email, passwordFromDevice) {
+
+
+async function register(res,email, passwordFromDevice) {
     let username = "mqtt_pc_" + Str_Random(16);
     const hashedPass = await hashPassword(passwordFromDevice);
     try {
