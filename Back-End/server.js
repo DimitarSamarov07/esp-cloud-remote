@@ -91,11 +91,11 @@ app.get('/status', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-    let {username, email, password} = req.body;
+    let {email, password} = req.body;
     await register(res, email, password);
 })
 
-app.get('/validateCredentials', async (req, res) => {
+app.post('/validateCredentials', async (req, res) => {
     let {username, password} = req.body;
 
     if (!password || !username) {
