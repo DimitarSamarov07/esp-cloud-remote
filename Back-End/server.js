@@ -43,7 +43,7 @@ const esp = new MqttClient({
     password: processEnv.MQTT_PASSWORD,
     clean: false,
     connectTimeout: 1000,
-    reconnectPeriod: 20000,
+    reconnectPeriod: 5000,
 });
 app.use((req, res, next) => {
     req.mqttClient = esp;
