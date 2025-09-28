@@ -75,29 +75,57 @@ esp.onAcStatusReceived = (status) => {
 };
 app.get('/status', (req, res) => {
     const {deviceId} = req.query;
-    const status = deviceStatusMap.get(deviceId);
-    if (!status) {
-        return res.status(404).json({error: 'Device not found or no data yet'});
+    if (!deviceId) {
+        return res.status(406).json({error: 'Please insert a deviceID'});
+    }
+    try {
+        //Gets a device by the deviceID given in the request.
+        const status = deviceStatusMap.get(deviceId);
+        if (!status) {
+            return res.status(404).json({error: 'Device not found or no data yet'});
+        }
+
+
+        const result = {
+            Temp: status.Temperature,
+            Swing: status.Swing,
+            LastSeen: status.LastSeen ? status.LastSeen.toISOString() : null
+        };
+
+        res.send(result);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({error: 'Internal server error'});
     }
 
-
-    const result = {
-        Temp: status.Temperature,
-        Swing: status.Swing,
-        LastSeen: status.LastSeen ? status.LastSeen.toISOString() : null
-    };
-
-    res.send(result);
 });
 
 app.post('/register', async (req, res) => {
     let {email, password} = req.body;
-    await register(res, email, password);
+    if (!password || !email) {
+        res.status(406).json({error: 'Please provide username and password'});
+    }
+    try {
+        await register(res, email, password);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({error: 'Internal server error'});
+    }
 })
 
+/*
+IMPORTANT: The EMQX broker only works with codes 200,204,4XX,5XX.
+If the 4XX or 5XX codes are sent, the broker will presume that the request is
+wrong and determine the result to be ignore which would practically deny the
+authentication.
+ */
 app.post('/validateCredentials', async (req, res) => {
     let {username, password} = req.body;
 
+    /*
+    EMQX code the result field that is being sent is so the broker
+    can know whether to allow,deny or ignore the request
+    */
     if (!password || !username) {
         return res.status(200).json({ result: "deny", error: 'Missing username or password' });
     }
@@ -107,10 +135,15 @@ app.post('/validateCredentials', async (req, res) => {
             `SELECT Password FROM Users WHERE Username = ?`,
             [username]
         );
+        //If no rows found - deny
         if (rows.length === 0) {
             return res.status(200).json({ result: "deny", error: 'User not found.' });
         }
-
+        /*
+        If there is a row, bcrypt compares the hashed password
+        with the password provided and decides whether the
+        user can authenticate.
+        */
         const match = await bcrypt.compare(password, rows[0].Password);
         if (match) {
             return res.status(200).json({ result: "allow" });
@@ -124,7 +157,17 @@ app.post('/validateCredentials', async (req, res) => {
 });
 
 
-
+/**
+ * Function that registers a device in the DB with a given password and email.Hashes a password with the specified salt round. It also generates a username using the Str_random function declared below.
+ *
+ * @async
+ *
+ * @param {http.ServerResponse} res
+ * @param {string} email
+ * @param {string} passwordFromDevice
+ *
+ * @returns {Promise<Response>} Will return 200 if the entry is inserted into the DB and 500 if there was an error during the registration.
+ * */
 async function register(res,email, passwordFromDevice) {
     let username = "mqtt_pc_" + Str_Random(16);
     const hashedPass = await hashPassword(passwordFromDevice);
@@ -144,8 +187,16 @@ async function register(res,email, passwordFromDevice) {
         return res.status(500).json({error: 'Database error during registration.'});
     }
 }
+
+
 const hashPassword = async (password) => await bcrypt.hash(password, saltRounds);
 
+
+/**
+ * Generates a random string from a set collection of characters that can be used for username.
+ * @param {number} length - The length of the string generated.
+ * @returns {string} The randomized string that can later be concatenated with the mqtt_pc for the end username.
+ */
 function Str_Random(length) {
     let result = '';
     const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';

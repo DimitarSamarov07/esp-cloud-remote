@@ -53,7 +53,14 @@ class MqttClient {
     registerControllerHandler(topic, handler) {
         this.controllerHandlers[topic] = handler;
     }
-
+    /**
+     * This function handles JSON messages sent by the client and sends the result back to the response topic
+     *
+     * @async
+     *
+     * @param {JSON} message
+     * @returns {Promise<void>}
+     * */
     async _handleAcStatus(message) {
         try {
             const body = JSON.parse(message.toString());
@@ -69,7 +76,14 @@ class MqttClient {
     getStatusByDeviceId(deviceId) {
         return this.statusMap.get(deviceId);
     }
-
+    /**
+     * Publishes the given message to the topic specified with QOS 1 and Retain true.
+     *
+     * @param {string} topic
+     * @param {string} message
+     *
+     * @returns {void}
+     * */
     publish(topic, message) {
         this.client.publish(topic, message, {qos: 1, retain: true}, (error) => {
             if (error) {
