@@ -6,180 +6,243 @@
     <title>Admin Panel</title>
     <link rel="stylesheet" href="public/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-<link rel="icon" href="public/images/cloud-icon-white.png" type="image/x-icon"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+          rel="stylesheet">
+    <link rel="icon" href="public/images/cloud-icon-white.png" type="image/x-icon"/>
 
 </head>
 <body>
-    <header>
-        <article class="logo">
-            <a href="#">Admin Panel</a>
-        </article>
-        <ul class="nav-links">
-            <li><a href="#">Home</a></li>
-            <li><a href="#">About Us</a></li>
-        </ul>
-    </header>
-    <main>
-        <article class="table-container">
-            <section class="table-title">
-                <tr>
-                    <td><h2>Registered ESPs</h2></td>
-                    <td><a href="#">Manage ESPs</a></td>
-                </tr>
-            </section>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Mode</th>
-                        <th>Fan</th>
-                        <th>Temperature</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <!--items-->
-                <tr>
-                    <td class="esp-profile">
-                        <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
-                    </td>
-                    <td>Cold</td>
-                    <td>2x</td>
-                    <td>22°C</td>
-                    <td class="active">Active</td>
-                </tr>
-                <tr>
-                    <td class="esp-profile">
-                        <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
-                    </td>
-                    <td>Cold</td>
-                    <td>2x</td>
-                    <td>22°C</td>
-                    <td class="active">Active</td>
-                </tr>
-                <tr>
-                    <td class="esp-profile">
-                        <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
-                    </td>
-                    <td>Cold</td>
-                    <td>2x</td>
-                    <td>22°C</td>
-                    <td class="active">Active</td>
-                </tr>
-                <tr>
-                    <td class="esp-profile">
-                        <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
-                    </td>
-                    <td>Cold</td>
-                    <td>2x</td>
-                    <td>22°C</td>
-                    <td class="active">Active</td>
-                </tr>
-                <tr>
-                    <td class="esp-profile">
-                        <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
-                    </td>
-                    <td>Cold</td>
-                    <td>2x</td>
-                    <td>22°C</td>
-                    <td class="active">Active</td>
-                </tr>
-                <tr>
-                    <td class="esp-profile">
-                        <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
-                    </td>
-                    <td>Cold</td>
-                    <td>2x</td>
-                    <td>22°C</td>
-                    <td class="inactive">Inactive</td>
-                </tr>
-                <tr>
-                    <td class="esp-profile">
-                        <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
-                    </td>
-                    <td>Cold</td>
-                    <td>2x</td>
-                    <td>22°C</td>
-                    <td class="inactive">Inactive</td>
-                </tr>
-                <tr>
-                    <td class="esp-profile">
-                        <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
-                    </td>
-                    <td>Cold</td>
-                    <td>2x</td>
-                    <td>22°C</td>
-                    <td class="inactive">Inactive</td>
-                </tr>
-                <tr>
-                    <td class="esp-profile">
-                        <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
-                    </td>
-                    <td>Cold</td>
-                    <td>2x</td>
-                    <td>22°C</td>
-                    <td class="inactive">Inactive</td>
-                </tr>
-                <tr>
-                    <td class="esp-profile">
-                        <img src="public/images/esp-list-logo.png">
-                        <p>ESP-8266</p>
-                    </td>
-                    <td>Cold</td>
-                    <td>2x</td>
-                    <td>22°C</td>
-                    <td class="inactive">Inactive</td>
-                </tr>
-                <!--/items-->
-                </tbody>
-            </table>
-        </article>
-    </main>
-    <footer>
-        <article class="footer">
-            <section class="contact">
-                <div class="logo">
-                    <img src="public/images/cloud-icon.png" alt="cloud-icon">
-                    <h3>ESP Cloud Remote</h3>
-                </div>
-                <ul>
-                    <li><p class="list-head">Need help?</p></li>
-                    <li><a href="#">Contact us via email at support@example.com</a></li>
-                </ul>
-            </section>
-            <section class="links">
-                <ul>
-                    <li><p class="list-head">Company</p></li>
-                    <li><a href="#">Terms & Conditions</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                </ul>
-                <ul>
-                    <li><p class="list-head">Download</p></li>
-                    <li><a href="#">Microsoft Store</a></li>
-                    <li><a href="#">Google Play</a></li>
-                    <li><a href="#">Apple Store</a></li>
-                </ul>
-                <ul>
-                    <li><p class="list-head"><a href="https://github.com/DimitarSamarov07/esp-cloud-remote" target="_blank">View us on GitHub</a></p></li>
-                </ul>
-            </section>
-        </article>
-        <article class="copyright">
-            <hr>
-            <p>ESP Cloud Remote @ 2024</p>
-        </article>
-    </footer>
-    
+<header>
+    <article class="logo">
+        <a href="#">Admin Panel</a>
+    </article>
+    <ul class="nav-links">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About Us</a></li>
+        <li><a href="bluetooth-connection/connect-esp-intro.html">Connect new ESP</a></li>
+    </ul>
+</header>
+<main>
+    <article class="table-container">
+        <section class="table-title">
+            <h2>Registered ESPs</h2>
+            <ul class="title-buttons">
+                <li>
+                    <button>Manage ESPs</button>
+                </li>
+                <li>
+                    <button onclick="openPopup()">WiFi Configuration Demo</button>
+
+                    <div class="popup-overlay" id="popupOverlay">
+                        <div class="popup">
+                            <h2>WiFi Configuration</h2>
+                            <input type="text" id="ssid" placeholder="Enter SSID" required>
+                            <input type="password" id="password" placeholder="Enter WiFi Password">
+                            <br>
+                            <button type="submit" class="submit-btn" id="submit">Submit</button>
+                            <button class="turn-on" id="on-btn">Turn On</button>
+                            <button class="turn-off" id="off-btn">Turn Off</button>
+                            <br>
+                            <button onclick="closePopup()">Close</button>
+                        </div>
+                    </div>
+
+
+                </li>
+            </ul>
+        </section>
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Mode</th>
+                <th>Fan</th>
+                <th>Temperature</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!--items-->
+            <tr>
+                <td class="esp-profile">
+                    <img src="public/images/esp-list-logo.png">
+                    <p>ESP-8266</p>
+                </td>
+                <td>Cold</td>
+                <td>2x</td>
+                <td>22°C</td>
+                <td class="active">Active</td>
+            </tr>
+            <tr>
+                <td class="esp-profile">
+                    <img src="public/images/esp-list-logo.png">
+                    <p>ESP-8266</p>
+                </td>
+                <td>Cold</td>
+                <td>2x</td>
+                <td>22°C</td>
+                <td class="active">Active</td>
+            </tr>
+            <tr>
+                <td class="esp-profile">
+                    <img src="public/images/esp-list-logo.png">
+                    <p>ESP-8266</p>
+                </td>
+                <td>Cold</td>
+                <td>2x</td>
+                <td>22°C</td>
+                <td class="active">Active</td>
+            </tr>
+            <tr>
+                <td class="esp-profile">
+                    <img src="public/images/esp-list-logo.png">
+                    <p>ESP-8266</p>
+                </td>
+                <td>Cold</td>
+                <td>2x</td>
+                <td>22°C</td>
+                <td class="active">Active</td>
+            </tr>
+            <tr>
+                <td class="esp-profile">
+                    <img src="public/images/esp-list-logo.png">
+                    <p>ESP-8266</p>
+                </td>
+                <td>Cold</td>
+                <td>2x</td>
+                <td>22°C</td>
+                <td class="active">Active</td>
+            </tr>
+            <tr>
+                <td class="esp-profile">
+                    <img src="public/images/esp-list-logo.png">
+                    <p>ESP-8266</p>
+                </td>
+                <td>Cold</td>
+                <td>2x</td>
+                <td>22°C</td>
+                <td class="inactive">Inactive</td>
+            </tr>
+            <tr>
+                <td class="esp-profile">
+                    <img src="public/images/esp-list-logo.png">
+                    <p>ESP-8266</p>
+                </td>
+                <td>Cold</td>
+                <td>2x</td>
+                <td>22°C</td>
+                <td class="inactive">Inactive</td>
+            </tr>
+            <tr>
+                <td class="esp-profile">
+                    <img src="public/images/esp-list-logo.png">
+                    <p>ESP-8266</p>
+                </td>
+                <td>Cold</td>
+                <td>2x</td>
+                <td>22°C</td>
+                <td class="inactive">Inactive</td>
+            </tr>
+            <tr>
+                <td class="esp-profile">
+                    <img src="public/images/esp-list-logo.png">
+                    <p>ESP-8266</p>
+                </td>
+                <td>Cold</td>
+                <td>2x</td>
+                <td>22°C</td>
+                <td class="inactive">Inactive</td>
+            </tr>
+            <tr>
+                <td class="esp-profile">
+                    <img src="public/images/esp-list-logo.png">
+                    <p>ESP-8266</p>
+                </td>
+                <td>Cold</td>
+                <td>2x</td>
+                <td>22°C</td>
+                <td class="inactive">Inactive</td>
+            </tr>
+            <!--/items-->
+            </tbody>
+        </table>
+    </article>
+</main>
+<footer>
+    <article class="footer">
+        <section class="contact">
+            <div class="logo">
+                <img src="public/images/cloud-icon.png" alt="cloud-icon">
+                <h3>ESP Cloud Remote</h3>
+            </div>
+            <ul>
+                <li><p class="list-head">Need help?</p></li>
+                <li><a href="#">Contact us via email at support@example.com</a></li>
+            </ul>
+        </section>
+        <section class="links">
+            <ul>
+                <li><p class="list-head">Company</p></li>
+                <li><a href="#">Terms & Conditions</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+            </ul>
+            <ul>
+                <li><p class="list-head">Download</p></li>
+                <li><a href="#">Microsoft Store</a></li>
+                <li><a href="#">Google Play</a></li>
+                <li><a href="#">Apple Store</a></li>
+            </ul>
+            <ul>
+                <li><p class="list-head"><a href="https://github.com/DimitarSamarov07/esp-cloud-remote" target="_blank">View
+                    us on GitHub</a></p></li>
+            </ul>
+        </section>
+    </article>
+    <article class="copyright">
+        <hr>
+        <p>ESP Cloud Remote @ 2024</p>
+    </article>
+</footer>
+
 </body>
+<script async>
+    let ssid = document.getElementById("ssid");
+    let password = document.getElementById("password");
+
+    let submit = document.getElementById("submit");
+    let onBtn = document.getElementById("on-btn");
+    let offBtn = document.getElementById("off-btn");
+
+    submit.addEventListener("click", async () => {
+        if (ssid.value !== "") {
+            await fetch(`http://93.155.224.232:3481/changeWifi?ssid=${ssid.value}&password=${password.value}`, {
+                method: "POST"
+            })
+            ssid.value = "";
+            password.value = "";
+        }
+    })
+
+    onBtn.addEventListener("click", async () => {
+        await fetch(`http://93.155.224.232:3481/led?led_state=ON`, {
+            method: "POST"
+        })
+    })
+
+    offBtn.addEventListener("click", async () => {
+        await fetch(`http://93.155.224.232:3481/led?led_state=OFF`, {
+            method: "POST"
+        })
+    })
+
+
+    function openPopup() {
+        document.getElementById('popupOverlay').style.display = 'flex';
+    }
+
+    function closePopup() {
+        document.getElementById('popupOverlay').style.display = 'none';
+    }
+</script>
 </html>

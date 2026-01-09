@@ -2,6 +2,7 @@ import express from 'express';
 import {fileURLToPath} from 'url';
 import {dirname} from 'path';
 import * as path from "node:path";
+import {esp_dummy} from "./mqtt-node/mqtt-communication.js";
 
 import express_ws from "express-ws";
 

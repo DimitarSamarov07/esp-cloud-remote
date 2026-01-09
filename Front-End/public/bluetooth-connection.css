@@ -1,0 +1,180 @@
+body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+header {
+    background-color: #fff;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+header nav a {
+    margin-left: 1rem;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+header nav a {
+    text-decoration: underline;
+}
+
+main {
+    padding: 2rem;
+    text-align: center;
+}
+
+section {
+    text-align: center;
+    font-family: "Poppins", sans-serif;
+}
+
+
+.available-esp-table {
+    width: 40vw;
+    margin: 0 auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+table td {
+    border-radius: 0px;
+}
+
+table tr td:first-of-type {
+    width: 60%;
+}
+
+.available-esp-table th {
+    text-align: left;
+    padding: 10px 15px;
+    font-weight: bold;
+}
+
+
+.esp-row {
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.esp-row:hover {
+    background-color: #e0e0e0;
+}
+
+
+.esp-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 60%;
+}
+
+
+.esp-logo {
+    width: 2vw;
+    height: 3vh;
+    object-fit: contain;
+    padding-left: 10px;
+}
+
+.loading-row {
+    text-align: center;
+}
+
+
+.loading-container {
+    padding: 10px;
+}
+
+.loading {
+    margin: 0 auto;
+    border: 3px solid #ddd;
+    border-top: 3px solid black;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.go-back {
+    margin-top: 15px;
+    padding: 8px 20px;
+    font-size: 16px;
+    border: 1px solid black;
+    border-radius: 20px;
+    background: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.go-back:hover {
+    background: black;
+    color: white;
+}
+
+
+footer {
+    background-color: #f1f1f1;
+    padding: 1rem 2rem;
+    font-size: 0.875rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.footer-container a {
+    text-decoration: none;
+    color: #007BFF;
+    margin-right: 1rem;
+}
+
+.footer-container a:hover {
+    text-decoration: underline;
+}
+
+.footer-logo {
+    font-size: 1.25rem;
+}
+
+.copyright {
+    margin-top: 1rem;
+    text-align: center;
+    width: 100%;
+    color: #666;
+}
+
+.esp-select-btn {
+    outline: none;
+    border: none;
+    padding: 1rem 2rem;
+    cursor: pointer;
+    border-radius: 15px 50px;
+    width: 500px;
+}

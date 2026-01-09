@@ -1,7 +1,7 @@
 body {
     margin: 0;
     width: 100%;
-    background-color: #e1e1e1;  
+    background-color: #e1e1e1;
     font-family: "Roboto", sans-serif;
     font-weight: 400;
     font-style: normal;
@@ -77,6 +77,40 @@ main {
 .table-title a {
     color: #00c6ff;
     text-align: center;
+}
+
+.table-title .title-buttons {
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.table-title .title-buttons li {
+    margin-left: 0.5rem;
+}
+
+.table-title .title-buttons button {
+    cursor: pointer;
+    background-color: #00000000;
+    color: #00c6ff;
+    border: 1.5px solid #00c6ff;
+    padding: 5px 10px;
+    border-radius: 16px;
+    transition: all 0.1s ease-in-out;
+}
+
+.title-buttons button:hover {
+    background-color: #00c6ff;
+    color: white;
+}
+
+.title-buttons button:active {
+    background-color: #00a8d6;
+    color: white;
+}
+
+.title-buttons button p {
+    margin: 0;
 }
 
 table {
@@ -178,4 +212,59 @@ table td {
 .copyright p {
     font-size: 0.8rem;
     color: gray;
+}
+
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    text-align: center;
+}
+
+.popup input[type="text"],
+.popup input[type="password"] {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.popup button {
+    padding: 10px 15px;
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.popup button.turn-on {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.popup button.turn-off {
+    background-color: #f44336;
+    color: white;
+}
+
+.popup button.submit-btn {
+    background-color: #008CBA;
+    color: white;
 }

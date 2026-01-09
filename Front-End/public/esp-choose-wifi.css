@@ -1,0 +1,96 @@
+.bluetooth-connection{
+    opacity: 0.1;
+}
+
+.pop-up {
+    position: absolute;
+    opacity: 1;
+    z-index: 5;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 25vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.wifi-row:hover {
+    background-color: #b3b5b4;
+    border-radius: 50%;
+}
+
+.wifi-connect-heading {
+    font-size: 1.8rem;
+    font-weight: bolder;
+    color: black;
+}
+
+.background {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95%;
+    border: 2px solid #b3b5b4;
+    border-radius: 10px;
+}
+
+.wifi-strength {
+    width: 7%;
+}
+
+.wifi-name {
+    font-weight: bold;
+}
+
+.loading-row {
+    text-align: center;
+}
+
+
+.loading-container {
+    padding: 10px;
+}
+
+.loading {
+    margin: 0 auto;
+    border: 3px solid #ddd;
+    border-top: 3px solid black;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.pop-up-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    padding: 15px;
+}
+
+.cancel-btn, .connect {
+    background: none;
+    border: none;
+    color: #00aaff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.cancel-btn:hover, .connect:hover {
+    text-decoration: none;
+}
