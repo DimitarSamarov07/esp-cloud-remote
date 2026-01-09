@@ -50,15 +50,15 @@ main p {
 }
 
 .continue-button:hover {
-    background-color: grey;
+    background-color: #b5b5b5;
 }
 
 .continue-button {
-    border: 1px solid black;
-    border-radius: 10px;
+    border: 2px solid black;
+    border-radius: 22px;
     background-color: transparent;
-    font-size: 16px;
-
+    font-size: 20px;
+    padding: 8px;
 }
 
 .continue-button-wrapper {

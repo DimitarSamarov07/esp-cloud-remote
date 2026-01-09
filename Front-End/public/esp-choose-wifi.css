@@ -13,54 +13,84 @@
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 300px;
+    width: 25vw;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
 }
-.pop-up p {
-    font-size: 18px;
-    margin-bottom: 10px;
+
+.wifi-row:hover {
+    background-color: #b3b5b4;
+    border-radius: 50%;
 }
-.pop-up ul {
-    list-style-type: none;
-    padding: 0;
-    margin-bottom: 20px;
-    width: 100%;
+
+.wifi-connect-heading {
+    font-size: 1.8rem;
+    font-weight: bolder;
+    color: black;
 }
-.pop-up .wifi-option {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    text-align: center;
-    margin: 5px 0;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-.pop-up .wifi-option:hover {
-    background-color: darkturquoise;
-}
-.pop-up .pop-up-actions {
+
+.background {
     display: flex;
-    justify-content: space-between;
-    width: 100%;
+    justify-content: center;
+    align-items: center;
+    width: 95%;
+    border: 2px solid #b3b5b4;
+    border-radius: 10px;
 }
-.pop-up .cancel-btn, .pop-up .connect-btn {
-    padding: 10px 20px;
-    background-color: red;
-    color: white;
-    border-radius: 5px;
+
+.wifi-strength {
+    width: 7%;
+}
+
+.wifi-name {
+    font-weight: bold;
+}
+
+.loading-row {
+    text-align: center;
+}
+
+
+.loading-container {
+    padding: 10px;
+}
+
+.loading {
+    margin: 0 auto;
+    border: 3px solid #ddd;
+    border-top: 3px solid black;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.pop-up-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    padding: 15px;
+}
+
+.cancel-btn, .connect {
+    background: none;
+    border: none;
+    color: #00aaff;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
-    transition: opacity 0.3s;
-    margin-left: 103%;
+    text-decoration: none;
 }
-.pop-up .connect-btn {
-    background-color: green;
-}
-.pop-up .cancel-btn:hover, .pop-up .connect-btn:hover {
-    opacity: 0.8;
+
+.cancel-btn:hover, .connect:hover {
+    text-decoration: none;
 }

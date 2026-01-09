@@ -1,0 +1,29 @@
+.name-container {
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    padding: 8px;
+    background-color: #f5f5f5;
+    border-radius: 20px;
+    align-items:baseline;
+}
+
+.name-container label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+    margin-left: 8px;
+}
+
+.name-container input {
+    border: none;
+    background: none;
+    font-size: 16px;
+    padding: 5px;
+    outline: none;
+    font-weight: bold;
+}
+
+.name-container input[type="text"] {
+    letter-spacing: 0.6px;
+}
