@@ -1,10 +1,9 @@
 body {
     margin: 0;
-    font-family: "Poppins", sans-serif;
+    font-family: Arial, sans-serif;
     background-color: #f9f9f9;
     color: #333;
 }
-
 header {
     background-color: #fff;
     padding: 1rem 2rem;
@@ -25,11 +24,9 @@ header nav a {
     color: #333;
     font-weight: bold;
 }
-
 header nav a {
     text-decoration: underline;
 }
-
 main {
     padding: 2rem;
     text-align: center;

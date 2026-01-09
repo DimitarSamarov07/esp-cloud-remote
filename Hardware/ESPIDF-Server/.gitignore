@@ -1,0 +1,9 @@
+build/
+sdkconfig
+sdkconfig.old
+cmake-build-debug/
+/components/
+/managed_components/
+
+#Source file for CLion environment (just for Windows)
+espidf_source.bat
