@@ -47,7 +47,7 @@ app.use('/air-conditioner', airConditionerRoutes);
 
 let sendOptions = { root: path.join(__dirname, '../Front-End') };
 app.use(express.json());
-app.use("/public", express.static(path.join(__dirname, '/../Front-End/public/')));
+app.use("/styles", express.static(path.join(__dirname, '/../Front-End/styles/')));
 
 app.post("/changeWifi", async function (req, res) {
     let {deviceID, ssid, pass} = req.body;
