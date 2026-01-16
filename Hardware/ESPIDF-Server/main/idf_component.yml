@@ -10,9 +10,9 @@ dependencies:
   # username/component: ">=1.0.0,<2.0.0"
   # username2/component2:
   #   version: "~1.0.0"
-  #   # For transient dependencies `public` flag can be set.
-  #   # `public` flag doesn't have an effect dependencies of the `main` component.
-  #   # All dependencies of `main` are public by default.
-  #   public: true
+  #   # For transient dependencies `styles` flag can be set.
+  #   # `styles` flag doesn't have an effect dependencies of the `main` component.
+  #   # All dependencies of `main` are styles by default.
+  #   styles: true
   espressif/qrcode: '*'
   espressif/arduino-esp32: ^3.2.0

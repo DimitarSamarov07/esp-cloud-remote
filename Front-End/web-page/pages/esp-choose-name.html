@@ -3,10 +3,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Connect ESP</title>
-  <link rel="stylesheet" href="../public/styles.css">
-  <link rel="stylesheet" href="../public/bluetooth-connection.css">
-  <link rel="stylesheet" href="../public/esp-choose-wifi.css">
-  <link rel="stylesheet" href="../public/wifi-connection-password.css">
+  <link rel="stylesheet" href="../styles/styles.css">
+  <link rel="stylesheet" href="../styles/bluetooth-connection.css">
+  <link rel="stylesheet" href="../styles/esp-choose-wifi.css">
+  <link rel="stylesheet" href="../styles/wifi-connection-password.css">
+    <link rel="stylesheet" href="../styles/esp-choose-name.css">
 </head>
 <body>
 <header>
@@ -14,7 +15,7 @@
     <a href="#">Admin Panel</a>
   </article>
   <ul class="nav-links">
-    <li><a href="../index.html">Home</a></li>
+    <li><a href="index.html">Home</a></li>
     <li><a href="#">About Us</a></li>
   </ul>
 </header>
@@ -23,18 +24,18 @@
   <section class="pop-up">
     <div>
         <p class="wifi-password-heading">Wi-Fi Connection</p>
-        <p class="wifi-password-secondary">Enter the network security key</p>
+        <p class="wifi-password-secondary">Enter the name for the ESP</p>
     </div>
-    <div class="password-container">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="********">
+    <div class="name-container">
+        <label for="name">Name</label>
+        <input type="text" id="name" placeholder="ESP32 S3">
     </div>
     <div class="pop-up-btns">
-        <a href="esp-choose-wifi.html">
+        <a href="wifi-connection-password.html">
             <button class="cancel-btn">Back</button>
         </a>
-        <a href="esp-choose-name.html">
-            <button class="cancel-btn">Next</button>
+        <a href="esp-connected-successfully.html">
+            <button class="cancel-btn">Finish</button>
         </a>
     </div>
 </section>
@@ -50,21 +51,21 @@
             </tr>
             <tr class="esp-row" onclick="window.location='esp-choose-wifi.html';">
                 <td class="esp-item">
-                    <img alt="ESP Logo" class="esp-logo" src="../public/images/espressif-black-logo.png">
+                    <img alt="ESP Logo" class="esp-logo" src="../images/espressif-black-logo.png">
                     Ivan's ESP
                 </td>
                 <td>ESP32-S3-WROOM-2</td>
             </tr>
             <tr class="esp-row" onclick="window.location='esp-choose-wifi.html';">
                 <td class="esp-item">
-                    <img alt="ESP Logo" class="esp-logo" src="../public/images/espressif-black-logo.png">
+                    <img alt="ESP Logo" class="esp-logo" src="../images/espressif-black-logo.png">
                     Goso's ESP
                 </td>
                 <td>ESP8684-WROOM-02</td>
             </tr>
             <tr class="esp-row" onclick="window.location='esp-choose-wifi.html';">
                 <td class="esp-item">
-                    <img alt="ESP Logo" class="esp-logo" src="../public/images/espressif-black-logo.png">
+                    <img alt="ESP Logo" class="esp-logo" src="../images/espressif-black-logo.png">
                     Hamza's ESP
                 </td>
                 <td>ESP32-S2-MINI-2U</td>
@@ -84,7 +85,7 @@
   <article class="footer">
     <section class="contact">
       <div class="logo">
-        <img src="../public/images/cloud-icon.png" alt="cloud-icon">
+        <img src="../images/cloud-icon.png" alt="cloud-icon">
         <h3>ESP Cloud Remote</h3>
       </div>
       <ul>
