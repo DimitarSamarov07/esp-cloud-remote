@@ -12,7 +12,7 @@ import {RouterOutlet} from '@angular/router';
   selector: 'app-root',
   template: `
     <nav>
-      <a href="/Front-End/web-page/styles">Home</a>
+      <a href="/Front_End/web-page/styles">Home</a>
       |
       <a href="/user">User</a>
     </nav>
