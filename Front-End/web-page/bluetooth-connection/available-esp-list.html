@@ -5,8 +5,6 @@
   <title>Connect ESP</title>
   <link rel="stylesheet" href="../public/styles.css">
   <link rel="stylesheet" href="../public/bluetooth-connection.css">
-  <link rel="stylesheet" href="../public/esp-choose-wifi.css">
-  <link rel="stylesheet" href="../public/wifi-connection.css">
 </head>
 <body>
 <header>
@@ -18,31 +16,14 @@
     <li><a href="#">About Us</a></li>
   </ul>
 </header>
-
 <main>
-  <section class="pop-up">
-    <p>WiFi Connection</p>
-    <p>Enter the network security key</p>
-      <li>
-      </li>
-    <label>PASSWORD</label>
-
-    <textarea class="text-area" name="password" rows="1" cols="36" border-radius =15px;>
-*******
-</textarea>
-    <a href="./esp-connected-successfully.html">
-      <button class="cancel-btn">NEXT</button>
-    </a>
-    </div>
-  </section>
-
   <section class="bluetooth-connection">
     <h2>Available Bluetooth ESPs</h2>
     <p>Select an ESP below to connect</p>
     <div class="esp-list">
       <ul>
         <li>
-          <a href="./esp-choose-wifi.html">
+          <a href="esp-choose-wifi.html">
             <button class="esp-select-btn">
               <span class="esp-name">Ivan's ESP</span>
               <span class="esp-module">ESP32-S3-WROOM-2</span>
@@ -50,7 +31,7 @@
           </a>
         </li>
         <li>
-          <a href="./esp-choose-wifi.html">
+          <a href="esp-choose-wifi.html">
             <button class="esp-select-btn">
               <span class="esp-name">Goso's ESP</span>
               <span class="esp-module">ESP8684-WROOM-02</span>
@@ -58,7 +39,7 @@
           </a>
         </li>
         <li>
-          <a href="./esp-choose-wifi.html">
+          <a href="esp-choose-wifi.html">
             <button class="esp-select-btn">
               <span class="esp-name">Hamza's ESP</span>
               <span class="esp-module">ESP32-S2-MINI-2U</span>
@@ -68,7 +49,7 @@
       </ul>
       <div class="loading-icon"><img src="../public/images/esp-list-logo.png"></div>
     </div>
-    <a href="./put-esp-in-connection.html">
+    <a href="put-esp-in-connection.html">
       <button class="go-back">Go Back</button>
     </a>
   </section>
@@ -98,8 +79,7 @@
         <li><a href="#">Apple Store</a></li>
       </ul>
       <ul>
-        <li><p class="list-head"><a href="https://github.com/DimitarSamarov07/esp-cloud-remote" target="_blank">View
-          us on GitHub</a></p></li>
+        <li><p class="list-head"><a href="https://github.com/DimitarSamarov07/esp-cloud-remote" target="_blank">View us on GitHub</a></p></li>
       </ul>
     </section>
   </article>
