@@ -45,9 +45,9 @@ esp.registerControllerHandler('ac/status', AirConditionerController.getAirCondit
 
 app.use('/air-conditioner', airConditionerRoutes);
 
-let sendOptions = { root: path.join(__dirname, '../Front-End') };
+let sendOptions = { root: path.join(__dirname, '../Front_End') };
 app.use(express.json());
-app.use("/styles", express.static(path.join(__dirname, '/../Front-End/styles/')));
+app.use("/styles", express.static(path.join(__dirname, '/../Front_End/styles/')));
 
 app.post("/changeWifi", async function (req, res) {
     let {deviceID, ssid, pass} = req.body;
