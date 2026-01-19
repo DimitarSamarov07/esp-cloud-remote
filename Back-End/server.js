@@ -44,6 +44,8 @@ const esp = new MqttClient({
     clean: false,
     connectTimeout: 1000,
     reconnectPeriod: 5000,
+    protocolVersion: 5,
+
 });
 app.use((req, res, next) => {
     req.mqttClient = esp;
