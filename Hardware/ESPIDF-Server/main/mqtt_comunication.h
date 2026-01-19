@@ -3,7 +3,7 @@
 
 extern "C"{
 void mqtt_init();
-void mqtt_first_init(const char* username, const char* password);
+void mqtt_first_init();
 void configure_gpio(gpio_num_t pin);
 void flashLED();
 bool is_setup_done();
