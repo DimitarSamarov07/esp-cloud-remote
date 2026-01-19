@@ -5,7 +5,7 @@ class EasyHeader extends HTMLElement {
             '        <a href="#">Admin Panel</a>\n' +
             '    </article>\n' +
             '    <ul class="nav-links">\n' +
-            '        <li><a href="#">Home</a></li>\n' +
+            '        <li><a href="index.html">Home</a></li>\n' +
             '        <li><a href="#">About Us</a></li>\n' +
             '        <li><a href="connect-esp-intro.html">Connect new ESP</a></li>\n' +
             '    </ul>\n' +
