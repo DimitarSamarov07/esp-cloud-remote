@@ -1,0 +1,4 @@
+-- this fixes an error caused by the Arduino ESP library when BLE and WiFi are enabled
+
+idf.py menuconfig
+Component config / Diagnostics / use external log wrapper ENABLE
