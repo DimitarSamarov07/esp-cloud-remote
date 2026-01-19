@@ -24,13 +24,10 @@
 
 static const char* TAG = "ESP32";
 static esp_mqtt_client_handle_t mqtt_client;
-static char response_buffer[512]; // Increased size for registration JSON
+static char response_buffer[512];
 
-/* --- FUNCTION PROTOTYPES --- */
-void mqtt_init();
-esp_err_t save_credentials_nvs(const char* username, const char* password);
-void load_credentials_nvs(char* username_out, size_t username_size, char* password_out, size_t password_size);
-bool is_setup_done();
+
+
 
 /**
  * @brief Handles incoming MQTT messages
@@ -55,9 +52,9 @@ void mqtt_callback(const char* topic, const char* message, size_t length)
         else if (strcmp(received_message, "AC turned OFF") == 0 || strcmp(received_message, "AC turned ON") == 0 ||
             strcmp(received_message, "The AC is now OFF") == 0 || strcmp(received_message, "The AC is now ON") == 0)
         {
-            // Internal feedback loop prevention
+
         }
-        else if (strcmp(received_message, "ESP32 Disconnected") != 0)
+        else if (strcmp(received_message, "ESP32 Disconnected") == 0)
         {
             ESP_LOGI(TAG, "Received last will notification.");
         }
@@ -73,7 +70,7 @@ void mqtt_callback(const char* topic, const char* message, size_t length)
 }
 
 /**
- * @brief MQTT Event Handler (FIXED: Removed manual stop/start logic)
+ * @brief MQTT Event Handler
  */
 void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event_id, void* event_data)
 {
@@ -98,8 +95,6 @@ void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event
         break;
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGW(TAG, "MQTT Disconnected! Library auto-reconnect logic started.");
-        // FIX: NEVER call mqtt_stop or mqtt_start here.
-        // The library handles reconnection automatically based on internal timers.
         break;
     case MQTT_EVENT_ERROR:
         ESP_LOGE(TAG, "MQTT encountered an error");
@@ -111,6 +106,22 @@ void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event
     default:
         break;
     }
+}
+/**
+ * @brief NVS Helpers (FIXED: Unified namespace to "mqtt_creds")
+ */
+esp_err_t save_credentials_nvs(const char* username, const char* password)
+{
+    nvs_handle_t nvs_handle;
+    esp_err_t err = nvs_open("mqtt_creds", NVS_READWRITE, &nvs_handle);
+    if (err != ESP_OK) return err;
+
+    nvs_set_str(nvs_handle, "username", username);
+    nvs_set_str(nvs_handle, "password", password);
+    nvs_set_u8(nvs_handle, "setup_done", 1);
+    nvs_commit(nvs_handle);
+    nvs_close(nvs_handle);
+    return ESP_OK;
 }
 
 /**
@@ -145,22 +156,7 @@ esp_err_t _http_event_handle(esp_http_client_event_t* evt)
     return ESP_OK;
 }
 
-/**
- * @brief NVS Helpers (FIXED: Unified namespace to "mqtt_creds")
- */
-esp_err_t save_credentials_nvs(const char* username, const char* password)
-{
-    nvs_handle_t nvs_handle;
-    esp_err_t err = nvs_open("mqtt_creds", NVS_READWRITE, &nvs_handle);
-    if (err != ESP_OK) return err;
 
-    nvs_set_str(nvs_handle, "username", username);
-    nvs_set_str(nvs_handle, "password", password);
-    nvs_set_u8(nvs_handle, "setup_done", 1);
-    nvs_commit(nvs_handle);
-    nvs_close(nvs_handle);
-    return ESP_OK;
-}
 
 void load_credentials_nvs(char* username_out, size_t username_size, char* password_out, size_t password_size)
 {
@@ -185,9 +181,9 @@ bool is_setup_done()
 }
 
 /**
- * @brief HTTP POST to /register (FIXED: Logic for new device registration)
+ * @brief HTTP POST to /register
  */
-void mqtt_first_init()
+void mqtt_first_init(char* password)
 {
     ESP_LOGI(TAG, "Starting Registration...");
     const char* url = "http://90.154.171.96:8690/register";
@@ -202,7 +198,7 @@ void mqtt_first_init()
 
     cJSON* root = cJSON_CreateObject();
     cJSON_AddStringToObject(root, "email", "example@gmail.com");
-    cJSON_AddStringToObject(root, "password", "16042325");
+    cJSON_AddStringToObject(root, "password", password);
     char* post_data = cJSON_PrintUnformatted(root);
 
     esp_http_client_set_header(client, "Content-Type", "application/json");
