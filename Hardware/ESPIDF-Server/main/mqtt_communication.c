@@ -242,6 +242,7 @@ void mqtt_init()
         .session.last_will.msg = "ESP32 Disconnected",
         .session.last_will.qos = 1,
         .session.last_will.retain = true,
+        .session.protocol_ver = MQTT_PROTOCOL_V_5
     };
 
     mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
