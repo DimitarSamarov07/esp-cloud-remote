@@ -53,20 +53,15 @@ void setup()
     if (!is_setup_done())
     {
         ESP_LOGI(TAG, "Setup not done. Registering...");
-        mqtt_first_init(NULL, generate_secure_password(16));
-        save_setup_flag(true);
+        mqtt_first_init();
     }
     else
     {
         ESP_LOGI(TAG, "Setup already completed. Logging in...");
-        char stored_username[64] = {0};
-        char stored_password[64] = {0};
-        load_credentials_nvs(stored_username, sizeof(stored_username), stored_password, sizeof(stored_password));
-        mqtt_first_init(stored_username, stored_password);
+        mqtt_init();
     }
     startBLE();
 
-    mqtt_init();
 }
 
 

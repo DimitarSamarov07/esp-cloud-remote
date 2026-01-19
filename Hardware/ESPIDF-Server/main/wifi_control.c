@@ -18,8 +18,8 @@ static bool is_user_initiated_disconnect = false;
 int IS_WIFI_CONNECTED = 0;
 
 //TODO: Add connections without password.
-#define WIFI_SSID "Fortune 1_2.4Ghz"
-#define WIFI_PASSWORD "23111980g"
+#define WIFI_SSID "Arabadzhievi"
+#define WIFI_PASSWORD "16042325"
 
 
 /**
