@@ -1,8 +1,8 @@
 #include "Arduino.h"
-#include "mqtt_communication.h"
-#include "ble_communication.h"
+#include "mqtt_service/mqtt_communication.h"
+#include "ble_serice/ble_communication.h"
 #include <cstdio>
-#include <wifi_control.h>
+#include <wifi_service/wifi_control.h>
 
 #include "esp_mac.h"
 
