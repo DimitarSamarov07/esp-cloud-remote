@@ -1,31 +1,6 @@
 body {
-    margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
     color: #333;
-}
-header {
-    background-color: #fff;
-    padding: 1rem 2rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-header h1 {
-    font-size: 1.5rem;
-    margin: 0;
-}
-
-header nav a {
-    margin-left: 1rem;
-    text-decoration: none;
-    color: #333;
-    font-weight: bold;
-}
-header nav a {
-    text-decoration: underline;
 }
 main {
     padding: 2rem;
@@ -128,45 +103,6 @@ table tr td:first-of-type {
     background: black;
     color: white;
 }
-
-
-footer {
-    background-color: #f1f1f1;
-    padding: 1rem 2rem;
-    font-size: 0.875rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.footer-container {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
-
-.footer-container a {
-    text-decoration: none;
-    color: #007BFF;
-    margin-right: 1rem;
-}
-
-.footer-container a:hover {
-    text-decoration: underline;
-}
-
-.footer-logo {
-    font-size: 1.25rem;
-}
-
-.copyright {
-    margin-top: 1rem;
-    text-align: center;
-    width: 100%;
-    color: #666;
-}
-
 .esp-select-btn {
     outline: none;
     border: none;
