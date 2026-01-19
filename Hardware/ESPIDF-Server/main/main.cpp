@@ -1,8 +1,7 @@
 #include "Arduino.h"
 #include "mqtt_communication.h"
 #include "ble_communication.h"
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
 #include <wifi_control.h>
 
 #include "esp_mac.h"
@@ -10,7 +9,7 @@
 
 static const char* TAG = "MQTT_APP";
 
-const char charset[] = "abcdefghijklmnopqrstuvwxyz"
+constexpr char charset[] = "abcdefghijklmnopqrstuvwxyz"
                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                        "0123456789"
                        "!@#$%^&*()-_=+";
