@@ -139,6 +139,7 @@ void mqtt_event_handler(void* handler_args, esp_event_base_t base, int32_t event
         ESP_LOGW(TAG, "MQTT Disconnected! Attempting to reconnect...");
         vTaskDelay(2000 / portTICK_PERIOD_MS);
         esp_mqtt_client_stop(mqtt_client);
+            vTaskDelay(2000 / portTICK_PERIOD_MS);
         esp_mqtt_client_start(mqtt_client);
         break;
 
@@ -367,7 +368,7 @@ close_nvs:
  */
 void mqtt_first_init(const char* username, const char* password)
 {
-    const char* url = "http://93.155.224.232:8690/credentials";
+    const char* url = "http://90.154.171.96:8690/credentials";
     esp_http_client_config_t config = {
         .url = url,
         .method = HTTP_METHOD_POST,
@@ -514,7 +515,7 @@ void load_credentials_nvs(char* username_out, size_t username_size, char* passwo
  * - Starts the MQTT client to enable communication with the broker.
  *
  * The MQTT client is configured to use the following settings:
- * - Broker URI: "mqtt://93.155.224.232:5728"
+ * - Broker URI: "mqtt://90.154.171.96:5728"
  * - Keepalive interval: 20 seconds
  * - Last will topic: "ac/control"
  * - Last will message: "ESP32 Disconnected"
@@ -534,7 +535,7 @@ void mqtt_init()
     load_credentials_nvs(username, sizeof(username), password, sizeof(password));
     vTaskDelay(1000 / portTICK_PERIOD_MS);
     esp_mqtt_client_config_t mqtt_cfg = {
-        .broker.address.uri = "mqtt://93.155.224.232:5728",
+        .broker.address.uri = "mqtt://90.154.171.96:5728",
         .credentials.username = username,
         .session.keepalive = 20,
         .credentials.authentication.password = password,
