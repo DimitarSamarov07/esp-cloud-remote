@@ -104,8 +104,6 @@ class MqttClient {
 
     async changeWifi(deviceID,ssid, pass) {
         wifiTopic += '/' + deviceID;
-        console.log(deviceID, ssid, pass);
-        console.log(wifiTopic);
         this.client.publish(wifiTopic, `${ssid}/${pass}`);
         console.log(`[${this.clientId}] Sent WiFi credentials`);
         wifiTopic = processEnv.WIFI_CONTROL_TOPIC;
