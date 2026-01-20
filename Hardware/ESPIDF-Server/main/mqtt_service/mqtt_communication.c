@@ -9,6 +9,7 @@
 #include "mqtt_client.h"
 #include "esp_http_client.h"
 #include "cJSON.h"
+#include "wifi_service/wifi_control.h"
 
 #define MQTT_AC_CONTROL_TOPIC "ac/control"
 #define MQTT_WIFI_CONFIG_TOPIC "connection/wifi"
@@ -19,35 +20,57 @@
 #define WIFI_SSID "Angel"
 #define WIFI_PASSWORD "16042325"
 
+static const char* SUBSCRIPTION_TOPICS[] = {
+    "ac/control/%s",
+    "connection/wifi/%s",
+};
+
+#define TOPIC_COUNT (sizeof(SUBSCRIPTION_TOPICS) / sizeof(SUBSCRIPTION_TOPICS[0]))
 static const char *TAG = "ESP32";
 static esp_mqtt_client_handle_t mqtt_client;
 static char response_buffer[512];
-
+char username[64] = {0};
 
 /**
- * @brief Handles incoming MQTT messages
+ * @brief Handles incoming MQTT messages using dynamic topic detection
  */
 void mqtt_callback(const char *topic, const char *message, size_t length) {
-    char received_message[100] = {0};
-    if (length >= 100) length = 99;
-    strncpy(received_message, message, length);
+    char received_message[128] = {0};
+    if (length >= sizeof(received_message)) length = sizeof(received_message) - 1;
+    memcpy(received_message, message, length);
     received_message[length] = '\0';
 
-    if (strncmp(topic, MQTT_AC_CONTROL_TOPIC, strlen(MQTT_AC_CONTROL_TOPIC)) == 0) {
+    ESP_LOGI(TAG, "Processing message on topic: %s", topic);
+
+
+    if (strstr(topic, "ac/control") != NULL) {
         if (strcmp(received_message, "TURN_LED_ON") == 0) {
-            esp_mqtt_client_publish(mqtt_client, MQTT_AC_CONTROL_TOPIC, "AC turned ON", 0, MQTT_QOS, 1);
-        } else if (strcmp(received_message, "TURN_LED_OFF") == 0) {
-            esp_mqtt_client_publish(mqtt_client, MQTT_AC_CONTROL_TOPIC, "AC turned OFF", 0, MQTT_QOS, 1);
-        } else if (strcmp(received_message, "AC turned OFF") == 0 || strcmp(received_message, "AC turned ON") == 0 ||
-                   strcmp(received_message, "The AC is now OFF") == 0 || strcmp(received_message, "The AC is now ON") ==
-                   0) {
-        } else if (strcmp(received_message, "ESP32 Disconnected") == 0) {
-            ESP_LOGI(TAG, "Received last will notification.");
-        } else {
-            ESP_LOGW(TAG, "Unknown AC command: %s", received_message);
+            ESP_LOGI(TAG, "Action: Turning AC ON");
+            esp_mqtt_client_publish(mqtt_client, topic, "AC turned ON", 0, MQTT_QOS, 1);
         }
-    } else if (strncmp(topic, MQTT_WIFI_CONFIG_TOPIC, strlen(MQTT_WIFI_CONFIG_TOPIC)) == 0) {
-        ESP_LOGI(TAG, "Received Wi-Fi config message: %s", received_message);
+        else if (strcmp(received_message, "TURN_LED_OFF") == 0) {
+            ESP_LOGI(TAG, "Action: Turning AC OFF");
+            esp_mqtt_client_publish(mqtt_client, topic, "AC turned OFF", 0, MQTT_QOS, 1);
+        }
+        else if (strstr(received_message, "turned") != NULL) {
+            return;
+        }
+        else {
+            ESP_LOGW(TAG, "Unknown command in ac/control: %s", received_message);
+        }
+    }
+
+    else if (strstr(topic, "connection/wifi") != NULL) {
+        ESP_LOGI(TAG, "WiFi Config received: %s", received_message);
+        char *ssid = strtok(received_message, "/");
+        char *pass = strtok(NULL, "/");
+        if (ssid != NULL && pass != NULL) {
+            change_wifi(ssid, pass);
+        }
+    }
+
+    else {
+        ESP_LOGW(TAG, "Message received on unregistered topic: %s", topic);
     }
 }
 
@@ -69,9 +92,15 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
             ESP_LOGI(TAG, "MQTT published");
             break;
         case MQTT_EVENT_CONNECTED:
-            ESP_LOGI(TAG, "MQTT Connected!");
-            esp_mqtt_client_subscribe(mqtt_client, MQTT_AC_CONTROL_TOPIC, MQTT_QOS);
-            esp_mqtt_client_subscribe(mqtt_client, MQTT_WIFI_CONFIG_TOPIC, MQTT_QOS);
+            char full_topic[128];
+
+            for (int i = 0; i < TOPIC_COUNT; i++) {
+                // Construct the unique topic: e.g., "ac/control/my_username_123"
+                snprintf(full_topic, sizeof(full_topic), SUBSCRIPTION_TOPICS[i], username);
+
+                int msg_id = esp_mqtt_client_subscribe(event->client, full_topic, MQTT_QOS);
+                ESP_LOGI(TAG, "Sent subscribe subscribe topic: %s, msg_id=%d", full_topic, msg_id);
+            }
             break;
         case MQTT_EVENT_DISCONNECTED:
             ESP_LOGW(TAG, "MQTT Disconnected! Library auto-reconnect logic started.");
@@ -191,14 +220,17 @@ void mqtt_first_init(const char *password) {
  * @brief Initializes MQTT with loaded credentials
  */
 void mqtt_init() {
-    char username[64] = {0};
+
     char password[64] = {0};
+    char lwt_topic[128];
+
     load_credentials_nvs(username, sizeof(username), password, sizeof(password));
 
     if (strlen(username) == 0) {
         ESP_LOGE(TAG, "No username found in NVS. Cannot start MQTT.");
         return;
     }
+    snprintf(lwt_topic, sizeof(lwt_topic), "ac/status/%s", username);
 
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = "mqtt://90.154.171.96:5728",
@@ -206,8 +238,8 @@ void mqtt_init() {
         .credentials.authentication.password = password,
         .session.keepalive = 60,
         .session.disable_clean_session = true,
-        .session.last_will.topic = MQTT_AC_CONTROL_TOPIC,
-        .session.last_will.msg = "ESP32 Disconnected",
+        .session.last_will.topic = lwt_topic,
+        .session.last_will.msg = "offline",
         .session.last_will.qos = 1,
         .session.last_will.retain = true,
         .session.protocol_ver = MQTT_PROTOCOL_V_5

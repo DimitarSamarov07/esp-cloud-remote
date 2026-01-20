@@ -1,9 +1,15 @@
-#include <esp_err.h>
-#include <soc/gpio_num.h>
+// ... existing code ...
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-extern "C"{
-    void wifi_init_sta();
     void wifi_init_setup();
+    void wifi_init_sta(char* ssid, char* password);
+    void change_wifi(char* new_ssid, char* new_password);
+
     extern bool is_user_initiated_disconnect;
     extern int IS_WIFI_CONNECTED;
+
+#ifdef __cplusplus
 }
+#endif

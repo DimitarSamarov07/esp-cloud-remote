@@ -44,6 +44,9 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
     {
         ESP_LOGI(TAG, "IP event: %ld", event_id);
     }
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_BEACON_TIMEOUT) {
+        ESP_LOGW(TAG, "WiFi Beacon Timeout! Signal might be too weak.");
+    }
 
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
     {
@@ -91,6 +94,7 @@ void wifi_init_setup()
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 }
 
+
 /**
  * @brief Initializes and starts the WiFi station
  * 
@@ -98,21 +102,37 @@ void wifi_init_setup()
  * Sets the authentication mode and starts the WiFi connection.
  * Attempts to connect to the configured access point.
  */
-void wifi_init_sta()
+void wifi_init_sta(char* ssid, char* password)
 {
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = WIFI_SSID,
-            .password = WIFI_PASSWORD,
             .threshold.authmode = WIFI_AUTH_WPA2_PSK,
         },
     };
 
+    strncpy((char *)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
+    strncpy((char *)wifi_config.sta.password, password, sizeof(wifi_config.sta.password));
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
 
-    ESP_LOGI(TAG, "Wi-Fi initialized, connecting to SSID: %s", WIFI_SSID);
+    ESP_LOGI(TAG, "Wi-Fi initialized, connecting to SSID: %s", ssid);
     ESP_ERROR_CHECK(esp_wifi_connect());
+}
+/**
+ * @brief Changes the current WiFi credentials and reconnects
+ * * @param new_ssid     The new SSID to connect to
+ * @param new_password The new password
+ */
+void change_wifi(char* new_ssid, char* new_password)
+{
+    ESP_LOGI(TAG, "Changing WiFi to SSID: %s", new_ssid);
+
+    is_user_initiated_disconnect = true;
+
+    esp_wifi_disconnect();
+    esp_wifi_stop();
+
+    wifi_init_sta(new_ssid, new_password);
 }

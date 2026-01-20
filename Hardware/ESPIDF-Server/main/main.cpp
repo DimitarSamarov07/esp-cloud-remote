@@ -40,7 +40,7 @@ void setup()
 {
     ESP_LOGI(TAG, "Initializing WiFi");
     wifi_init_setup();
-    wifi_init_sta();
+    wifi_init_sta("Arabadzhievi", "16042325");
 
     while (IS_WIFI_CONNECTED == 0){
         delay(1000);
