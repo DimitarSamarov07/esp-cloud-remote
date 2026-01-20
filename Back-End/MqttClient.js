@@ -6,7 +6,7 @@ dotenv.config()
 
 const processEnv = process.env;
 const statusTopic = processEnv.AC_STATUS_TOPIC;// New topic for triggering Express routes
-const wifiTopic = processEnv.WIFI_CONTROL_TOPIC;
+let wifiTopic = processEnv.WIFI_CONTROL_TOPIC;
 const protocol = 'mqtt'
 const url = processEnv.MQTT_BROKER_URL
 const connectUrl = `${protocol}://${url}`
@@ -102,9 +102,13 @@ class MqttClient {
         });
     }
 
-    changeWifi(ssid, pass) {
+    async changeWifi(deviceID,ssid, pass) {
+        wifiTopic += '/' + deviceID;
+        console.log(deviceID, ssid, pass);
+        console.log(wifiTopic);
         this.client.publish(wifiTopic, `${ssid}/${pass}`);
         console.log(`[${this.clientId}] Sent WiFi credentials`);
+        wifiTopic = processEnv.WIFI_CONTROL_TOPIC;
     }
 }
 

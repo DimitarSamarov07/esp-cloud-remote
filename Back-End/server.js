@@ -38,7 +38,7 @@ const deviceStatusMap = new Map();
 const deviceId = '';
 
 const esp = new MqttClient({
-    clientId: 'mqtt_pc1',
+    clientId: 'server',
     username: processEnv.MQTT_USERNAME,
     password: processEnv.MQTT_PASSWORD,
     clean: false,
@@ -60,10 +60,10 @@ let sendOptions = { root: path.join(__dirname, '../Front-End') };
 app.use(express.json());
 app.use("/public", express.static(path.join(__dirname, '/../Front-End/public/')));
 
-app.post("/changeWifi", function (req, res) {
-    let {ssid, pass} = req.query;
+app.post("/changeWifi", async function (req, res) {
+    let {deviceID, ssid, pass} = req.body;
 
-    mqttClient.changeWifi(ssid, pass);
+    await esp.changeWifi(deviceID, ssid, pass);
     res.sendStatus(200);
 })
 
