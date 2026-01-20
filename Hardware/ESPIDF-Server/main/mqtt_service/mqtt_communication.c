@@ -40,9 +40,6 @@ void mqtt_callback(const char *topic, const char *message, size_t length) {
     memcpy(received_message, message, length);
     received_message[length] = '\0';
 
-    ESP_LOGI(TAG, "Processing message on topic: %s", topic);
-
-
     if (strstr(topic, "ac/control") != NULL) {
         if (strcmp(received_message, "TURN_LED_ON") == 0) {
             ESP_LOGI(TAG, "Action: Turning AC ON");
@@ -53,7 +50,6 @@ void mqtt_callback(const char *topic, const char *message, size_t length) {
             esp_mqtt_client_publish(mqtt_client, topic, "AC turned OFF", 0, MQTT_QOS, 1);
         }
         else if (strstr(received_message, "turned") != NULL) {
-            return;
         }
         else {
             ESP_LOGW(TAG, "Unknown command in ac/control: %s", received_message);
@@ -93,11 +89,8 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
             break;
         case MQTT_EVENT_CONNECTED:
             char full_topic[128];
-
             for (int i = 0; i < TOPIC_COUNT; i++) {
-                // Construct the unique topic: e.g., "ac/control/my_username_123"
                 snprintf(full_topic, sizeof(full_topic), SUBSCRIPTION_TOPICS[i], username);
-
                 int msg_id = esp_mqtt_client_subscribe(event->client, full_topic, MQTT_QOS);
                 ESP_LOGI(TAG, "Sent subscribe subscribe topic: %s, msg_id=%d", full_topic, msg_id);
             }
@@ -117,9 +110,6 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
     }
 }
 
-/**
- * @brief NVS Helpers (FIXED: Unified namespace to "mqtt_creds")
- */
 esp_err_t save_credentials_nvs(const char *username, const char *password) {
     nvs_handle_t nvs_handle;
     esp_err_t err = nvs_open("mqtt_creds", NVS_READWRITE, &nvs_handle);
@@ -156,6 +146,10 @@ esp_err_t _http_event_handle(esp_http_client_event_t *evt) {
                 }
             }
             break;
+        case HTTP_EVENT_ERROR:
+            ESP_LOGE(TAG, "There was an error");
+            break;
+
         default:
             break;
     }
@@ -183,9 +177,6 @@ bool is_setup_done() {
     return (flag == 1);
 }
 
-/**
- * @brief HTTP POST to /register
- */
 void mqtt_first_init(const char *password) {
     ESP_LOGI(TAG, "Starting Registration...");
     const char *url = "http://90.154.171.96:8690/register";
