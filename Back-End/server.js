@@ -7,7 +7,7 @@ import MqttClient from './MqttClient.js';
 import * as AirConditionerController from "./controllers/AirConditioner.controller.js";
 import airConditionerRoutes from './routes/AirConditioner.routes.js';
 import dotenv from 'dotenv'
-import mysql from "mysql2/promise";
+import {pool} from "./services/Pool.ts";
 
 dotenv.config()
 const processEnv = process.env;
@@ -23,19 +23,8 @@ const port = 8690;
 //     key: fs.readFileSync(path.join(__dirname, 'certs/key.pem')),
 //     cert: fs.readFileSync(path.join(__dirname, 'certs/cert.pem'))
 // };
-
-const dbConfig = {
-    host: 'localhost',
-    port: 3306,
-    user: processEnv.DB_USER,
-    password: processEnv.DB_PASSWORD,
-    database: processEnv.DATABASE,
-};
-
-const connection = await mysql.createConnection(dbConfig);
 const saltRounds = 14;
 const deviceStatusMap = new Map();
-const deviceId = '';
 
 const esp = new MqttClient({
     clientId: 'server',
@@ -54,7 +43,7 @@ app.use((req, res, next) => {
 esp.registerControllerHandler('ac/status', AirConditionerController.getAirConditionerByID);
 
 
-app.use('/airconditioner', airConditionerRoutes);
+app.use('/air-conditioner', airConditionerRoutes);
 
 let sendOptions = { root: path.join(__dirname, '../Front-End') };
 app.use(express.json());
@@ -81,7 +70,6 @@ app.get('/status', (req, res) => {
         return res.status(406).json({error: 'Please insert a deviceID'});
     }
     try {
-        //Gets a device by the deviceID given in the request.
         const status = deviceStatusMap.get(deviceId);
         if (!status) {
             return res.status(404).json({error: 'Device not found or no data yet'});
@@ -118,7 +106,7 @@ app.post('/register', async (req, res) => {
 /*
 IMPORTANT: The EMQX broker only works with codes 200,204,4XX,5XX.
 If the 4XX or 5XX codes are sent, the broker will presume that the request is
-wrong and determine the result to be ignore which would practically deny the
+wrong and determine the result to be ignored which would practically deny the
 authentication.
  */
 app.post('/validateCredentials', async (req, res) => {
@@ -133,7 +121,7 @@ app.post('/validateCredentials', async (req, res) => {
     }
 
     try {
-        const [rows] = await connection.execute(
+        const [rows] = await pool.execute(
             `SELECT Password FROM Users WHERE Username = ?`,
             [username]
         );
@@ -174,7 +162,7 @@ async function register(res,email, passwordFromDevice) {
     let username = "mqtt_pc_" + Str_Random(16);
     const hashedPass = await hashPassword(passwordFromDevice);
     try {
-        const [result] = await connection.execute(
+        const [result] = await pool.execute(
             `INSERT INTO Users(Username,Email, Password, IsAdmin)
              VALUES (?, ?, ?,0)`,
             [username,email, hashedPass]
