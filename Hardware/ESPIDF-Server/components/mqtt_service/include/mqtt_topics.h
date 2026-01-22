@@ -8,7 +8,6 @@
 
 #define MQTT_TOPIC_COUNT 2
 
-// QoS levels
 #define MQTT_QOS_CONTROL    1
 #define MQTT_QOS_STATUS     1
 
