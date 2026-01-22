@@ -1,10 +1,11 @@
 #include "Arduino.h"
 #include "ble_service/ble_communication.h"
-#include <wifi_service/wifi_control.h>
+
 
 
 extern "C" {
     #include "mqtt_service.h"
+    #include "wifi_control.h"
 }
 
 static const char* TAG = "MQTT_APP";

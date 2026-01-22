@@ -1,18 +1,13 @@
-#include <esp_random.h>
 #include <nvs_flash.h>
-#include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include "nvs.h"
 #include "esp_event.h"
 #include "esp_netif.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
-#include "esp_http_client.h"
 
 static const char* TAG = "WIFI_CONTROL";
 
-// You must use this if you want to disconnect on purpose. First set it and THEN call the disconnect method
 static bool is_user_initiated_disconnect = false;
 
 int IS_WIFI_CONNECTED = 0;
