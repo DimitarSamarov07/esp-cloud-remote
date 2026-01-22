@@ -2,7 +2,6 @@ build/
 sdkconfig
 sdkconfig.old
 cmake-build-debug/
-
 /managed_components/
 dependencies.lock
 

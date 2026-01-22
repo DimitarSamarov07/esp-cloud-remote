@@ -15,7 +15,6 @@ static const char* TAG = "MQTT_APP";
 
 void setup()
 {
-    ESP_LOGI(TAG, "Initializing WiFi");
     wifi_init_setup();
     wifi_init_sta("Arabadzhievi", "16042325");
 
@@ -24,8 +23,6 @@ void setup()
         ESP_LOGI(TAG, "Still waiting for connection...");
     }
 
-    ESP_LOGI(TAG, "Connected to WiFi");
-    ESP_LOGI(TAG, "Connecting to MQTT");
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
