@@ -64,7 +64,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
         else
         {
             ESP_LOGI(TAG, "Disconnect was user-initiated; not reconnecting.");
-            is_user_initiated_disconnect = false; // Reset flag
+            is_user_initiated_disconnect = false;
         }
     }
 
@@ -102,7 +102,7 @@ void wifi_init_setup()
  * Sets the authentication mode and starts the WiFi connection.
  * Attempts to connect to the configured access point.
  */
-void wifi_init_sta(char* ssid, char* password)
+void wifi_init_sta(char* ssid, const char* password)
 {
     wifi_config_t wifi_config = {
         .sta = {
@@ -125,7 +125,7 @@ void wifi_init_sta(char* ssid, char* password)
  * * @param new_ssid     The new SSID to connect to
  * @param new_password The new password
  */
-void change_wifi(char* new_ssid, char* new_password)
+void change_wifi(char* new_ssid, const char* new_password)
 {
     ESP_LOGI(TAG, "Changing WiFi to SSID: %s", new_ssid);
 
