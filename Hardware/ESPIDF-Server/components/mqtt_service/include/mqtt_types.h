@@ -1,8 +1,6 @@
 #ifndef MQTT_TYPES_H
 #define MQTT_TYPES_H
 
-#include <stdbool.h>
-#include "esp_err.h"
 
 typedef enum {
     AC_CMD_TURN_ON,
@@ -24,7 +22,9 @@ typedef struct {
 } wifi_credentials_t;
 
 typedef void (*mqtt_ac_command_callback_t)(const ac_command_t *cmd);
+
 typedef void (*mqtt_wifi_config_callback_t)(const wifi_credentials_t *creds);
+
 typedef void (*mqtt_connected_callback_t)(void);
 
 #endif

@@ -1,5 +1,4 @@
 #include "mqtt_service.h"
-#include "mqtt_internal.h"
 #include "esp_http_client.h"
 #include "cJSON.h"
 #include "esp_log.h"
@@ -46,7 +45,6 @@ static esp_err_t http_event_handler(esp_http_client_event_t *evt) {
         case HTTP_EVENT_ERROR:
             ESP_LOGE(TAG, "HTTP request error");
             break;
-
         default:
             break;
     }
