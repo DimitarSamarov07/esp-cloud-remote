@@ -51,6 +51,7 @@ app.use("/public", express.static(path.join(__dirname, '/../Front-End/public/'))
 
 app.post("/changeWifi", async function (req, res) {
     let {deviceID, ssid, pass} = req.body;
+    console.log(deviceID, ssid, pass);
 
     await esp.changeWifi(deviceID, ssid, pass);
     res.sendStatus(200);
@@ -90,18 +91,14 @@ app.get('/status', (req, res) => {
 
 });
 
-app.post('/register', async (req, res) => {
-    let {email, password} = req.body;
-    if (!password || !email) {
-        res.status(406).json({error: 'Please provide username and password'});
-    }
-    try {
-        await register(res, email, password);
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({error: 'Internal server error'});
-    }
-})
+app.post('/register/device', (req, res) => {
+    register(res, {
+        isDevice: true,
+        deviceID: req.body.deviceID,
+        password: req.body.password,
+        targetUserID: 1 // Forcing User 1 as the owner
+    });
+});
 
 /*
 IMPORTANT: The EMQX broker only works with codes 200,204,4XX,5XX.
@@ -110,39 +107,32 @@ wrong and determine the result to be ignored which would practically deny the
 authentication.
  */
 app.post('/validateCredentials', async (req, res) => {
-    let {username, password} = req.body;
-
-    /*
-    EMQX code the result field that is being sent is so the broker
-    can know whether to allow,deny or ignore the request
-    */
-    if (!password || !username) {
-        return res.status(200).json({ result: "deny", error: 'Missing username or password' });
-    }
+    const { username, password, isDevice } = req.body;
 
     try {
-        const [rows] = await pool.execute(
-            `SELECT Password FROM Users WHERE Username = ?`,
-            [username]
-        );
-        //If no rows found - deny
-        if (rows.length === 0) {
-            return res.status(200).json({ result: "deny", error: 'User not found.' });
-        }
-        /*
-        If there is a row, bcrypt compares the hashed password
-        with the password provided and decides whether the
-        user can authenticate.
-        */
-        const match = await bcrypt.compare(password, rows[0].Password);
-        if (match) {
-            return res.status(200).json({ result: "allow" });
+        let dbPassword;
+        if (isDevice === "true") {
+            // Username here represents the DeviceID
+            const [rows] = await pool.execute(
+                `SELECT DevicePassword FROM Devices WHERE ID = ?`,
+                [username]
+            );
+            if (rows.length > 0) dbPassword = rows[0].DevicePassword;
         } else {
-            return res.status(200).json({ result: "deny", error: 'Invalid credentials.' });
+            const [rows] = await pool.execute(
+                `SELECT Password FROM Users WHERE Username = ?`,
+                [username]
+            );
+            if (rows.length > 0) dbPassword = rows[0].Password;
         }
+
+        if (!dbPassword) return res.status(200).json({ result: "deny" });
+
+        const match = await bcrypt.compare(password, dbPassword);
+        return res.status(200).json({ result: match ? "allow" : "deny" });
+
     } catch (err) {
-        console.error(err);
-        return res.status(200).json({ result: "deny", error: 'Internal server error.' });
+        return res.status(200).json({ result: "deny" });
     }
 });
 
@@ -158,23 +148,50 @@ app.post('/validateCredentials', async (req, res) => {
  *
  * @returns {Promise<Response>} Will return 200 if the entry is inserted into the DB and 500 if there was an error during the registration.
  * */
-async function register(res,email, passwordFromDevice) {
-    let username = "mqtt_pc_" + Str_Random(16);
-    const hashedPass = await hashPassword(passwordFromDevice);
+
+/**
+ * Combined registration logic
+ * @param {Object} data - Contains the necessary fields based on isDevice
+ */
+async function register(res, data) {
+    const { isDevice, password } = data;
+    const hashedPass = await hashPassword(password);
+
     try {
-        const [result] = await pool.execute(
-            `INSERT INTO Users(Username,Email, Password, IsAdmin)
-             VALUES (?, ?, ?,0)`,
-            [username,email, hashedPass]
-        );
-        const userId = result.insertId;
+        if (isDevice) {
+            // Needs: deviceID, password, targetUserID
+            const { deviceID, targetUserID } = data;
+            const now = new Date();
+            const formatted = now.toISOString().replace('T', ' ').substring(0, 19);
+            await pool.execute(
+                `INSERT INTO Devices (ID, Name, DevicePassword, RegisteredAt)
+                 VALUES (?, ?, ?, ? )`,
+                [deviceID, `AC_Unit_${deviceID.substring(0, 10)}`, hashedPass, formatted]
+            );
 
+            await pool.execute(
+                `INSERT INTO Users_devices (ID, UserID, DeviceID)
+                 VALUES (UUID(), ?, ?)`,
+                [targetUserID || 1, deviceID] // Defaults to User 1 if no ID provided
+            );
 
-        return res.status(200).send({username, password: passwordFromDevice});
+            return res.status(200).json({ status: 'Device linked successfully', deviceID });
 
+        } else {
+            const { email } = data;
+            let username = "mqtt_pc_" + Str_Random(16);
+
+            await pool.execute(
+                `INSERT INTO Users (Username, Email, Password, IsAdmin)
+                 VALUES (?, ?, ?, 0)`,
+                [username, email, hashedPass]
+            );
+
+            return res.status(200).json({ status: 'User created', username });
+        }
     } catch (err) {
         console.error('Registration error:', err);
-        return res.status(500).json({error: 'Database error during registration.'});
+        return res.status(500).json({ error: 'Database error during registration.' });
     }
 }
 
