@@ -20,7 +20,7 @@ Control your air conditioner from anywhere using an **ESP32**, **infrared (IR)**
 ## 🧰 Hardware Requirements
 
 Full part list available here:  
-👉 [`Hardware/parts_list.md`](Hardware/parts_list.md)
+👉 [`Hardware/parts_list.txt`](Hardware/parts_list.md)
 
 | 🧩 Component         | 📋 Description                      |
 |----------------------|--------------------------------------|
