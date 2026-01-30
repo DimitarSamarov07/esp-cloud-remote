@@ -73,6 +73,8 @@ static void handle_wifi_config_message(const char *message, size_t length) {
 
         if (g_mqtt_ctx.wifi_callback) {
             g_mqtt_ctx.wifi_callback(&creds);
+
+
         }
     } else {
         ESP_LOGW(TAG, "Invalid WiFi config format");

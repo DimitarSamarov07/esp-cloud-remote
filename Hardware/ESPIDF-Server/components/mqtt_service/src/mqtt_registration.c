@@ -9,10 +9,12 @@
 
 static const char *TAG = "mqtt_register";
 static char response_buffer[512];
-const char charset[] = "abcdefghijklmnopqrstuvwxyz"
-                       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                       "0123456789"
-                       "!@#$%^&*()-_=+";
+const char *charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+
+typedef struct {
+    char username[33];
+    char password[65];
+} mqtt_credentials_t;
 
 extern esp_err_t mqtt_credentials_save(const char *username, const char *password);
 
@@ -25,12 +27,9 @@ static esp_err_t http_event_handler(esp_http_client_event_t *evt) {
 
                 cJSON *json = cJSON_Parse(response_buffer);
                 if (json) {
-                    cJSON *username_json = cJSON_GetObjectItem(json, "username");
-                    cJSON *password_json = cJSON_GetObjectItem(json, "password");
+                    cJSON *status = cJSON_GetObjectItem(json, "status");
 
-                    if (cJSON_IsString(username_json) && cJSON_IsString(password_json)) {
-                        mqtt_credentials_save(username_json->valuestring, 
-                                            password_json->valuestring);
+                    if (cJSON_IsString(status) && strcmp(status->valuestring, "Device linked successfully")) {
                         ESP_LOGI(TAG, "Registration successful, credentials saved");
                     } else {
                         ESP_LOGE(TAG, "Invalid response format");
@@ -51,16 +50,17 @@ static esp_err_t http_event_handler(esp_http_client_event_t *evt) {
     return ESP_OK;
 }
 
-char* generate_secure_password(const size_t length) {
-    if (length == 0 || length > 64) return NULL;
-
+mqtt_credentials_t generate_mqtt_credentials(const size_t pass_length) {
+    mqtt_credentials_t creds;
     uint8_t mac[6];
     uint8_t random_seed[16];
     uint8_t hash_output[32];
 
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
-
     esp_fill_random(random_seed, sizeof(random_seed));
+
+    snprintf(creds.username, sizeof(creds.username), "mqtt_pc_%02x%02x%02x",
+             mac[3], mac[4], mac[5]);
 
     mbedtls_sha256_context ctx;
     mbedtls_sha256_init(&ctx);
@@ -70,23 +70,22 @@ char* generate_secure_password(const size_t length) {
     mbedtls_sha256_finish(&ctx, hash_output);
     mbedtls_sha256_free(&ctx);
 
-    char *password = malloc(length + 1);
-    if (!password) return NULL;
-
+    size_t actual_pass_len = (pass_length > 64) ? 64 : pass_length;
     const size_t charset_len = strlen(charset);
-    for (size_t i = 0; i < length; i++) {
-        password[i] = charset[hash_output[i % 32] % charset_len];
-    }
-    password[length] = '\0';
 
-    return password;
+    for (size_t i = 0; i < actual_pass_len; i++) {
+        creds.password[i] = charset[hash_output[i % 32] % charset_len];
+    }
+    creds.password[actual_pass_len] = '\0';
+
+    return creds;
 }
 
 esp_err_t mqtt_register_device() {
     ESP_LOGI(TAG, "Starting device registration...");
-    char *password = generate_secure_password(16);
+    mqtt_credentials_t creds = generate_mqtt_credentials( 16);
     esp_http_client_config_t config = {
-        .url = "http://90.154.171.96:8690/register",
+        .url = "http://90.154.171.96:8690/register/device",
         .method = HTTP_METHOD_POST,
         .event_handler = http_event_handler,
         .timeout_ms = 5000,
@@ -99,9 +98,10 @@ esp_err_t mqtt_register_device() {
     }
 
     cJSON *root = cJSON_CreateObject();
-    cJSON_AddStringToObject(root, "email", "debeliq@gmail.com");
-    cJSON_AddStringToObject(root, "password", password);
+    cJSON_AddStringToObject(root, "deviceID", creds.username );
+    cJSON_AddStringToObject(root, "password", creds.password);
     char *post_data = cJSON_PrintUnformatted(root);
+    mqtt_credentials_save(creds.username, creds.password);
 
     esp_http_client_set_header(client, "Content-Type", "application/json");
     esp_http_client_set_post_field(client, post_data, strlen(post_data));
@@ -121,7 +121,6 @@ esp_err_t mqtt_register_device() {
     esp_http_client_cleanup(client);
     free(post_data);
     cJSON_Delete(root);
-    free(password);
 
     return err;
 }
