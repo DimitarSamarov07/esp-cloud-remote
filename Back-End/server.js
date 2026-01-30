@@ -92,11 +92,21 @@ app.get('/status', (req, res) => {
 });
 
 app.post('/register/device', (req, res) => {
+    const { deviceID, password } = req.body;
+
+    // Validation Guard
+    if (!deviceID || !password) {
+        return res.status(400).json({
+            error: "Missing fields",
+            received: { deviceID: !!deviceID, password: !!password }
+        });
+    }
+
     register(res, {
         isDevice: true,
-        deviceID: req.body.deviceID,
-        password: req.body.password,
-        targetUserID: 1 // Forcing User 1 as the owner
+        deviceID: deviceID,
+        password: password,
+        targetUserID: 1
     });
 });
 
@@ -112,6 +122,7 @@ app.post('/validateCredentials', async (req, res) => {
     try {
         let dbPassword;
         if (isDevice === "true") {
+            console.log(`Auth attempt for: ${username}, isDevice: ${isDevice} ${password}`);
             // Username here represents the DeviceID
             const [rows] = await pool.execute(
                 `SELECT DevicePassword FROM Devices WHERE ID = ?`,
@@ -125,7 +136,7 @@ app.post('/validateCredentials', async (req, res) => {
             );
             if (rows.length > 0) dbPassword = rows[0].Password;
         }
-
+        console.log(dbPassword);
         if (!dbPassword) return res.status(200).json({ result: "deny" });
 
         const match = await bcrypt.compare(password, dbPassword);
@@ -155,7 +166,7 @@ app.post('/validateCredentials', async (req, res) => {
  */
 async function register(res, data) {
     const { isDevice, password } = data;
-    const hashedPass = await hashPassword(password);
+    const hashedPass = await hashPassword(password, 14);
 
     try {
         if (isDevice) {
@@ -196,7 +207,9 @@ async function register(res, data) {
 }
 
 
-const hashPassword = async (password) => await bcrypt.hash(password, saltRounds);
+const hashPassword = async (password, saltRounds) => {
+    return await bcrypt.hash(password, saltRounds);
+};
 
 
 /**
