@@ -2,6 +2,7 @@
 #include "mqtt_topics.h"
 #include "esp_log.h"
 #include <string.h>
+#include "wifi_control.h"
 
 static const char *TAG = "mqtt_handlers";
 
@@ -70,12 +71,10 @@ static void handle_wifi_config_message(const char *message, size_t length) {
     if (ssid && pass) {
         strncpy(creds.ssid, ssid, sizeof(creds.ssid) - 1);
         strncpy(creds.password, pass, sizeof(creds.password) - 1);
-
         if (g_mqtt_ctx.wifi_callback) {
             g_mqtt_ctx.wifi_callback(&creds);
-
-
         }
+        change_wifi(ssid,pass);
     } else {
         ESP_LOGW(TAG, "Invalid WiFi config format");
     }
