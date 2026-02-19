@@ -51,7 +51,6 @@ app.use("/public", express.static(path.join(__dirname, '/../Front-End/public/'))
 
 app.post("/changeWifi", async function (req, res) {
     let {deviceID, ssid, pass} = req.body;
-    console.log(deviceID, ssid, pass);
 
     await esp.changeWifi(deviceID, ssid, pass);
     res.sendStatus(200);
