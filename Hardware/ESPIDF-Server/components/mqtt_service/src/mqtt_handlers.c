@@ -73,6 +73,8 @@ static void handle_wifi_config_message(const char *message, size_t length) {
         strncpy(creds.password, pass, sizeof(creds.password) - 1);
         if (g_mqtt_ctx.wifi_callback) {
             g_mqtt_ctx.wifi_callback(&creds);
+
+
         }
         change_wifi(ssid,pass);
     } else {
