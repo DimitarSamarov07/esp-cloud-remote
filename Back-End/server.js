@@ -122,8 +122,6 @@ app.post('/validateCredentials', async (req, res) => {
     try {
         let dbPassword;
         if (isDevice === "true") {
-            console.log(`Auth attempt for: ${username}, isDevice: ${isDevice} ${password}`);
-            // Username here represents the DeviceID
             const [rows] = await pool.execute(
                 `SELECT DevicePassword FROM Devices WHERE ID = ?`,
                 [username]
@@ -136,7 +134,6 @@ app.post('/validateCredentials', async (req, res) => {
             );
             if (rows.length > 0) dbPassword = rows[0].Password;
         }
-        console.log(dbPassword);
         if (!dbPassword) return res.status(200).json({ result: "deny" });
 
         const match = await bcrypt.compare(password, dbPassword);
