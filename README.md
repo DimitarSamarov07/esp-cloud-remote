@@ -1,3 +1,5 @@
+![ESPCR banner](./Front_End/web_design_files/esp-repo-banner.png)
+
 # ❄️ Smart AC Control with ESP32  
 > 🛰️ IR Remote + 🌐 Web UI + ⚙️ ESP-IDF
 
