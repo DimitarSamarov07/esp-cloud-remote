@@ -144,6 +144,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
             // Reasons 2, 14, 15, 204: Various Handshake/Auth timeouts usually meaning Wrong Password
             else if (disconn->reason == WIFI_REASON_AUTH_EXPIRE ||
                      disconn->reason == WIFI_REASON_4WAY_HANDSHAKE_TIMEOUT ||
+                     disconn->reason == WIFI_REASON_NO_AP_FOUND_W_COMPATIBLE_SECURITY ||
                      disconn->reason == WIFI_REASON_HANDSHAKE_TIMEOUT ||
                      disconn->reason == WIFI_REASON_MIC_FAILURE) {
                 ESP_LOGE(TAG, "FAIL: Password Incorrect.");
@@ -198,8 +199,6 @@ void wifi_init_setup()
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    // --- CRITICAL ADDITIONS ---
-    // Transition from 'INIT' to 'START' (Power on the hardware)
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_start());
     ESP_LOGI(TAG, "WiFi hardware started and in READY state.");

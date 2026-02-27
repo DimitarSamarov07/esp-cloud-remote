@@ -28,9 +28,58 @@ NimBLECharacteristic *pStatusChar = nullptr;
 // ---------------------------------------------------
 // UUID DEFINITIONS
 // ---------------------------------------------------
+
+/**
+ * =============================================================================
+ * SERVICE: WIFI SCAN SERVICE (31175f53-389f-4d19-8f69-6da32a28d50e)
+ * =============================================================================
+ * * 1. CHAR_WIFI_SSID_LIST (22946000-e86b-4831-adc8-27ab2cdb85fb)
+ * - Properties: READ | NOTIFY
+ * - Format: UTF-8 String (Newline separated)
+ * - Logic: Contains the results of the last successful WiFi scan.
+ * Maximum length is capped at ~500 bytes to stay within BLE MTU limits.
+ * * 2. CHAR_SHOULD_SCAN (3a6b1432-c481-45a7-a798-45ecd7d1ef41)
+ * - Properties: READ | WRITE
+ * - Format: UTF-8 String / Boolean
+ * - Logic: Writing any value to this characteristic triggers a global flag
+ * (g_wifi_scan_requested). The main loop then halts WiFi connection logic
+ * to perform a safe hardware scan.
+ *
+
+ */
+
 #define SERVICE_SCAN_UUID           "31175f53-389f-4d19-8f69-6da32a28d50e"
 #define CHAR_WIFI_SSID_LIST_UUID    "22946000-e86b-4831-adc8-27ab2cdb85fb"
 #define CHAR_SHOULD_SCAN_UUID       "3a6b1432-c481-45a7-a798-45ecd7d1ef41"
+
+
+/**
+* * =============================================================================
+* SERVICE: WIFI SETTINGS SERVICE (4fafc201-1fb5-459e-8fcc-c5c9c331914b)
+* =============================================================================
+* * 1. CHAR_SET_SSID (beb5483e-36e1-4688-b7f5-ea07361b26a8)
+* - Properties: READ | WRITE
+* - Format: UTF-8 String (Max 32 chars)
+* - Logic: Sets the target WiFi network name. Triggers g_wifi_credentials_updated.
+*
+*
+* * 2. CHAR_SET_PASS (ed9e4092-2c12-4a94-9d86-696058d16573)
+* - Properties: READ | WRITE
+* - Format: UTF-8 String (Max 64 chars)
+* - Logic: Sets the WiFi password. Triggers g_wifi_credentials_updated.
+*
+*
+* * 3. CHAR_CONN_STATUS (4d5ea626-4ac9-4a71-9392-d0764ac7cefe)
+* - Properties: READ | NOTIFY
+* - Format: UTF-8 String (e.g., "1: Connected!")
+* - Logic: Real-time feedback loop from the WiFi Event Handler.
+* - 0: Connecting... (Handshake in progress)
+* - 1: Connected! (IP obtained)
+* - 2: Error - Network Not Found (SSID out of range or invalid)
+* - 3: Error - Incorrect Password (Auth failure)
+* - 4: Error - Connection Dropped (Generic failure)
+* =============================================================================
+*/
 
 #define SERVICE_SET_UUID            "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CHAR_SET_SSID_UUID          "beb5483e-36e1-4688-b7f5-ea07361b26a8"
