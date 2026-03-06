@@ -7,6 +7,9 @@ DROP TABLE IF EXISTS AirConditioners;
 DROP TABLE IF EXISTS Users_devices;
 DROP TABLE IF EXISTS Devices;
 DROP TABLE IF EXISTS Users;
+DROP PROCEDURE IF EXISTS RegisterAirConditionerWithDevice;
+DROP PROCEDURE IF EXISTS UpdateAirConditionerAndState;
+DROP PROCEDURE IF EXISTS DeleteAirConditionerByDeviceID;
 
 
 CREATE TABLE IF NOT EXISTS Users
@@ -24,10 +27,11 @@ CREATE TABLE IF NOT EXISTS Devices
 (
     ID           VARCHAR(36) PRIMARY KEY,
     Name         VARCHAR(50) NOT NULL,
+    DevicePassword VARCHAR(255) NOT NULL,
     Location     VARCHAR(50),
     IsOnline     BOOLEAN DEFAULT FALSE,
     LastSeen     TIMESTAMP   NULL,
-    RegisteredAt BOOLEAN DEFAULT FALSE
+    RegisteredAt TIMESTAMP DEFAULT FALSE
 );
 
 
@@ -76,17 +80,16 @@ VALUES ('john_doe', 'john@example.com', 'hashed_password_123', FALSE),
        ('alice_smith', 'alice@example.com', 'hashed_password_alice', FALSE);
 
 -- Insert sample devices
-INSERT INTO Devices (ID, Name, Location, IsOnline, LastSeen, RegisteredAt)
-VALUES ('device-uuid-001', 'Living Room Sensor', 'Living Room', TRUE, NOW(), TRUE),
-       ('device-uuid-002', 'Bedroom Thermostat', 'Bedroom', FALSE, NULL, TRUE),
-       ('device-uuid-003', 'Kitchen AC Unit', 'Kitchen', TRUE, NOW(), TRUE);
+INSERT INTO Devices (ID, Name,DevicePassword, Location, IsOnline, LastSeen, RegisteredAt)
+VALUES ('device-uuid-001', 'Living Room Sensor', 'admin123', 'Living Room', TRUE, NOW(), NOW()),
+       ('device-uuid-002', 'Bedroom Thermostat', 'admin123', 'Bedroom', FALSE, NULL, NOW()),
+       ('device-uuid-003', 'Kitchen AC Unit', 'admin123','Kitchen', TRUE, NOW(), NOW());
 
 -- Link users and devices
 INSERT INTO Users_devices (ID, UserID, DeviceID)
 VALUES ('link-uuid-001', 1, 'device-uuid-001'), -- john_doe <-> Living Room Sensor
        ('link-uuid-002', 2, 'device-uuid-002'), -- admin_user <-> Bedroom Thermostat
-       ('link-uuid-003', 3, 'device-uuid-003');
--- alice_smith <-> Kitchen AC Unit
+       ('link-uuid-003', 3, 'device-uuid-003'); -- alice_smith <-> Kitchen AC Unit
 
 -- Insert sample AirConditioners
 INSERT INTO AirConditioners (DeviceID, Name, Brand, Model)
@@ -100,12 +103,14 @@ VALUES ( 1,TRUE, TRUE, 24.5, 22.0, 'Auto', 'Cool', TRUE,'2025-04-01 00:00:00'),
 
 DELIMITER //
 
+
 CREATE PROCEDURE RegisterAirConditionerWithDevice(
     IN in_username VARCHAR(100),
     IN in_email VARCHAR(100),
     IN in_password VARCHAR(100),
-    IN in_device_id VARCHAR(36),
-    IN in_device_name VARCHAR(100),
+    IN in_device_id VARCHAR(255),
+    IN in_device_name VARCHAR(255),
+    IN in_device_password VARCHAR(255),
     IN in_location VARCHAR(100),
     IN in_ac_name VARCHAR(100),
     IN in_ac_brand VARCHAR(100),
@@ -131,8 +136,8 @@ BEGIN
         VALUES (in_username, in_email, in_password, FALSE);
         SET uid = LAST_INSERT_ID();
     END IF;
-    INSERT INTO Devices (ID, Name, Location, IsOnline, LastSeen, RegisteredAt)
-    VALUES (in_device_id, in_device_name, in_location, in_is_online, in_ac_last_seen, TRUE);
+    INSERT INTO Devices (ID, Name,DevicePassword, Location, IsOnline, LastSeen, RegisteredAt)
+    VALUES (in_device_id, in_device_name,in_device_password ,in_location, in_is_online, in_ac_last_seen, NOW());
 
     INSERT INTO Users_devices (ID, UserID, DeviceID)
     VALUES (UUID(), uid, in_device_id);
@@ -187,21 +192,14 @@ DELIMITER $$
 
 CREATE PROCEDURE DeleteAirConditionerByDeviceID(IN inputDeviceID VARCHAR(36))
 BEGIN
-    DECLARE acID BIGINT DEFAULT NULL;
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET acID = NULL;
+    DELETE FROM AirConditioners WHERE DeviceID = inputDeviceID;
 
-    -- Try to get the ID
-    SELECT ID INTO acID FROM AirConditioners WHERE DeviceID = inputDeviceID LIMIT 1;
-
-    -- Check if found
-    IF acID IS NOT NULL THEN
-        DELETE FROM AirConditionersState WHERE ID = acID;
-        DELETE FROM AirConditioners WHERE ID = acID;
+    IF ROW_COUNT() > 0 THEN
         SELECT 'Deleted' AS status;
     ELSE
         SELECT 'NotFound' AS status;
     END IF;
-END$$
+END $$
 
 DELIMITER ;
 

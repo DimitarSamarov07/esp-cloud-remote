@@ -9,6 +9,7 @@ idf_component_register(
         INCLUDE_DIRS
         "include"
         REQUIRES
+        wifi_service
         mqtt
         esp_http_client
         json
