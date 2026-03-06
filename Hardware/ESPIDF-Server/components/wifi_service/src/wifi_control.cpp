@@ -1,4 +1,7 @@
+#include "wifi_control.h"
+
 #include <nvs_flash.h>
+#include "nvs.h"
 #include <cstdint>
 #include <cstring>
 #include "esp_event.h"
@@ -274,4 +277,3 @@ void change_wifi(char* new_ssid, const char* new_password)
 
     wifi_init_sta(new_ssid, new_password);
 }
-#include "nvs.h"
