@@ -16,3 +16,4 @@ dependencies:
   #   public: true
   espressif/qrcode: '*'
   espressif/arduino-esp32: ^3.2.0
+  h2zero/esp-nimble-cpp: '*'
