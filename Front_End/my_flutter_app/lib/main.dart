@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
-import 'adminPanel.dart';
+import 'admin_panel.dart';
 
 void main() {
   runApp(const MyApp());

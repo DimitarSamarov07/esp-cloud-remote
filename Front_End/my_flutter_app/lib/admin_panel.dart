@@ -249,7 +249,24 @@ class _AdminPageState extends State<AdminPage> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Admin Panel'),
+        leadingWidth: 140,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset(
+            'assets/espcr.png',
+          ),
+        ),
+        // title: const Text('Admin Panel'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(
+              Icons.menu,
+              size: 30,
+            ),
+            tooltip: 'Menu',
+            onPressed: () {},
+          ),
+        ],
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0.5,
