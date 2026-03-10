@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_flutter_app/admin_test.dart';
 import 'login.dart';
 import 'admin_panel.dart';
 
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       //home: AdminPage(),
-      home: const LoginPage(),
+      home: const AdminPage(),
     );
   }
 }

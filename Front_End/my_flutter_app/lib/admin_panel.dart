@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -276,6 +277,7 @@ class _AdminPageState extends State<AdminPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -310,9 +312,45 @@ class _AdminPageState extends State<AdminPage> {
                 ],
               ),
             ),
+            const SizedBox(height: 20),
+            Expanded(child: _buildDeviceList())
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDeviceList() {
+    return ListView.separated(
+      itemCount: 5,
+      itemBuilder: (BuildContext context, int index) {
+        return ListTile(
+          title: const Text('ESP32'),
+          tileColor: Colors.white,
+          onTap: (){},
+          leading: svgESP(),
+          trailing: Text(
+            'OFF', // Fixed text temporarily
+            style: TextStyle(
+              fontWeight: FontWeight(600),
+              fontSize: 14,
+              color: Colors.red,
+            ),
+          ),
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) => const Divider(
+        color: Colors.grey,
+        thickness: 2,
+      ),
+    );
+  }
+
+  Widget svgESP() {
+    return SvgPicture.asset(
+      "assets/esp.svg",
+      width: 24,
+      height: 24,
     );
   }
 }
