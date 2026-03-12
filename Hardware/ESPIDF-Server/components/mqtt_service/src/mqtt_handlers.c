@@ -77,6 +77,11 @@ static void handle_wifi_config_message(const char *message, size_t length) {
 
         }
         change_wifi(ssid,pass);
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        if (checkWIFI() == 0) {
+            ESP_LOGI(TAG, "WiFi connection lost");
+            esp_restart();
+        }
     } else {
         ESP_LOGW(TAG, "Invalid WiFi config format");
     }

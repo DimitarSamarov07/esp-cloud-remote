@@ -114,6 +114,10 @@ std::string perform_wifi_scan() {
     return ssid_list.empty() ? "No networks found" : ssid_list;
 }
 
+int checkWIFI() {
+    return IS_WIFI_CONNECTED;
+}
+
 
 
 
