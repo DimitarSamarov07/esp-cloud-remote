@@ -14,6 +14,8 @@ void wifi_init_sta(char *ssid, const char *password);
 
 void change_wifi(char *new_ssid, const char *new_password);
 
+int checkWIFI();
+
 extern int IS_WIFI_CONNECTED;
 
 #ifdef __cplusplus
