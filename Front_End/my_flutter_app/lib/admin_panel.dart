@@ -313,6 +313,22 @@ class _AdminPageState extends State<AdminPage> {
               ),
             ),
             const SizedBox(height: 20),
+            /* Expanded(
+              child: ListTile(
+                  title: const Text('ESP Name'),
+                  tileColor: Colors.grey,
+                  onTap: (){},
+                  leading: Icon(Icons.two_k_outlined),
+                  trailing: Text(
+                    'AC', // Fixed text temporarily
+                    style: TextStyle(
+                      fontWeight: FontWeight(800),
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  )
+              ),
+            ), */
             Expanded(child: _buildDeviceList())
           ],
         ),
@@ -322,26 +338,90 @@ class _AdminPageState extends State<AdminPage> {
 
   Widget _buildDeviceList() {
     return ListView.separated(
-      itemCount: 5,
+      itemCount: 3 +2, // bs
       itemBuilder: (BuildContext context, int index) {
+
+        if (index == 0) {
+          return ListTile(
+            title: const Text(
+              'Admin Panel',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight(600)
+              ),
+            ),
+            trailing: OutlinedButton(
+              onPressed: (){},
+              style: OutlinedButton.styleFrom(
+                textStyle: TextStyle(color: Colors.grey),
+                side: BorderSide(color: Colors.grey, width: 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)
+                ),
+              ),
+              child: const Text('All ESPs')
+            )
+          );
+        }
+
+        if (index == 1) {
+          return IgnorePointer(
+            ignoring: true,
+            child: ListTile(
+              title: const Text(
+                'ESP Name',
+                style: TextStyle(
+                  fontWeight: FontWeight(600),
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+              tileColor: Colors.white,
+              onTap: (){},
+              leading: SizedBox(width: 24),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                      'Status', // Fixed text temporarily
+                      style: TextStyle(
+                        fontWeight: FontWeight(600),
+                        fontSize: 14,
+                        color: Colors.grey,
+                      )),
+                  SizedBox(width: 26),
+                  Text(
+                      'AC', // Fixed text temporarily
+                      style: TextStyle(
+                        fontWeight: FontWeight(600),
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ))
+                ],
+              ),
+            ),
+          );
+        }
+
         return ListTile(
           title: const Text('ESP32'),
           tileColor: Colors.white,
           onTap: (){},
           leading: svgESP(),
-          trailing: Text(
-            'OFF', // Fixed text temporarily
-            style: TextStyle(
-              fontWeight: FontWeight(600),
-              fontSize: 14,
-              color: Colors.red,
-            ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ESPstatusText(true),
+              SizedBox(width: 26),
+              ACstatusText(false)
+            ],
           ),
         );
       },
-      separatorBuilder: (BuildContext context, int index) => const Divider(
-        color: Colors.grey,
-        thickness: 2,
+      separatorBuilder: (BuildContext context, int index) => Divider(
+        color: Colors.grey[300],
+        height: 1,
+        thickness: 1.6,
       ),
     );
   }
@@ -353,4 +433,44 @@ class _AdminPageState extends State<AdminPage> {
       height: 24,
     );
   }
+
+  Widget ESPstatusText(bool statusOn) {
+    if (statusOn) {
+      return Text(
+          'Active', // Fixed text temporarily
+          style: TextStyle(
+            fontWeight: FontWeight(600),
+            fontSize: 14,
+            color: Colors.green,
+          ));
+    } else {
+      return Text(
+          'Inactive', // Fixed text temporarily
+          style: TextStyle(
+            fontWeight: FontWeight(600),
+            fontSize: 14,
+            color: Colors.red,
+          ));
+    }
+  }
+
+  Widget ACstatusText(bool statusOn) {
+    if (statusOn) {
+      return Text(
+          'ON', // Fixed text temporarily
+          style: TextStyle(
+            fontWeight: FontWeight(600),
+            fontSize: 14,
+            color: Colors.green,
+          ));
+    } else {
+      return Text(
+          'OFF', // Fixed text temporarily
+          style: TextStyle(
+            fontWeight: FontWeight(600),
+            fontSize: 14,
+            color: Colors.red,
+          ));
+    }
+  } // i know these are bs, let me cook
 }
