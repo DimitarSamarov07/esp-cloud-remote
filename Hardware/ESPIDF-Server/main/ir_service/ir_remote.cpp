@@ -1,5 +1,6 @@
-//
-// Created by angel on 22.01.26 г..
-//
+#include "Arduino.h"
+// ... your other includes ...
 
-#include "ir_remote.h"
+// ADD THESE FOR THE IR LIBRARY:
+#include <IRremoteESP8266.h>
+#include <IRsend.h>
