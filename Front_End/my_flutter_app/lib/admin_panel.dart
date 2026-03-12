@@ -1,6 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+// Data model for each ESP device
+class DeviceData {
+  String name;
+  int temp;
+  List<bool> mode; // [Hot, Cold]
+  bool power;
+  int fanSpeed;
+
+  DeviceData({
+    required this.name,
+    this.temp = 25,
+    this.mode = const [false, true],
+    this.power = true,
+    this.fanSpeed = 2,
+  });
+}
+
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
 
@@ -9,218 +26,292 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
-  // Global state for the settings
-  List<bool> isSelected = [false, true]; // [Hot, Cold]
-  int _temp = 25;
-  bool light1 = true;
-  int fanSpeed = 2; // 0-4
+  // List of devices with their individual states
+  final List<DeviceData> _devices = [
+    DeviceData(name: 'ESP32 Kitchen'),
+    DeviceData(name: 'ESP32 Living Room', temp: 22, power: false),
+    DeviceData(name: 'ESP32 Bedroom', temp: 24),
+  ];
 
-  void _showCustomDialog() {
-    // Create local copies of the state to allow "Cancel" functionality
-    int localTemp = _temp;
-    List<bool> localIsSelected = List.from(isSelected);
-    bool localLight1 = light1;
-    int localFanSpeed = fanSpeed;
-
-    showDialog(
+  void _showSettingsDialog(int index) async {
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+      builder: (context) => EspSettingsDialog(
+        device: _devices[index],
+      ),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _devices[index].temp = result['temp'];
+        _devices[index].mode = result['mode'];
+        _devices[index].power = result['power'];
+        _devices[index].fanSpeed = result['fanSpeed'];
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        leadingWidth: 140,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset(
+            'assets/espcr.png',
+            errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image),
+          ),
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.menu, size: 30),
+            tooltip: 'Menu',
+            onPressed: () {},
+          ),
+        ],
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        foregroundColor: Colors.black,
+      ),
+      body: _buildDeviceList(),
+    );
+  }
+
+  Widget _buildDeviceList() {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      itemCount: _devices.length + 2,
+      separatorBuilder: (context, index) => Divider(
+        color: Colors.grey[300],
+        height: 1,
+        thickness: 1.6,
+      ),
+      itemBuilder: (BuildContext context, int index) {
+        if (index == 0) {
+          return const ListTile(
+            title: Text(
+              'Admin Panel',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+            ),
+          );
+        }
+
+        if (index == 1) {
+          return const IgnorePointer(
+            child: ListTile(
+              title: Text(
+                'ESP Name',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header with Close Button
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Edit Settings',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.close),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Name Display
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Name*',
-                            style: TextStyle(
-                                color: Colors.grey[600], fontSize: 12),
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'ESP Name',
-                              prefixIcon: Icon(Icons.person_outline),
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Temperature Control
-                    Row(
-                      children: [
-                        const Text('Temperature: ',
-                            style: TextStyle(fontSize: 18)),
-                        IconButton(
-                          onPressed: () => setDialogState(() => localTemp--),
-                          icon: const Icon(Icons.remove, size: 18),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '$localTemp',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.cyan,
-                            decoration: TextDecoration.underline,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Text('°C',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
-                        const SizedBox(width: 4),
-                        IconButton(
-                          onPressed: () => setDialogState(() => localTemp++),
-                          icon: const Icon(Icons.add, size: 18),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Mode Selection
-                    Row(
-                      children: [
-                        const Text('Mode: ', style: TextStyle(fontSize: 18)),
-                        const SizedBox(width: 8),
-                        _buildModeButton('Cold', localIsSelected[1], () {
-                          setDialogState(() {
-                            localIsSelected = [false, true];
-                          });
-                        }),
-                        const SizedBox(width: 8),
-                        _buildModeButton('Hot', localIsSelected[0], () {
-                          setDialogState(() {
-                            localIsSelected = [true, false];
-                          });
-                        }),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    Row(
-                      children: [
-                        const Text('Fan: ', style: TextStyle(fontSize: 18)),
-                        ...List.generate(4, (index) {
-                          bool isActive = index < localFanSpeed;
-                          return IconButton(
-                            onPressed: () =>
-                                setDialogState(() => localFanSpeed = index + 1),
-                            icon: Icon(
-                              Icons.wind_power,
-                              color: isActive ? Colors.cyan : Colors.grey[300],
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            constraints: const BoxConstraints(),
-                          );
-                        }),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Power Toggle
-                    Row(
-                      children: [
-                        const Text('Power (ON/OFF): ',
-                            style: TextStyle(fontSize: 18)),
-                        Switch(
-                          value: localLight1,
-                          onChanged: (bool value) {
-                            setDialogState(() {
-                              localLight1 = value;
-                            });
-                          },
-                          activeThumbColor: Colors.cyan,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Footer Buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text(
-                            'CANCEL',
-                            style: TextStyle(
-                                color: Colors.cyan,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        TextButton(
-                          onPressed: () {
-                            // Update the main page state only on Save
-                            setState(() {
-                              _temp = localTemp;
-                              isSelected = localIsSelected;
-                              light1 = localLight1;
-                              fanSpeed = localFanSpeed;
-                            });
-                            Navigator.pop(context);
-                          },
-                          child: const Text(
-                            'SAVE',
-                            style: TextStyle(
-                                color: Colors.cyan,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              leading: SizedBox(width: 24),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Status', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey)),
+                  SizedBox(width: 26),
+                  Text('AC', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey)),
+                ],
               ),
-            );
-          },
+            ),
+          );
+        }
+
+        final deviceIndex = index - 2;
+        final device = _devices[deviceIndex];
+
+        return ListTile(
+          title: Text(device.name),
+          tileColor: Colors.white,
+          onTap: () => _showSettingsDialog(deviceIndex),
+          leading: svgESP(),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _espStatusText(true),
+              const SizedBox(width: 26),
+              _acStatusText(device.power),
+            ],
+          ),
         );
       },
+    );
+  }
+
+  Widget svgESP() {
+    return SvgPicture.asset(
+      "assets/esp.svg",
+      width: 24,
+      height: 24,
+      placeholderBuilder: (context) => const Icon(Icons.developer_board, color: Colors.cyan),
+    );
+  }
+
+  Widget _espStatusText(bool statusOn) {
+    return Text(
+      statusOn ? 'Active' : 'Inactive',
+      style: TextStyle(
+        fontWeight: FontWeight.w600,
+        fontSize: 14,
+        color: statusOn ? Colors.green : Colors.red,
+      ),
+    );
+  }
+
+  Widget _acStatusText(bool statusOn) {
+    return Text(
+      statusOn ? 'ON' : 'OFF',
+      style: TextStyle(
+        fontWeight: FontWeight.w600,
+        fontSize: 14,
+        color: statusOn ? Colors.green : Colors.red,
+      ),
+    );
+  }
+}
+
+// Separate StatefulWidget for the Settings Dialog
+class EspSettingsDialog extends StatefulWidget {
+  final DeviceData device;
+
+  const EspSettingsDialog({super.key, required this.device});
+
+  @override
+  State<EspSettingsDialog> createState() => _EspSettingsDialogState();
+}
+
+class _EspSettingsDialogState extends State<EspSettingsDialog> {
+  late int localTemp;
+  late List<bool> localMode;
+  late bool localPower;
+  late int localFanSpeed;
+
+  @override
+  void initState() {
+    super.initState();
+    localTemp = widget.device.temp;
+    localMode = List.from(widget.device.mode);
+    localPower = widget.device.power;
+    localFanSpeed = widget.device.fanSpeed;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Edit Settings', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(15)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Name*', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                  Text(widget.device.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                const Text('Temperature: ', style: TextStyle(fontSize: 18)),
+                IconButton(
+                  onPressed: () => setState(() => localTemp--),
+                  icon: const Icon(Icons.remove, size: 18),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+                const SizedBox(width: 4),
+                Text('$localTemp', style: const TextStyle(fontSize: 18, color: Colors.cyan, decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
+                const Text('°C', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(width: 4),
+                IconButton(
+                  onPressed: () => setState(() => localTemp++),
+                  icon: const Icon(Icons.add, size: 18),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Text('Mode: ', style: TextStyle(fontSize: 18)),
+                const SizedBox(width: 8),
+                _buildModeButton('Cold', localMode[1], () => setState(() => localMode = [false, true])),
+                const SizedBox(width: 8),
+                _buildModeButton('Hot', localMode[0], () => setState(() => localMode = [true, false])),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Text('Fan: ', style: TextStyle(fontSize: 18)),
+                ...List.generate(4, (index) {
+                  bool isActive = index < localFanSpeed;
+                  return IconButton(
+                    onPressed: () => setState(() => localFanSpeed = index + 1),
+                    icon: Icon(Icons.wind_power, color: isActive ? Colors.cyan : Colors.grey[300]),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    constraints: const BoxConstraints(),
+                  );
+                }),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Text('Power (ON/OFF): ', style: TextStyle(fontSize: 18)),
+                Switch(
+                  value: localPower,
+                  onChanged: (bool value) => setState(() => localPower = value),
+                  activeThumbColor: Colors.cyan,
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('CANCEL', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(width: 16),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, {
+                    'temp': localTemp,
+                    'mode': localMode,
+                    'power': localPower,
+                    'fanSpeed': localFanSpeed,
+                  }),
+                  child: const Text('SAVE', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -234,243 +325,8 @@ class _AdminPageState extends State<AdminPage> {
           border: Border.all(color: active ? Colors.cyan : Colors.grey),
           color: active ? Colors.cyan.withValues(alpha: 0.1) : Colors.transparent,
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: active ? Colors.cyan : Colors.black,
-            fontWeight: active ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
+        child: Text(label, style: TextStyle(color: active ? Colors.cyan : Colors.black, fontWeight: active ? FontWeight.bold : FontWeight.normal)),
       ),
     );
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        leadingWidth: 140,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Image.asset(
-            'assets/espcr.png',
-          ),
-        ),
-        // title: const Text('Admin Panel'),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(
-              Icons.menu,
-              size: 30,
-            ),
-            tooltip: 'Menu',
-            onPressed: () {},
-          ),
-        ],
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        foregroundColor: Colors.black,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha:0.05),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  )
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: _showCustomDialog,
-                    icon: const Icon(Icons.settings),
-                    label: const Text('Edit Settings'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            /* Expanded(
-              child: ListTile(
-                  title: const Text('ESP Name'),
-                  tileColor: Colors.grey,
-                  onTap: (){},
-                  leading: Icon(Icons.two_k_outlined),
-                  trailing: Text(
-                    'AC', // Fixed text temporarily
-                    style: TextStyle(
-                      fontWeight: FontWeight(800),
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  )
-              ),
-            ), */
-            Expanded(child: _buildDeviceList())
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDeviceList() {
-    return ListView.separated(
-      itemCount: 3 +2, // bs
-      itemBuilder: (BuildContext context, int index) {
-
-        if (index == 0) {
-          return ListTile(
-            title: const Text(
-              'Admin Panel',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight(600)
-              ),
-            ),
-            trailing: OutlinedButton(
-              onPressed: (){},
-              style: OutlinedButton.styleFrom(
-                textStyle: TextStyle(color: Colors.grey),
-                side: BorderSide(color: Colors.grey, width: 1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)
-                ),
-              ),
-              child: const Text('All ESPs')
-            )
-          );
-        }
-
-        if (index == 1) {
-          return IgnorePointer(
-            ignoring: true,
-            child: ListTile(
-              title: const Text(
-                'ESP Name',
-                style: TextStyle(
-                  fontWeight: FontWeight(600),
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
-              ),
-              tileColor: Colors.white,
-              onTap: (){},
-              leading: SizedBox(width: 24),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                      'Status', // Fixed text temporarily
-                      style: TextStyle(
-                        fontWeight: FontWeight(600),
-                        fontSize: 14,
-                        color: Colors.grey,
-                      )),
-                  SizedBox(width: 26),
-                  Text(
-                      'AC', // Fixed text temporarily
-                      style: TextStyle(
-                        fontWeight: FontWeight(600),
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ))
-                ],
-              ),
-            ),
-          );
-        }
-
-        return ListTile(
-          title: const Text('ESP32'),
-          tileColor: Colors.white,
-          onTap: (){},
-          leading: svgESP(),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ESPstatusText(true),
-              SizedBox(width: 26),
-              ACstatusText(false)
-            ],
-          ),
-        );
-      },
-      separatorBuilder: (BuildContext context, int index) => Divider(
-        color: Colors.grey[300],
-        height: 1,
-        thickness: 1.6,
-      ),
-    );
-  }
-
-  Widget svgESP() {
-    return SvgPicture.asset(
-      "assets/esp.svg",
-      width: 24,
-      height: 24,
-    );
-  }
-
-  Widget ESPstatusText(bool statusOn) {
-    if (statusOn) {
-      return Text(
-          'Active', // Fixed text temporarily
-          style: TextStyle(
-            fontWeight: FontWeight(600),
-            fontSize: 14,
-            color: Colors.green,
-          ));
-    } else {
-      return Text(
-          'Inactive', // Fixed text temporarily
-          style: TextStyle(
-            fontWeight: FontWeight(600),
-            fontSize: 14,
-            color: Colors.red,
-          ));
-    }
-  }
-
-  Widget ACstatusText(bool statusOn) {
-    if (statusOn) {
-      return Text(
-          'ON', // Fixed text temporarily
-          style: TextStyle(
-            fontWeight: FontWeight(600),
-            fontSize: 14,
-            color: Colors.green,
-          ));
-    } else {
-      return Text(
-          'OFF', // Fixed text temporarily
-          style: TextStyle(
-            fontWeight: FontWeight(600),
-            fontSize: 14,
-            color: Colors.red,
-          ));
-    }
-  } // i know these are bs, let me cook
 }
