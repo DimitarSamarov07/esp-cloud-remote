@@ -21,3 +21,4 @@ export const fetchAirConditionerStatus = async (deviceID: string, mqttClient: an
     //@ts-ignore
     return rows[0];
 };
+
