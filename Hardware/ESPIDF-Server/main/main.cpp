@@ -3,14 +3,7 @@
 #include <NimBLEDevice.h>
 #include "wifi_control.h"
 #include "ir_remote.h"
-
-extern "C" {
 #include "mqtt_service.h"
-#include "nvs_flash.h"
-#include "nvs.h"
-
-}
-
 static const char *TAG = "MAIN_APP";
 
 extern volatile bool g_wifi_scan_requested;

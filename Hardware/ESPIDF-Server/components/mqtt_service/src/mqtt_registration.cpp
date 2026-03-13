@@ -84,12 +84,11 @@ mqtt_credentials_t generate_mqtt_credentials(const size_t pass_length) {
 esp_err_t mqtt_register_device() {
     ESP_LOGI(TAG, "Starting device registration...");
     mqtt_credentials_t creds = generate_mqtt_credentials( 16);
-    esp_http_client_config_t config = {
-        .url = "http://90.154.171.96:8690/register/device",
-        .method = HTTP_METHOD_POST,
-        .event_handler = http_event_handler,
-        .timeout_ms = 5000,
-    };
+    esp_http_client_config_t config = {}; // Initialize with zeros
+    config.url = "http://90.154.171.96:8690/register/device";
+    config.event_handler = http_event_handler;
+    config.method = HTTP_METHOD_POST;
+    config.timeout_ms = 5000;
 
     esp_http_client_handle_t client = esp_http_client_init(&config);
     if (!client) {

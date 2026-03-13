@@ -34,21 +34,26 @@ esp_err_t mqtt_service_init(void) {
     char lwt_topic[128];
     snprintf(lwt_topic, sizeof(lwt_topic), MQTT_TOPIC_LWT, g_mqtt_ctx.username);
 
-    esp_mqtt_client_config_t mqtt_cfg = {
-        .broker.address.uri = "mqtt://90.154.171.96:5728",
-        .credentials.username = g_mqtt_ctx.username,
-        .credentials.authentication.password = g_mqtt_ctx.password,
-        .session.keepalive = 60,
-        .session.disable_clean_session = true,
-        .session.last_will = {
-            .topic = lwt_topic,
-            .msg = "offline",
-            .msg_len = 7,
-            .qos = 1,
-            .retain = true,
-        },
-        .session.protocol_ver = MQTT_PROTOCOL_V_5,
-    };
+    esp_mqtt_client_config_t mqtt_cfg = {}; // Zero out the struct first
+
+    // Set Broker settings
+    mqtt_cfg.broker.address.uri = "mqtt://90.154.171.96:5728";
+
+    // Set Credentials
+    mqtt_cfg.credentials.username = g_mqtt_ctx.username;
+    mqtt_cfg.credentials.authentication.password = g_mqtt_ctx.password;
+
+    // Set Session settings
+    mqtt_cfg.session.keepalive = 60;
+    mqtt_cfg.session.disable_clean_session = true;
+    mqtt_cfg.session.protocol_ver = MQTT_PROTOCOL_V_5;
+
+    // Set Last Will and Testament
+    mqtt_cfg.session.last_will.topic = lwt_topic;
+    mqtt_cfg.session.last_will.msg = "offline";
+    mqtt_cfg.session.last_will.msg_len = 7;
+    mqtt_cfg.session.last_will.qos = 1;
+    mqtt_cfg.session.last_will.retain = true;
 
     g_mqtt_ctx.client = esp_mqtt_client_init(&mqtt_cfg);
     if (!g_mqtt_ctx.client) {
@@ -56,7 +61,7 @@ esp_err_t mqtt_service_init(void) {
         return ESP_FAIL;
     }
 
-    esp_mqtt_client_register_event(g_mqtt_ctx.client, ESP_EVENT_ANY_ID,
+    esp_mqtt_client_register_event(g_mqtt_ctx.client, static_cast<esp_mqtt_event_id_t>(ESP_EVENT_ANY_ID),
                                    mqtt_event_handler, NULL);
 
     ESP_LOGI(TAG, "MQTT service initialized for user: %s", g_mqtt_ctx.username);
