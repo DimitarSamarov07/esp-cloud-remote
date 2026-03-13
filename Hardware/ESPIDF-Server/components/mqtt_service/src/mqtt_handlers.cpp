@@ -4,7 +4,7 @@
 #include "esp_log.h"
 #include <string.h>
 #include "wifi_control.h"
-#include "ir_mitsubishi_control.h"
+#include "ir_remote.h"
 
 
 static const char *TAG = "mqtt_handlers";
@@ -54,7 +54,7 @@ static void handle_ac_control_message(const char *message, size_t length) {
         return;
     }
     startAcConnection();
-    sendTurnSignalMitsubishi(state_item->valuestring, temp_item->valuedouble, mode_item->valuestring, fan_speed_item->valuestring, swing_item->valueint);
+    sendTurnSignal(state_item->valuestring, temp_item->valuedouble, mode_item->valuestring, fan_speed_item->valuestring, swing_item->valueint);
 
     cJSON_Delete(root);
 }
