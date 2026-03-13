@@ -8,7 +8,7 @@ export default class AirConditionerSet {
     Swing: boolean;
 
     constructor(power: boolean, mode: Mode, temp: number, fanSpeed: number | FanSpeed, swing: boolean) {
-        this.Power = false;
+        this.Power = power;
         this.Temperature = temp;
         this.Mode = mode;
         this.FanSpeed = fanSpeed;
