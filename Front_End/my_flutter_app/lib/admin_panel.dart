@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-// Data model for each ESP device
 class DeviceData {
   String name;
   int temp;
-  List<bool> mode; // [Hot, Cold]
+  List<bool> mode;
   bool power;
   int fanSpeed;
 
@@ -198,10 +197,15 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen width to make font sizes responsive
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    double scale(double size) => size * (screenWidth / 375.0).clamp(0.7, 1.3);
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(scale(24)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,95 +213,99 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Edit Settings', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                Text('Edit Settings', style: TextStyle(fontSize: scale(22), fontWeight: FontWeight.bold)),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.close),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
+                  iconSize: scale(24),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: scale(20)),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: scale(16), vertical: scale(10)),
               decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(15)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Name*', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                  Text(widget.device.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                  Text('Name*', style: TextStyle(color: Colors.grey[600], fontSize: scale(12))),
+                  Text(widget.device.name, style: TextStyle(fontSize: scale(16), fontWeight: FontWeight.w500)),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: scale(20)),
             Row(
               children: [
-                const Text('Temperature: ', style: TextStyle(fontSize: 18)),
+                Text('Temperature: ', style: TextStyle(fontSize: scale(18))),
                 IconButton(
                   onPressed: () => setState(() => localTemp--),
-                  icon: const Icon(Icons.remove, size: 18),
+                  icon: Icon(Icons.remove, size: scale(18)),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
-                const SizedBox(width: 4),
-                Text('$localTemp', style: const TextStyle(fontSize: 18, color: Colors.cyan, decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
-                const Text('°C', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(width: 4),
+                SizedBox(width: scale(4)),
+                Text('$localTemp', style: TextStyle(fontSize: scale(18), color: Colors.cyan, decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
+                Text('°C', style: TextStyle(fontSize: scale(18), fontWeight: FontWeight.bold)),
+                SizedBox(width: scale(4)),
                 IconButton(
                   onPressed: () => setState(() => localTemp++),
-                  icon: const Icon(Icons.add, size: 18),
+                  icon: Icon(Icons.add, size: scale(18)),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: scale(12)),
             Row(
               children: [
-                const Text('Mode: ', style: TextStyle(fontSize: 18)),
-                const SizedBox(width: 8),
-                _buildModeButton('Cold', localMode[1], () => setState(() => localMode = [false, true])),
-                const SizedBox(width: 8),
-                _buildModeButton('Hot', localMode[0], () => setState(() => localMode = [true, false])),
+                Text('Mode: ', style: TextStyle(fontSize: scale(18))),
+                SizedBox(width: scale(8)),
+                _buildModeButton('Cold', localMode[1], () => setState(() => localMode = [false, true]), scale),
+                SizedBox(width: scale(8)),
+                _buildModeButton('Hot', localMode[0], () => setState(() => localMode = [true, false]), scale),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: scale(12)),
             Row(
               children: [
-                const Text('Fan: ', style: TextStyle(fontSize: 18)),
+                Text('Fan: ', style: TextStyle(fontSize: scale(18))),
                 ...List.generate(4, (index) {
                   bool isActive = index < localFanSpeed;
                   return IconButton(
                     onPressed: () => setState(() => localFanSpeed = index + 1),
-                    icon: Icon(Icons.wind_power, color: isActive ? Colors.cyan : Colors.grey[300]),
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    icon: Icon(Icons.wind_power, color: isActive ? Colors.cyan : Colors.grey[300], size: scale(24)),
+                    padding: EdgeInsets.symmetric(horizontal: scale(4)),
                     constraints: const BoxConstraints(),
                   );
                 }),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: scale(12)),
             Row(
               children: [
-                const Text('Power (ON/OFF): ', style: TextStyle(fontSize: 18)),
-                Switch(
-                  value: localPower,
-                  onChanged: (bool value) => setState(() => localPower = value),
-                  activeThumbColor: Colors.cyan,
+                Text('Power (ON/OFF): ', style: TextStyle(fontSize: scale(18))),
+                Transform.scale(
+                  scale: (screenWidth / 375.0).clamp(0.8, 1.2),
+                  child: Switch(
+                    value: localPower,
+                    onChanged: (bool value) => setState(() => localPower = value),
+                    activeThumbColor: Colors.cyan,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: scale(24)),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('CANCEL', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold)),
+                  child: Text('CANCEL', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: scale(14))),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: scale(16)),
                 TextButton(
                   onPressed: () => Navigator.pop(context, {
                     'temp': localTemp,
@@ -305,7 +313,7 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
                     'power': localPower,
                     'fanSpeed': localFanSpeed,
                   }),
-                  child: const Text('SAVE', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold)),
+                  child: Text('SAVE', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: scale(14))),
                 ),
               ],
             ),
@@ -315,17 +323,17 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
     );
   }
 
-  Widget _buildModeButton(String label, bool active, VoidCallback onTap) {
+  Widget _buildModeButton(String label, bool active, VoidCallback onTap, double Function(double) scale) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: scale(16), vertical: scale(6)),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: active ? Colors.cyan : Colors.grey),
           color: active ? Colors.cyan.withValues(alpha: 0.1) : Colors.transparent,
         ),
-        child: Text(label, style: TextStyle(color: active ? Colors.cyan : Colors.black, fontWeight: active ? FontWeight.bold : FontWeight.normal)),
+        child: Text(label, style: TextStyle(color: active ? Colors.cyan : Colors.black, fontWeight: active ? FontWeight.bold : FontWeight.normal, fontSize: scale(14))),
       ),
     );
   }
