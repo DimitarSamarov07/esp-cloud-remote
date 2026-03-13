@@ -2,7 +2,7 @@
 #include "ble_communication.h"
 #include <NimBLEDevice.h>
 #include "wifi_control.h"
-#include <IRremoteESP8266.h>
+#include "ir_remote.h"
 
 extern "C" {
 #include "mqtt_service.h"
@@ -90,6 +90,10 @@ void setup() {
     if (IS_WIFI_CONNECTED == 1) {
         ESP_LOGI(TAG, "WiFi Connected! Proceeding to MQTT.");
         startMQTT();
+        delay(1000);
+        startAcConnection();
+        sendTurnSignal("on", 25);
+        delay(10000);
     } else {
         ESP_LOGW(TAG, "WiFi not connected. Starting BLE fallback...");
         startBLE();
@@ -128,6 +132,8 @@ void loop() {
     if (IS_WIFI_CONNECTED == 1 && !mqtt_is_running) {
         ESP_LOGI(TAG, "WiFi connected via BLE! Starting MQTT...");
         startMQTT();
+
+
 
         // Optional: stopBLE(); // Shut down BLE to save RAM/Power now that we are online
     }
