@@ -9,9 +9,7 @@ export enum Mode {
 
 export enum FanSpeed {
     Auto = "auto",
-    Off = "off",
-    Strong = "strong",
-    Silent = "silent",
+    Quiet = "quiet"
 }
 
 class AirConditionerStatus{

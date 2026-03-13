@@ -57,6 +57,14 @@ app.post("/changeWifi", async function (req, res) {
     res.sendStatus(200);
 })
 
+app.post("/setAcData", async function (req, res) {
+    let {deviceID, temp, fanSpeed, swing, mode, power} = req.body;
+    console.log(deviceID, temp, fanSpeed, swing, mode, power);
+
+    await esp.changeWifi(deviceID, ssid, pass);
+    res.sendStatus(200);
+})
+
 app.get('/', (req, res) => {
     res.sendFile('index.html', sendOptions);
 });
