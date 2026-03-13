@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'connection.dart';
 
 class DeviceData {
   String name;
@@ -64,11 +65,30 @@ class _AdminPageState extends State<AdminPage> {
           ),
         ),
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.menu, size: 30),
-            tooltip: 'Menu',
-            onPressed: () {},
-          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: OutlinedButton(
+                onPressed: (){
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => ConnectionPage())
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  textStyle: TextStyle(color: Colors.blue),
+                  side: BorderSide(color: Colors.blue, width: 1),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)
+                  ),
+                ),
+                child: const Text(
+                  'Add ESP',
+                  style: TextStyle(
+                      color: Colors.blue
+                  ),
+                )
+            ),
+          )
         ],
         backgroundColor: Colors.white,
         elevation: 0.5,
