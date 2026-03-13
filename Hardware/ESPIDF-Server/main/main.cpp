@@ -83,10 +83,7 @@ void setup() {
     if (IS_WIFI_CONNECTED == 1) {
         ESP_LOGI(TAG, "WiFi Connected! Proceeding to MQTT.");
         startMQTT();
-        delay(1000);
-        startAcConnection();
-        sendTurnSignal("on", 25);
-        delay(10000);
+
     } else {
         ESP_LOGW(TAG, "WiFi not connected. Starting BLE fallback...");
         startBLE();

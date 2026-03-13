@@ -5,7 +5,7 @@
 #include <string>
 
 void startAcConnection();
-void sendTurnSignal(const std::string& input, const float temp );
+void sendTurnSignal( bool state,  float temp,  std::string_view mode,  std::string_view fanSpeed,  bool swing);
 
 
 #endif
