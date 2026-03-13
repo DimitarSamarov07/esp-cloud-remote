@@ -3,7 +3,7 @@ import {fileURLToPath} from 'url';
 import {dirname} from 'path';
 import * as path from 'node:path';
 import bcrypt from 'bcrypt';
-import MqttClient from './MqttClient.js';
+import MqttClient from './MqttClient.ts';
 import * as AirConditionerController from "./controllers/AirConditioner.controller.js";
 import airConditionerRoutes from './routes/AirConditioner.routes.js';
 import dotenv from 'dotenv'
