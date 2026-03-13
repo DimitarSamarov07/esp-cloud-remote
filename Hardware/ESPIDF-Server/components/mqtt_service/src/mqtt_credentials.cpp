@@ -145,4 +145,4 @@ esp_err_t mqtt_credentials_clear(void) {
 
     ESP_LOGI(TAG, "Credentials cleared");
     return ESP_OK;
-}      
+}

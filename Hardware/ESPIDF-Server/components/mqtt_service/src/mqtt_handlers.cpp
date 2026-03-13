@@ -33,23 +33,33 @@ static void handle_ac_control_message(const char *message, size_t length) {
     }
     memcpy(json_string, message, length);
     json_string[length] = '\0';
+    ESP_LOGI(TAG, "AC control message received: %s", json_string);
 
 
-    // Parse the JSON payload
     cJSON *root = cJSON_Parse(json_string);
     free(json_string);
-
-    cJSON *state_item = cJSON_GetObjectItem(root, "state");
-    cJSON *temp_item = cJSON_GetObjectItem(root, "temp");
-    sendTurnSignal(state_item->valuestring, temp_item->valueint);
-
-    cJSON_Delete(root);
 
     if (root == NULL) {
         ESP_LOGE(TAG, "Invalid JSON received");
         return;
     }
+
+    cJSON *state_item = cJSON_GetObjectItem(root, "Power");
+    cJSON *temp_item  = cJSON_GetObjectItem(root, "Temperature");
+    cJSON *mode_item  = cJSON_GetObjectItem(root, "Mode");
+    cJSON *fan_speed_item  = cJSON_GetObjectItem(root, "FanSpeed");
+    cJSON *swing_item  = cJSON_GetObjectItem(root, "Swing");
+    if (!cJSON_IsBool(state_item) || !cJSON_IsNumber(temp_item) || !cJSON_IsString(mode_item) || !cJSON_IsString(fan_speed_item) || !cJSON_IsBool(swing_item)) {
+        ESP_LOGE(TAG, "Missing or invalid fields in AC JSON");
+        cJSON_Delete(root);
+        return;
+    }
+    startAcConnection();
+    sendTurnSignal(state_item->valuestring, temp_item->valuedouble, mode_item->valuestring, fan_speed_item->valuestring, swing_item->valueint);
+
+    cJSON_Delete(root);
 }
+
 
 static void handle_wifi_config_message(const char *message, size_t length) {
     char msg[128] = {0};
@@ -59,7 +69,7 @@ static void handle_wifi_config_message(const char *message, size_t length) {
 
     ESP_LOGI(TAG, "WiFi config received: %s", msg);
 
-    wifi_credentials_t creds = {0};
+    wifi_credentials_t creds = {};
 
     char *ssid = strtok(msg, "/");
     char *pass = strtok(NULL, "/");
