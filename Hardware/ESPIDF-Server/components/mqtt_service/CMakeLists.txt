@@ -1,11 +1,11 @@
 idf_component_register(
         SRCS
-        "src/mqtt_service.c"
-        "src/mqtt_events.c"
-        "src/mqtt_subscriptions.c"
-        "src/mqtt_handlers.c"
-        "src/mqtt_credentials.c"
-        "src/mqtt_registration.c"
+        "src/mqtt_service.cpp"
+        "src/mqtt_events.cpp"
+        "src/mqtt_subscriptions.cpp"
+        "src/mqtt_handlers.cpp"
+        "src/mqtt_credentials.cpp"
+        "src/mqtt_registration.cpp"
         INCLUDE_DIRS
         "include"
         REQUIRES
@@ -14,5 +14,6 @@ idf_component_register(
         esp_http_client
         json
         nvs_flash
+        ir_service
 )
 target_include_directories(${COMPONENT_LIB} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
