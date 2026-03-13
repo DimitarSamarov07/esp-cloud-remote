@@ -8,6 +8,7 @@ import * as AirConditionerController from "./controllers/AirConditioner.controll
 import airConditionerRoutes from './routes/AirConditioner.routes.js';
 import dotenv from 'dotenv'
 import {pool} from "./services/Pool.ts";
+import AirConditionerSet from "./data_models/AirConditionerSet.js";
 
 dotenv.config()
 const processEnv = process.env;
@@ -60,8 +61,9 @@ app.post("/changeWifi", async function (req, res) {
 app.post("/setAcData", async function (req, res) {
     let {deviceID, temp, fanSpeed, swing, mode, power} = req.body;
     console.log(deviceID, temp, fanSpeed, swing, mode, power);
-
-    await esp.changeWifi(deviceID, ssid, pass);
+    let acData;
+    acData = new AirConditionerSet(power, mode, temp, fanSpeed, swing);
+    await esp.setAcData(deviceID, acData);
     res.sendStatus(200);
 })
 
