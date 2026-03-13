@@ -1,12 +1,15 @@
 import mqtt from 'mqtt';
 import dotenv from 'dotenv';
 import {fetchAirConditionerStatus} from "./services/AirConditioner.js";
+import {FanSpeed, Mode} from "./data_models/AirConditionerStatus.js";
+import AirConditionerSet from "./data_models/AirConditionerSet.js";
 
 dotenv.config()
 
 const processEnv = process.env;
 const statusTopic = processEnv.AC_STATUS_TOPIC;// New topic for triggering Express routes
 let wifiTopic = processEnv.WIFI_CONTROL_TOPIC;
+let acControlTopic = processEnv.AC_CONTROL_TOPIC;
 const protocol = 'mqtt'
 const url = processEnv.MQTT_BROKER_URL
 const connectUrl = `${protocol}://${url}`
@@ -33,10 +36,10 @@ class MqttClient {
             this.subscribe(processEnv.AC_STATUS_TOPIC)
         })
 
-        this.client.on('message', (topic, message) => {
+        this.client.on('message', async (topic, message) => {
             if (!this.subscribedTopics.has(topic)) return;
             if (topic === statusTopic) {
-                this._handleAcStatus(message);
+                await this._handleAcStatus(message);
             }
         });
 
@@ -53,6 +56,7 @@ class MqttClient {
     registerControllerHandler(topic, handler) {
         this.controllerHandlers[topic] = handler;
     }
+
     /**
      * This function handles JSON messages sent by the client and sends the result back to the response topic
      *
@@ -76,6 +80,7 @@ class MqttClient {
     getStatusByDeviceId(deviceId) {
         return this.statusMap.get(deviceId);
     }
+
     /**
      * Publishes the given message to the topic specified with QOS 1 and Retain true.
      *
@@ -102,12 +107,20 @@ class MqttClient {
         });
     }
 
-    async changeWifi(deviceID,ssid, pass) {
+    async changeWifi(deviceID, ssid, pass) {
         wifiTopic += '/' + deviceID;
         console.log(wifiTopic);
         this.client.publish(wifiTopic, `${ssid}/${pass}`);
         console.log(`[${this.clientId}] Sent WiFi credentials`);
         wifiTopic = processEnv.WIFI_CONTROL_TOPIC;
+    }
+
+    async setAcData(deviceId, acData: AirConditionerSet) {
+        acControlTopic += '/' + deviceId;
+        console.log(`[${this.clientId}] Set Ac Data`);
+        console.log(JSON.stringify(acData));
+        this.client.publish(acControlTopic, JSON.stringify(acData));
+        acControlTopic = processEnv.AC_CONTROL_TOPIC;
     }
 }
 
