@@ -9,6 +9,7 @@ import airConditionerRoutes from './routes/AirConditioner.routes.js';
 import dotenv from 'dotenv'
 import {pool} from "./services/Pool.ts";
 import AirConditionerSet from "./data_models/AirConditionerSet.js";
+import {fetchDevices} from "./services/Device.ts";
 
 dotenv.config()
 const processEnv = process.env;
@@ -52,7 +53,6 @@ app.use("/public", express.static(path.join(__dirname, '/../Front-End/public/'))
 
 app.post("/changeWifi", async function (req, res) {
     let {deviceID, ssid, pass} = req.body;
-    console.log(deviceID, ssid, pass);
 
     await esp.changeWifi(deviceID, ssid, pass);
     res.sendStatus(200);
@@ -60,7 +60,6 @@ app.post("/changeWifi", async function (req, res) {
 
 app.post("/setAcData", async function (req, res) {
     let {deviceID, temp, fanSpeed, swing, mode, power} = req.body;
-    console.log(deviceID, temp, fanSpeed, swing, mode, power);
     let acData;
     acData = new AirConditionerSet(power, mode, temp, fanSpeed, swing);
     await esp.setAcData(deviceID, acData);
@@ -75,6 +74,11 @@ app.get('/', (req, res) => {
 esp.onAcStatusReceived = (status) => {
     deviceStatusMap.set(status.DeviceId, status);
 };
+
+app.get('/listDevices', async (req, res) => {
+    const devices = await fetchDevices();
+    res.json(devices);
+})
 app.get('/status', (req, res) => {
     const {deviceId} = req.query;
     if (!deviceId) {
