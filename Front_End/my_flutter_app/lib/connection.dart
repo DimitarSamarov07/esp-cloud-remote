@@ -54,6 +54,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
         elevation: 0.5,
         foregroundColor: Colors.black,
       ),
+      body: Text("a"),
     );
   }
 }
