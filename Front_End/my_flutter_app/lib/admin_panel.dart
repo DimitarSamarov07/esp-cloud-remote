@@ -1,6 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart' as http;
 import 'connection.dart';
+import 'dart:developer';
+
+const String serverURL = 'http://90.154.171.96:8690';
 
 class DeviceData {
   String name;
@@ -8,6 +14,7 @@ class DeviceData {
   List<bool> mode;
   bool power;
   int fanSpeed;
+  bool swing;
 
   DeviceData({
     required this.name,
@@ -15,6 +22,7 @@ class DeviceData {
     this.mode = const [false, true],
     this.power = true,
     this.fanSpeed = 2,
+    this.swing = false
   });
 }
 
@@ -78,7 +86,7 @@ class _AdminPageState extends State<AdminPage> {
                   textStyle: TextStyle(color: Colors.blue),
                   side: BorderSide(color: Colors.blue, width: 1),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)
+                      borderRadius: BorderRadius.circular(40)
                   ),
                 ),
                 child: const Text(
@@ -202,9 +210,37 @@ class EspSettingsDialog extends StatefulWidget {
 
 class _EspSettingsDialogState extends State<EspSettingsDialog> {
   late int localTemp;
-  late List<bool> localMode;
+  late List<bool> localMode; // just bool'd do it
   late bool localPower;
   late int localFanSpeed;
+  late bool localSwing;
+
+  void setAcData(String deviceID) async {
+    try {
+      log('Sending POST to $serverURL/setAcData');
+
+      final response = await http.post(
+        Uri.parse('$serverURL/setAcData'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'deviceID': deviceID,
+          'temp': localTemp,
+          'fanSpeed': localFanSpeed,
+          'swing': localSwing,
+          'mode': localMode[1] ? 'cold' : 'heat',
+          'power': localPower ? 1 : 2
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        log(jsonDecode(response.body));
+      } else {
+        throw Exception('POST failed with code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
 
   @override
   void initState() {
@@ -212,6 +248,7 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
     localTemp = widget.device.temp;
     localMode = List.from(widget.device.mode);
     localPower = widget.device.power;
+    localSwing = widget.device.swing;
     localFanSpeed = widget.device.fanSpeed;
   }
 
@@ -220,7 +257,7 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
     // Get screen width to make font sizes responsive
     final double screenWidth = MediaQuery.of(context).size.width;
 
-    double scale(double size) => size * (screenWidth / 375.0).clamp(0.7, 1.3);
+    double scale(double size) => size * (screenWidth / 400.0).clamp(0.7, 1.3);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -261,7 +298,7 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
               children: [
                 Text('Temperature: ', style: TextStyle(fontSize: scale(18))),
                 IconButton(
-                  onPressed: () => setState(() => localTemp--),
+                  onPressed: () => setState(() => localTemp--) /*inefficient. better set the value with SEND button*/,
                   icon: Icon(Icons.remove, size: scale(18)),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -306,7 +343,21 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
             SizedBox(height: scale(12)),
             Row(
               children: [
-                Text('Power (ON/OFF): ', style: TextStyle(fontSize: scale(18))),
+                Text('Swing (OFF/ON): ', style: TextStyle(fontSize: scale(18))),
+                Transform.scale(
+                  scale: (screenWidth / 375.0).clamp(0.8, 1.2),
+                  child: Switch(
+                    value: localSwing,
+                    onChanged: (bool value) => setState(() => localSwing = value),
+                    activeThumbColor: Colors.cyan,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: scale(12)),
+            Row(
+              children: [
+                Text('Power (OFF/ON): ', style: TextStyle(fontSize: scale(18))),
                 Transform.scale(
                   scale: (screenWidth / 375.0).clamp(0.8, 1.2),
                   child: Switch(
@@ -327,13 +378,17 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
                 ),
                 SizedBox(width: scale(16)),
                 TextButton(
-                  onPressed: () => Navigator.pop(context, {
-                    'temp': localTemp,
-                    'mode': localMode,
-                    'power': localPower,
-                    'fanSpeed': localFanSpeed,
-                  }),
-                  child: Text('SAVE', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: scale(14))),
+                  onPressed: () {
+                    Navigator.pop(context, {
+                      'temp': localTemp,
+                      'mode': localMode,
+                      'power': localPower,
+                      'fanSpeed': localFanSpeed,
+                      'swing': localSwing,
+                    });
+                    setAcData('mqtt_pc_758fb8'); // not the right place. i know
+                  },
+                  child: Text('SEND', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: scale(14))),
                 ),
               ],
             ),
