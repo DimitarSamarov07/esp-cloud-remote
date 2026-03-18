@@ -50,6 +50,13 @@ void sendTurnSignal(const bool state, const float temp, const std::string_view m
     applyFanSpeed(fanSpeed);
     applySwing(swing);
     ac.setTemp(temp);
-    state ? ac.on() : ac.off();
+    if (state == 0) {
+        ESP_LOGI("AC", "Turning off");
+        ac.off();
+    }
+    else if (state == 1) {
+        ESP_LOGI("AC", "Turning on");
+        ac.on();
+    }
     ac.send();
 }

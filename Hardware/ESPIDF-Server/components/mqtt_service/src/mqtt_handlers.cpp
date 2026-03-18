@@ -48,13 +48,13 @@ static void handle_ac_control_message(const char *message, size_t length) {
     cJSON *mode_item  = cJSON_GetObjectItem(root, "Mode");
     cJSON *fan_speed_item  = cJSON_GetObjectItem(root, "FanSpeed");
     cJSON *swing_item  = cJSON_GetObjectItem(root, "Swing");
-    if (!cJSON_IsBool(state_item) || !cJSON_IsNumber(temp_item) || !cJSON_IsString(mode_item) || !cJSON_IsString(fan_speed_item) || !cJSON_IsBool(swing_item)) {
+    if (!cJSON_IsNumber(state_item) || !cJSON_IsNumber(temp_item) || !cJSON_IsString(mode_item) || !cJSON_IsString(fan_speed_item) || !cJSON_IsBool(swing_item)) {
         ESP_LOGE(TAG, "Missing or invalid fields in AC JSON");
         cJSON_Delete(root);
         return;
     }
     startAcConnection();
-    sendTurnSignal(state_item->valuestring, temp_item->valuedouble, mode_item->valuestring, fan_speed_item->valuestring, swing_item->valueint);
+    sendTurnSignal(state_item->valueint, temp_item->valuedouble, mode_item->valuestring, fan_speed_item->valuestring, swing_item->valueint);
 
     cJSON_Delete(root);
 }
