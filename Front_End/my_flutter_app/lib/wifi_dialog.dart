@@ -20,7 +20,6 @@ class _WifiConnectionDialogState extends State<WifiConnectionDialog> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    // Normalized scale factor for responsive UI
     double scale(double size) => size * (screenWidth / 375.0).clamp(0.7, 1.15);
 
     return Dialog(
@@ -52,9 +51,8 @@ class _WifiConnectionDialogState extends State<WifiConnectionDialog> {
               ),
               SizedBox(height: scale(15)),
               
-              // Network List Container - Nested Scrollable
               Container(
-                constraints: BoxConstraints(maxHeight: scale(200)), // Limit height of the box
+                constraints: BoxConstraints(maxHeight: scale(200)),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(12),
@@ -109,17 +107,13 @@ class _WifiConnectionDialogState extends State<WifiConnectionDialog> {
               
               SizedBox(height: scale(16)),
               
-              // Refresh Icon (Centered)
               IconButton(
-                onPressed: () {
-                  // Logic to refresh networks
-                },
+                onPressed: () {},
                 icon: Icon(Icons.refresh, size: scale(24), color: Colors.grey.shade400),
               ),
               
               SizedBox(height: scale(12)),
               
-              // Action Buttons
               Wrap(
                 children: [
                   TextButton(
@@ -137,7 +131,15 @@ class _WifiConnectionDialogState extends State<WifiConnectionDialog> {
                   TextButton(
                     onPressed: selectedNetwork == null
                       ? null
-                      : () => Navigator.pop(context, selectedNetwork),
+                      : () async {
+                          final password = await showDialog<String>(
+                            context: context,
+                            builder: (context) => WifiPasswordDialog(networkName: selectedNetwork!),
+                          );
+                          if (password != null && mounted) {
+                            Navigator.pop(context, {'network': selectedNetwork, 'password': password});
+                          }
+                        },
                     child: Text(
                       'CONNECT',
                       style: TextStyle(
@@ -151,6 +153,126 @@ class _WifiConnectionDialogState extends State<WifiConnectionDialog> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class WifiPasswordDialog extends StatefulWidget {
+  final String networkName;
+  const WifiPasswordDialog({super.key, required this.networkName});
+
+  @override
+  State<WifiPasswordDialog> createState() => _WifiPasswordDialogState();
+}
+
+class _WifiPasswordDialogState extends State<WifiPasswordDialog> {
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    double scale(double size) => size * (screenWidth / 375.0).clamp(0.7, 1.15);
+
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        padding: EdgeInsets.all(scale(24)),
+        constraints: BoxConstraints(maxWidth: scale(320)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'WiFi Connection',
+              style: TextStyle(
+                fontSize: scale(20),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: scale(4)),
+            Text(
+              'Enter the network security key',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: scale(13),
+                color: Colors.black54,
+              ),
+            ),
+            SizedBox(height: scale(20)),
+            
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: scale(16), vertical: scale(8)),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Password*',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: scale(12),
+                    ),
+                  ),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    autofocus: true,
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 4),
+                    ),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            SizedBox(height: scale(24)),
+            
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'BACK',
+                    style: TextStyle(
+                      color: Colors.cyan,
+                      fontWeight: FontWeight.bold,
+                      fontSize: scale(14),
+                    ),
+                  ),
+                ),
+                SizedBox(width: scale(16)),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, _passwordController.text),
+                  child: Text(
+                    'NEXT',
+                    style: TextStyle(
+                      color: Colors.cyan,
+                      fontWeight: FontWeight.bold,
+                      fontSize: scale(14),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
