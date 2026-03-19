@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="my_flutter_app"
+        android:label="Remote ESP"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

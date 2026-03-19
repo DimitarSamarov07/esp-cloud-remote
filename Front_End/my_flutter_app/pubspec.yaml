@@ -55,9 +55,9 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icon.png"
-  adaptive_icon_foreground: "assets/icon_foreground.png"
-  adaptive_icon_background: "assets/icon_background.png"
+  image_path: "assets/icon_dark.png"
+  adaptive_icon_foreground: "assets/icon_dark_foreground.png"
+  adaptive_icon_background: "assets/icon_dark_background.png"
 
 # The following section is specific to Flutter packages.
 flutter:

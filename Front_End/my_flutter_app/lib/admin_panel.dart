@@ -217,23 +217,48 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
 
   void setAcData(String deviceID) async {
     try {
-      log('Sending POST to $serverURL/setAcData');
+      log('Sending POST to $serverURL/setAcData...');
 
+      int goofyPower = localPower ? 1 : 0;
+      String goofyMode = localMode[1] ? 'cool' : 'heat';
+
+      String goofyFan = '';
+      switch (localFanSpeed) {
+        case 1:
+          goofyFan = 'quiet';
+          break;
+        case 2:
+          goofyFan = 'low';
+          break;
+        case 3:
+          goofyFan = 'medium';
+          break;
+        case 4:
+          goofyFan = 'high';
+          break;
+        case 5:
+          goofyFan = 'turbo';
+          break;
+      }
+
+      log(goofyPower.runtimeType.toString());
       final response = await http.post(
         Uri.parse('$serverURL/setAcData'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'deviceID': deviceID,
           'temp': localTemp,
-          'fanSpeed': localFanSpeed,
+          'fanSpeed': 'auto',
           'swing': localSwing,
-          'mode': localMode[1] ? 'cold' : 'heat',
-          'power': localPower ? 1 : 2
+          'mode': goofyMode,
+          'power': goofyPower
         }),
       );
 
+      log('POSTED: id: $deviceID, temp: $localTemp, fanSpeed: auto, swing: $localSwing, power: $goofyPower, mode: $goofyMode');
+
       if (response.statusCode == 200) {
-        log(jsonDecode(response.body));
+        log("sent");
       } else {
         throw Exception('POST failed with code: ${response.statusCode}');
       }
@@ -333,8 +358,8 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
                   bool isActive = index < localFanSpeed;
                   return IconButton(
                     onPressed: () => setState(() => localFanSpeed = index + 1),
-                    icon: Icon(Icons.wind_power, color: isActive ? Colors.cyan : Colors.grey[300], size: scale(24)),
-                    padding: EdgeInsets.symmetric(horizontal: scale(4)),
+                    icon: Icon(Icons.wind_power, color: isActive ? Colors.cyan : Colors.grey[400], size: scale(24)),
+                    padding: EdgeInsets.symmetric(horizontal: scale(1)),
                     constraints: const BoxConstraints(),
                   );
                 }),
