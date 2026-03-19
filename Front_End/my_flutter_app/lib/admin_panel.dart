@@ -272,12 +272,12 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
             Row(
               children: [
                 Text('Fan: ', style: TextStyle(fontSize: scale(18))),
-                ...List.generate(4, (index) {
+                ...List.generate(5, (index) {
                   bool isActive = index < localFanSpeed;
                   return IconButton(
                     onPressed: () => setState(() => localFanSpeed = index + 1),
-                    icon: Icon(Icons.wind_power, color: isActive ? Colors.cyan : Colors.grey[300], size: scale(24)),
-                    padding: EdgeInsets.symmetric(horizontal: scale(4)),
+                    icon: Icon(Icons.wind_power, color: isActive ? Colors.cyan : Colors.grey[300], size: scale(20)),
+                    padding: EdgeInsets.symmetric(horizontal: scale(2)),
                     constraints: const BoxConstraints(),
                   );
                 }),

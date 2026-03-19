@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_flutter_app/admin_test.dart';
 import 'login.dart';
 import 'admin_panel.dart';
+import 'wifi_dialog.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +19,10 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       //home: AdminPage(),
-      home: const AdminPage(),
+      home: WifiConnectionDialog(
+          deviceName: "Goso's ESP",
+          networks: ["OPTELA", "OPTELA 5G", "LordOfThePings5G","bjhfbksnfj","hfuioheiogfiojifjsi","ijfj"],
+        ) ,
     );
   }
 }
