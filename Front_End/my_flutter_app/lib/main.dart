@@ -18,11 +18,11 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      //home: AdminPage(),
-      home: WifiConnectionDialog(
-          deviceName: "Goso's ESP",
-          networks: ["OPTELA", "OPTELA 5G", "LordOfThePings5G","bjhfbksnfj","hfuioheiogfiojifjsi","ijfj"],
-        ) ,
+      home: AdminPage(),
+      // home: WifiConnectionDialog(
+      //     deviceName: "Goso's ESP",
+      //     networks: ["OPTELA", "OPTELA 5G", "LordOfThePings5G","bjhfbksnfj","hfuioheiogfiojifjsi","ijfj"],
+      //   ) ,
     );
   }
 }

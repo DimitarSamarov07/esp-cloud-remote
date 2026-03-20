@@ -244,8 +244,7 @@ class _WifiPasswordDialogState extends State<WifiPasswordDialog> {
             
             SizedBox(height: scale(24)),
             
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            Wrap(
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
@@ -262,7 +261,7 @@ class _WifiPasswordDialogState extends State<WifiPasswordDialog> {
                 TextButton(
                   onPressed: () => Navigator.pop(context, _passwordController.text),
                   child: Text(
-                    'NEXT',
+                    'FINISH',
                     style: TextStyle(
                       color: Colors.cyan,
                       fontWeight: FontWeight.bold,
