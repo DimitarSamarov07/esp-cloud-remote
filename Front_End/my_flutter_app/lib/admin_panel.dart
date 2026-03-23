@@ -9,6 +9,7 @@ import 'dart:developer';
 const String serverURL = 'http://90.154.171.96:8690';
 
 class DeviceData {
+  String deviceID;
   String name;
   int temp;
   String mode;
@@ -17,6 +18,7 @@ class DeviceData {
   bool swing;
 
   DeviceData({
+    required this.deviceID,
     required this.name,
     this.temp = 25,
     this.mode = 'Cool',
@@ -36,9 +38,9 @@ class AdminPage extends StatefulWidget {
 class _AdminPageState extends State<AdminPage> {
   // List of devices with their individual states
   final List<DeviceData> _devices = [
-    DeviceData(name: 'ESP32 Kitchen'),
-    DeviceData(name: 'ESP32 Living Room', temp: 22, power: false, mode: 'Heat'),
-    DeviceData(name: 'ESP32 Bedroom', temp: 24),
+    DeviceData(name: 'ESP32 Kitchen', deviceID: 'mqtt_pc_758fb8'),
+    DeviceData(name: 'ESP32 Living Room', deviceID: 'B_mqtt_pc_758fb8', temp: 22, power: false),
+    DeviceData(name: 'ESP32 Bedroom', deviceID: 'C_mqtt_pc_758fb8', temp: 24),
   ];
 
   void _showSettingsDialog(int index) async {
@@ -257,7 +259,7 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
         }),
       );
 
-      log('POSTED: id: $deviceID, temp: $localTemp, fanSpeed: $goofyFan, swing: $localSwing, power: $goofyPower, mode: $goofyMode');
+      log('POSTED: \n\tid: $deviceID, \n\ttemp: $localTemp, \n\tfanSpeed: $goofyFan, \n\tswing: $localSwing, \n\tpower: $goofyPower, \n\tmode: $goofyMode');
 
       if (response.statusCode == 200) {
         log("sent");
@@ -418,7 +420,7 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
                         'fanSpeed': localFanSpeed,
                         'swing': localSwing,
                       });
-                      setAcData('mqtt_pc_758fb8'); // not the right place. i know
+                      setAcData(widget.device.deviceID); // not the right place. i know
                     },
                     child: Text('SEND', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: scale(14))),
                   ),
@@ -427,7 +429,7 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
             ],
           ),
         ),
-      ),
+      )
     );
   }
 
