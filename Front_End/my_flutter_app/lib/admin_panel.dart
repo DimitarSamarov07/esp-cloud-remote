@@ -9,6 +9,7 @@ import 'dart:developer';
 const String serverURL = 'http://90.154.171.96:8690';
 
 class DeviceData {
+  String deviceID;
   String name;
   int temp;
   List<bool> mode;
@@ -17,6 +18,7 @@ class DeviceData {
   bool swing;
 
   DeviceData({
+    required this.deviceID,
     required this.name,
     this.temp = 25,
     this.mode = const [false, true],
@@ -36,9 +38,9 @@ class AdminPage extends StatefulWidget {
 class _AdminPageState extends State<AdminPage> {
   // List of devices with their individual states
   final List<DeviceData> _devices = [
-    DeviceData(name: 'ESP32 Kitchen'),
-    DeviceData(name: 'ESP32 Living Room', temp: 22, power: false),
-    DeviceData(name: 'ESP32 Bedroom', temp: 24),
+    DeviceData(name: 'ESP32 Kitchen', deviceID: 'mqtt_pc_758fb8'),
+    DeviceData(name: 'ESP32 Living Room', deviceID: 'B_mqtt_pc_758fb8', temp: 22, power: false),
+    DeviceData(name: 'ESP32 Bedroom', deviceID: 'C_mqtt_pc_758fb8', temp: 24),
   ];
 
   void _showSettingsDialog(int index) async {
@@ -236,8 +238,12 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
         case 4:
           goofyFan = 'high';
           break;
-        case 5:
+        /* case 5:
           goofyFan = 'turbo';
+          break; */
+        case 0:
+        default:
+          goofyFan = 'auto';
           break;
       }
 
@@ -248,14 +254,14 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
         body: jsonEncode({
           'deviceID': deviceID,
           'temp': localTemp,
-          'fanSpeed': 'auto',
+          'fanSpeed': goofyFan,
           'swing': localSwing,
           'mode': goofyMode,
           'power': goofyPower
         }),
       );
 
-      log('POSTED: id: $deviceID, temp: $localTemp, fanSpeed: auto, swing: $localSwing, power: $goofyPower, mode: $goofyMode');
+      log('POSTED: \n\tid: $deviceID, \n\ttemp: $localTemp, \n\tfanSpeed: $goofyFan, \n\tswing: $localSwing, \n\tpower: $goofyPower, \n\tmode: $goofyMode');
 
       if (response.statusCode == 200) {
         log("sent");
@@ -345,25 +351,27 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
               children: [
                 Text('Mode: ', style: TextStyle(fontSize: scale(18))),
                 SizedBox(width: scale(8)),
-                _buildModeButton('Cold', localMode[1], () => setState(() => localMode = [false, true]), scale),
+                _buildModeButton('Cool', localMode[1], () => setState(() => localMode = [false, true]), scale),
                 SizedBox(width: scale(8)),
-                _buildModeButton('Hot', localMode[0], () => setState(() => localMode = [true, false]), scale),
+                _buildModeButton('Heat', localMode[0], () => setState(() => localMode = [true, false]), scale),
               ],
             ),
             SizedBox(height: scale(12)),
             Row(
               children: [
                 Text('Fan: ', style: TextStyle(fontSize: scale(18))),
-                ...List.generate(4, (index) {
-                  bool isActive = index < localFanSpeed;
+                ...List.generate(5, (index) {
+                  bool isActive = index < localFanSpeed || localFanSpeed == 0;
                   return IconButton(
-                    onPressed: () => setState(() => localFanSpeed = index + 1),
-                    icon: Icon(Icons.wind_power, color: isActive ? Colors.cyan : Colors.grey[400], size: scale(24)),
+                    onPressed: () => setState(() => localFanSpeed = index == 4 ? 0 : index + 1), // temporary conditions
+                    icon: Icon(index == 4 ? Icons.hdr_auto_outlined : Icons.wind_power, color: isActive ? Colors.cyan : Colors.grey[400], size: scale(24)),
                     padding: EdgeInsets.symmetric(horizontal: scale(1)),
                     constraints: const BoxConstraints(),
+                    visualDensity: VisualDensity.compact,
                   );
                 }),
               ],
+
             ),
             SizedBox(height: scale(12)),
             Row(
@@ -411,7 +419,7 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
                       'fanSpeed': localFanSpeed,
                       'swing': localSwing,
                     });
-                    setAcData('mqtt_pc_758fb8'); // not the right place. i know
+                    setAcData(widget.device.deviceID); // not the right place. i know
                   },
                   child: Text('SEND', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: scale(14))),
                 ),
@@ -419,7 +427,7 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
             ),
           ],
         ),
-      ),
+      )
     );
   }
 
