@@ -11,7 +11,7 @@ const String serverURL = 'http://90.154.171.96:8690';
 class DeviceData {
   String name;
   int temp;
-  List<bool> mode;
+  String mode;
   bool power;
   int fanSpeed;
   bool swing;
@@ -19,7 +19,7 @@ class DeviceData {
   DeviceData({
     required this.name,
     this.temp = 25,
-    this.mode = const [false, true],
+    this.mode = 'Cool',
     this.power = true,
     this.fanSpeed = 2,
     this.swing = false
@@ -37,7 +37,7 @@ class _AdminPageState extends State<AdminPage> {
   // List of devices with their individual states
   final List<DeviceData> _devices = [
     DeviceData(name: 'ESP32 Kitchen'),
-    DeviceData(name: 'ESP32 Living Room', temp: 22, power: false),
+    DeviceData(name: 'ESP32 Living Room', temp: 22, power: false, mode: 'Heat'),
     DeviceData(name: 'ESP32 Bedroom', temp: 24),
   ];
 
@@ -55,6 +55,7 @@ class _AdminPageState extends State<AdminPage> {
         _devices[index].mode = result['mode'];
         _devices[index].power = result['power'];
         _devices[index].fanSpeed = result['fanSpeed'];
+        _devices[index].swing = result['swing'];
       });
     }
   }
@@ -210,35 +211,36 @@ class EspSettingsDialog extends StatefulWidget {
 
 class _EspSettingsDialogState extends State<EspSettingsDialog> {
   late int localTemp;
-  late List<bool> localMode; // just bool'd do it
+  late String localMode;
   late bool localPower;
   late int localFanSpeed;
   late bool localSwing;
+
+  final List<String> _modes = ['Cool', 'Heat', 'Dry', 'Auto'];
 
   void setAcData(String deviceID) async {
     try {
       log('Sending POST to $serverURL/setAcData...');
 
       int goofyPower = localPower ? 1 : 0;
-      String goofyMode = localMode[1] ? 'cool' : 'heat';
+      String goofyMode = localMode.toLowerCase();
 
-      String goofyFan = '';
+      String goofyFan;
       switch (localFanSpeed) {
+        case 0:
+          goofyFan = 'auto';
+          break;
         case 1:
-          goofyFan = 'quiet';
+          goofyFan = 'off';
           break;
         case 2:
-          goofyFan = 'low';
-          break;
-        case 3:
-          goofyFan = 'medium';
+          goofyFan = 'silent';
           break;
         case 4:
-          goofyFan = 'high';
+          goofyFan = 'strong';
           break;
-        case 5:
-          goofyFan = 'turbo';
-          break;
+        default:
+          goofyFan = 'auto';
       }
 
       log(goofyPower.runtimeType.toString());
@@ -248,14 +250,14 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
         body: jsonEncode({
           'deviceID': deviceID,
           'temp': localTemp,
-          'fanSpeed': 'auto',
+          'fanSpeed': goofyFan,
           'swing': localSwing,
           'mode': goofyMode,
           'power': goofyPower
         }),
       );
 
-      log('POSTED: id: $deviceID, temp: $localTemp, fanSpeed: auto, swing: $localSwing, power: $goofyPower, mode: $goofyMode');
+      log('POSTED: id: $deviceID, temp: $localTemp, fanSpeed: $goofyFan, swing: $localSwing, power: $goofyPower, mode: $goofyMode');
 
       if (response.statusCode == 200) {
         log("sent");
@@ -271,7 +273,7 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
   void initState() {
     super.initState();
     localTemp = widget.device.temp;
-    localMode = List.from(widget.device.mode);
+    localMode = widget.device.mode;
     localPower = widget.device.power;
     localSwing = widget.device.swing;
     localFanSpeed = widget.device.fanSpeed;
@@ -286,155 +288,175 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: EdgeInsets.all(scale(24)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Edit Settings', style: TextStyle(fontSize: scale(22), fontWeight: FontWeight.bold)),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  iconSize: scale(24),
-                ),
-              ],
-            ),
-            SizedBox(height: scale(20)),
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: scale(16), vertical: scale(10)),
-              decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(15)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(scale(24)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Name*', style: TextStyle(color: Colors.grey[600], fontSize: scale(12))),
-                  Text(widget.device.name, style: TextStyle(fontSize: scale(16), fontWeight: FontWeight.w500)),
+                  Text('Edit Settings', style: TextStyle(fontSize: scale(22), fontWeight: FontWeight.bold)),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    iconSize: scale(24),
+                  ),
                 ],
               ),
-            ),
-            SizedBox(height: scale(20)),
-            Row(
-              children: [
-                Text('Temperature: ', style: TextStyle(fontSize: scale(18))),
-                IconButton(
-                  onPressed: () => setState(() => localTemp--),
-                  icon: Icon(Icons.remove, size: scale(18)),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
+              SizedBox(height: scale(20)),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: scale(16), vertical: scale(10)),
+                decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(15)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Name*', style: TextStyle(color: Colors.grey[600], fontSize: scale(12))),
+                    Text(widget.device.name, style: TextStyle(fontSize: scale(16), fontWeight: FontWeight.w500)),
+                  ],
                 ),
-                SizedBox(width: scale(4)),
-                Text('$localTemp', style: TextStyle(fontSize: scale(18), color: Colors.cyan, decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
-                Text('°C', style: TextStyle(fontSize: scale(18), fontWeight: FontWeight.bold)),
-                SizedBox(width: scale(4)),
-                IconButton(
-                  onPressed: () => setState(() => localTemp++),
-                  icon: Icon(Icons.add, size: scale(18)),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
-            SizedBox(height: scale(12)),
-            Row(
-              children: [
-                Text('Mode: ', style: TextStyle(fontSize: scale(18))),
-                SizedBox(width: scale(8)),
-                _buildModeButton('Cold', localMode[1], () => setState(() => localMode = [false, true]), scale),
-                SizedBox(width: scale(8)),
-                _buildModeButton('Hot', localMode[0], () => setState(() => localMode = [true, false]), scale),
-              ],
-            ),
-            SizedBox(height: scale(12)),
-            Row(
-              children: [
-                Text('Fan: ', style: TextStyle(fontSize: scale(18))),
-                ...List.generate(5, (index) {
-                  bool isActive = index < localFanSpeed;
-                  return IconButton(
-                    onPressed: () => setState(() => localFanSpeed = index + 1),
-                    icon: Icon(Icons.wind_power, color: isActive ? Colors.cyan : Colors.grey[300], size: scale(20)),
-                    padding: EdgeInsets.symmetric(horizontal: scale(2)),
+              ),
+              SizedBox(height: scale(20)),
+              Row(
+                children: [
+                  Text('Temperature: ', style: TextStyle(fontSize: scale(18))),
+                  IconButton(
+                    onPressed: () => setState(() => localTemp--),
+                    icon: Icon(Icons.remove, size: scale(18)),
+                    padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                  );
-                }),
-              ],
-            ),
-            SizedBox(height: scale(12)),
-            Row(
-              children: [
-                Text('Swing (OFF/ON): ', style: TextStyle(fontSize: scale(18))),
-                Transform.scale(
-                  scale: (screenWidth / 375.0).clamp(0.8, 1.2),
-                  child: Switch(
-                    value: localSwing,
-                    onChanged: (bool value) => setState(() => localSwing = value),
-                    activeThumbColor: Colors.cyan,
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: scale(12)),
-            Row(
-              children: [
-                Text('Power (OFF/ON): ', style: TextStyle(fontSize: scale(18))),
-                Transform.scale(
-                  scale: (screenWidth / 375.0).clamp(0.8, 1.2),
-                  child: Switch(
-                    value: localPower,
-                    onChanged: (bool value) => setState(() => localPower = value),
-                    activeThumbColor: Colors.cyan,
+                  SizedBox(width: scale(4)),
+                  Text('$localTemp', style: TextStyle(fontSize: scale(18), color: Colors.cyan, decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
+                  Text('°C', style: TextStyle(fontSize: scale(18), fontWeight: FontWeight.bold)),
+                  SizedBox(width: scale(4)),
+                  IconButton(
+                    onPressed: () => setState(() => localTemp++),
+                    icon: Icon(Icons.add, size: scale(18)),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: scale(24)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('CANCEL', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: scale(14))),
-                ),
-                SizedBox(width: scale(16)),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context, {
-                      'temp': localTemp,
-                      'mode': localMode,
-                      'power': localPower,
-                      'fanSpeed': localFanSpeed,
-                      'swing': localSwing,
-                    });
-                    setAcData('mqtt_pc_758fb8'); // not the right place. i know
-                  },
-                  child: Text('SEND', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: scale(14))),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+              SizedBox(height: scale(12)),
+              _buildListSelector('Mode', localMode, _modes, (newValue) {
+                setState(() => localMode = newValue);
+              }, scale),
+              SizedBox(height: scale(12)),
+              Row(
+                children: [
+                  Text('Fan: ', style: TextStyle(fontSize: scale(18))),
+                  ...List.generate(3, (index) {
+                    bool isActive = index < localFanSpeed && localFanSpeed != 0;
+                    return IconButton(
+                      onPressed: () => setState(() => localFanSpeed = index + 1),
+                      icon: Icon(Icons.wind_power, color: isActive ? Colors.cyan : Colors.grey[300], size: scale(20)),
+                      padding: EdgeInsets.symmetric(horizontal: scale(2)),
+                      constraints: const BoxConstraints(),
+                    );
+                  }),
+                  const Spacer(),
+                  Text('Auto', style: TextStyle(fontSize: scale(14))),
+                  Checkbox(
+                      value: localFanSpeed == 0,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          localFanSpeed = (value == true) ? 0 : 2; // Default to 2 if unchecked
+                        });
+                      },
+                      activeColor: Colors.cyan)
+                ],
+              ),
+              SizedBox(height: scale(12)),
+              Row(
+                children: [
+                  Text('Swing (OFF/ON): ', style: TextStyle(fontSize: scale(18))),
+                  Transform.scale(
+                    scale: (screenWidth / 375.0).clamp(0.8, 1.2),
+                    child: Switch(
+                      value: localSwing,
+                      onChanged: (bool value) => setState(() => localSwing = value),
+                      activeThumbColor: Colors.cyan,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: scale(12)),
+              Row(
+                children: [
+                  Text('Power (OFF/ON): ', style: TextStyle(fontSize: scale(18))),
+                  Transform.scale(
+                    scale: (screenWidth / 375.0).clamp(0.8, 1.2),
+                    child: Switch(
+                      value: localPower,
+                      onChanged: (bool value) => setState(() => localPower = value),
+                      activeThumbColor: Colors.cyan,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: scale(24)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('CANCEL', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: scale(14))),
+                  ),
+                  SizedBox(width: scale(16)),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context, {
+                        'temp': localTemp,
+                        'mode': localMode,
+                        'power': localPower,
+                        'fanSpeed': localFanSpeed,
+                        'swing': localSwing,
+                      });
+                      setAcData('mqtt_pc_758fb8'); // not the right place. i know
+                    },
+                    child: Text('SEND', style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: scale(14))),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildModeButton(String label, bool active, VoidCallback onTap, double Function(double) scale) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: scale(16), vertical: scale(6)),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: active ? Colors.cyan : Colors.grey),
-          color: active ? Colors.cyan.withValues(alpha: 0.1) : Colors.transparent,
+  Widget _buildListSelector(String label, String currentValue, List<String> items, ValueChanged<String> onChanged, double Function(double) scale) {
+    return Row(
+      children: [
+        Text('$label: ', style: TextStyle(fontSize: scale(18))),
+        IconButton(
+          onPressed: () {
+            int index = items.indexOf(currentValue);
+            onChanged(items[(index - 1 + items.length) % items.length]);
+          },
+          icon: Icon(Icons.chevron_left, size: scale(22)),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
         ),
-        child: Text(label, style: TextStyle(color: active ? Colors.cyan : Colors.black, fontWeight: active ? FontWeight.bold : FontWeight.normal, fontSize: scale(14))),
-      ),
+        SizedBox(width: scale(4)),
+        Text(currentValue, style: TextStyle(fontSize: scale(18), color: Colors.cyan, decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
+        SizedBox(width: scale(4)),
+        IconButton(
+          onPressed: () {
+            int index = items.indexOf(currentValue);
+            onChanged(items[(index + 1) % items.length]);
+          },
+          icon: Icon(Icons.chevron_right, size: scale(22)),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+        ),
+      ],
     );
   }
 }
