@@ -15,5 +15,5 @@ dependencies:
   #   # All dependencies of `main` are public by default.
   #   public: true
   espressif/qrcode: '*'
-  espressif/arduino-esp32: ^3.2.0
+  espressif/arduino-esp32: 3.3.6
   h2zero/esp-nimble-cpp: '*'
