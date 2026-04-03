@@ -39,8 +39,8 @@ class _AdminPageState extends State<AdminPage> {
   // List of devices with their individual states
   final List<DeviceData> _devices = [
     DeviceData(name: 'ESP32 Kitchen', deviceID: 'mqtt_pc_758fb8'),
-    DeviceData(name: 'ESP32 Living Room', deviceID: 'B_mqtt_pc_758fb8', temp: 22, power: false),
-    DeviceData(name: 'ESP32 Bedroom', deviceID: 'C_mqtt_pc_758fb8', temp: 24),
+    DeviceData(name: 'ESP32 Living Room', deviceID: 'B_mqtt_pc_758fb8'),
+    DeviceData(name: 'ESP32 Bedroom', deviceID: 'C_mqtt_pc_758fb8'),
   ];
 
   void _showSettingsDialog(int index) async {
@@ -53,6 +53,7 @@ class _AdminPageState extends State<AdminPage> {
 
     if (result != null && mounted) {
       setState(() {
+        _devices[index].name = result['name'];
         _devices[index].temp = result['temp'];
         _devices[index].mode = result['mode'];
         _devices[index].power = result['power'];
@@ -65,7 +66,7 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.white,
       appBar: AppBar(
         leadingWidth: 140,
         leading: Padding(
@@ -86,8 +87,8 @@ class _AdminPageState extends State<AdminPage> {
                   );
                 },
                 style: OutlinedButton.styleFrom(
-                  textStyle: TextStyle(color: Colors.blue),
-                  side: BorderSide(color: Colors.blue, width: 1),
+                  textStyle: const TextStyle(color: Colors.blue),
+                  side: const BorderSide(color: Colors.blue, width: 1),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(40)
                   ),
@@ -102,33 +103,144 @@ class _AdminPageState extends State<AdminPage> {
           )
         ],
         backgroundColor: Colors.white,
-        elevation: 0.5,
+        elevation: 0,
         foregroundColor: Colors.black,
       ),
       body: _buildDeviceList(),
     );
   }
 
+  Widget _welcomeText() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 20.0),
+      child: Center(
+        child: Text.rich(
+          TextSpan(
+            text: 'Welcome back, ',
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              fontStyle: FontStyle.italic,
+              color: Colors.black,
+            ),
+            children: [
+              TextSpan(
+                text: 'Pesho!',
+                style: TextStyle(color: Colors.blue),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _statusBoxes() {
+    int activeAcs = _devices.where((d) => d.power).length;
+    int totalEsps = _devices.length;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildStatusCard(
+              title: 'Active ACs',
+              value: activeAcs.toString(),
+              icon: Icons.toys_outlined,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: _buildStatusCard(
+              title: 'Total ESPs',
+              value: totalEsps.toString(),
+              icon: Icons.memory_outlined,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusCard({required String title, required String value, required IconData icon}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF2F2F2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade300, width: 1.5),
+      ),
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.w600,
+              fontSize: 15,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 38, color: Colors.grey.shade600),
+              const SizedBox(width: 8),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
   Widget _buildDeviceList() {
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      itemCount: _devices.length + 2,
-      separatorBuilder: (context, index) => Divider(
-        color: Colors.grey[300],
-        height: 1,
-        thickness: 1.6,
-      ),
+      padding: const EdgeInsets.only(bottom: 16),
+      itemCount: _devices.length + 4,
+      separatorBuilder: (context, index) {
+        if (index == 0) return const SizedBox.shrink();
+        return Divider(
+          color: Colors.grey[300],
+          height: 1,
+          thickness: 1.6,
+        );
+      },
       itemBuilder: (BuildContext context, int index) {
-        if (index == 0) {
-          return const ListTile(
-            title: Text(
-              'Admin Panel',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+        if (index == 0) return _welcomeText();
+        if (index == 1) return _statusBoxes();
+
+        if (index == 2) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Admin Panel',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                OutlinedButton(
+                  onPressed: () {},
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    side: BorderSide(color: Colors.grey.shade400),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                  ),
+                  child: Text('All ESPs', style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+                ),
+              ],
             ),
           );
         }
 
-        if (index == 1) {
+        if (index == 3) {
           return const IgnorePointer(
             child: ListTile(
               title: Text(
@@ -148,7 +260,7 @@ class _AdminPageState extends State<AdminPage> {
           );
         }
 
-        final deviceIndex = index - 2;
+        final deviceIndex = index - 4;
         final device = _devices[deviceIndex];
 
         return ListTile(
@@ -212,6 +324,7 @@ class EspSettingsDialog extends StatefulWidget {
 }
 
 class _EspSettingsDialogState extends State<EspSettingsDialog> {
+  late TextEditingController _nameController;
   late int localTemp;
   late String localMode;
   late bool localPower;
@@ -245,6 +358,7 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
           goofyFan = 'auto';
       }
 
+      log('POSTING: \n\tname: ${_nameController.text}, \n\tid: $deviceID, \n\ttemp: $localTemp, \n\tfanSpeed: $goofyFan, \n\tswing: $localSwing, \n\tpower: $goofyPower, \n\tmode: $goofyMode');
       log(goofyPower.runtimeType.toString());
       final response = await http.post(
         Uri.parse('$serverURL/setAcData'),
@@ -274,11 +388,18 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
   @override
   void initState() {
     super.initState();
+    _nameController = TextEditingController(text: widget.device.name);
     localTemp = widget.device.temp;
     localMode = widget.device.mode;
     localPower = widget.device.power;
     localSwing = widget.device.swing;
     localFanSpeed = widget.device.fanSpeed;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -313,13 +434,21 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
               SizedBox(height: scale(20)),
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: scale(16), vertical: scale(10)),
+                padding: EdgeInsets.symmetric(horizontal: scale(16), vertical: scale(4)),
                 decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(15)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Name*', style: TextStyle(color: Colors.grey[600], fontSize: scale(12))),
-                    Text(widget.device.name, style: TextStyle(fontSize: scale(16), fontWeight: FontWeight.w500)),
+                    TextField(
+                      controller: _nameController,
+                      style: TextStyle(fontSize: scale(16), fontWeight: FontWeight.w500),
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 4),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -414,6 +543,7 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context, {
+                        'name': _nameController.text,
                         'temp': localTemp,
                         'mode': localMode,
                         'power': localPower,
