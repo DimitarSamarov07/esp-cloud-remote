@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
-import 'connection.dart';
+import 'package:my_flutter_app/connection.dart';
+import 'package:my_flutter_app/wifi_dialog.dart';
 import 'dart:developer';
 
 const String serverURL = 'http://90.154.171.96:8690';
@@ -342,9 +343,6 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
 
       String goofyFan;
       switch (localFanSpeed) {
-        case 0:
-          goofyFan = 'auto';
-          break;
         case 1:
           goofyFan = 'off';
           break;
@@ -354,6 +352,7 @@ class _EspSettingsDialogState extends State<EspSettingsDialog> {
         case 4:
           goofyFan = 'strong';
           break;
+        case 0:
         default:
           goofyFan = 'auto';
       }

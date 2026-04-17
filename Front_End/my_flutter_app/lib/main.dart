@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'connection.dart';
 import 'device_setup.dart';
 import 'login.dart';
 import 'admin_panel.dart';
