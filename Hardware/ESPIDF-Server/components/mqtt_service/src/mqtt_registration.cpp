@@ -55,12 +55,10 @@ mqtt_credentials_t generate_mqtt_credentials(const size_t pass_length) {
     uint8_t mac[6];
     uint8_t random_seed[16];
     uint8_t hash_output[32];
-
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
-    esp_fill_random(random_seed, sizeof(random_seed));
 
-    snprintf(creds.username, sizeof(creds.username), "mqtt_pc_%02x%02x%02x",
-             mac[3], mac[4], mac[5]);
+    snprintf(creds.username, sizeof(creds.username), "mqtt_pc_%02x%02x%02x%02x%02x%02x",
+             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     mbedtls_sha256_context ctx;
     mbedtls_sha256_init(&ctx);
