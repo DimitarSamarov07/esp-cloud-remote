@@ -47,8 +47,8 @@ class _ConnectionPageState extends State<ConnectionPage> {
 
     setState(() => isScanning = true);
 
-    var sub = FlutterBluePlus.onScanResults.listen((results) {
-      setState(() => results = results);
+    var sub = FlutterBluePlus.onScanResults.listen((scanResults) {
+      setState(() => results = scanResults);
     });
 
     FlutterBluePlus.cancelWhenScanComplete(sub);
