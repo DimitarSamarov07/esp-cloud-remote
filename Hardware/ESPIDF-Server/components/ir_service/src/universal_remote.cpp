@@ -17,6 +17,21 @@ const uint16_t IR_LED_PIN = 11;
 
 // Create the global universal AC object
 IRac acc(IR_LED_PIN);
+stdAc::opmode_t str_to_mode(const char* mode) {
+    if (strcasecmp(mode, "Cool") == 0) return stdAc::opmode_t::kCool;
+    if (strcasecmp(mode, "Heat") == 0) return stdAc::opmode_t::kHeat;
+    if (strcasecmp(mode, "Dry") == 0)  return stdAc::opmode_t::kDry;
+    if (strcasecmp(mode, "Fan") == 0)  return stdAc::opmode_t::kFan;
+    return stdAc::opmode_t::kAuto;
+}
+
+// Helper to map fan speed strings
+stdAc::fanspeed_t str_to_fan(const char* fan) {
+    if (strcasecmp(fan, "High") == 0)   return stdAc::fanspeed_t::kMax;
+    if (strcasecmp(fan, "Medium") == 0) return stdAc::fanspeed_t::kMedium;
+    if (strcasecmp(fan, "Low") == 0)    return stdAc::fanspeed_t::kMin;
+    return stdAc::fanspeed_t::kAuto;
+}
 
 /**
  * @brief Initialize default AC parameters on boot
@@ -40,8 +55,9 @@ void ac_init() {
  * @param power_on   True to turn ON, False to turn OFF
  * @param temp_c     Target temperature in Celsius
  * @param mode       The standard operating mode (0=Auto, 1=Cool, 2=Heat, etc.)
+ * @param light
  */
-void set_ac_state(const char* brand_str, bool power_on, float temp_c, stdAc::opmode_t mode) {
+void set_ac_state(const char* brand_str, bool power_on, float temp_c, const char* mode, const char* fanspeed, stdAc::swingv_t swingv = stdAc::swingv_t::kOff, stdAc::swingh_t swingh = stdAc::swingh_t::kOff, bool light = false, bool beep = true) {
 
     // 1. Convert the user's string into the library's protocol enum
     decode_type_t protocol = strToDecodeType(brand_str);
@@ -56,11 +72,16 @@ void set_ac_state(const char* brand_str, bool power_on, float temp_c, stdAc::opm
     acc.next.protocol = protocol;
     acc.next.power = power_on;
     acc.next.degrees = temp_c;
-    acc.next.mode = mode;
+    acc.next.mode = str_to_mode(mode);
 
     // Note: If a specific brand requires a 'model' sub-type, it defaults to 1.
     // If a user needs a specific sub-model, you can expose ac.next.model as well.
     acc.next.model = 1;
+    acc.next.fanspeed = str_to_fan(fanspeed);
+    acc.next.swingv = swingv;
+    acc.next.swingh = swingh;
+    acc.next.light = light;
+    acc.next.beep = beep;
 
     // 4. Fire the IR blast!
     ESP_LOGI(AC_TAG, "Sending Command -> Brand: %s | Power: %d | Temp: %.1f", brand_str, power_on, temp_c);

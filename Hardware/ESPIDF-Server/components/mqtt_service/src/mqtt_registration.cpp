@@ -50,27 +50,69 @@ static esp_err_t http_event_handler(esp_http_client_event_t *evt) {
     return ESP_OK;
 }
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include "esp_mac.h"
+#include "esp_log.h"
+#include "mbedtls/sha256.h"
+
+// Assuming your struct looks something like this:
+// typedef struct {
+//     char username[64];
+//     char password[65];
+// } mqtt_credentials_t;
+
 mqtt_credentials_t generate_mqtt_credentials(const size_t pass_length) {
     mqtt_credentials_t creds;
     uint8_t mac[6];
-    uint8_t random_seed[16];
     uint8_t hash_output[32];
+
+    // Read the MAC address
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
 
-    snprintf(creds.username, sizeof(creds.username), "mqtt_pc_%02x%02x%02x%02x%02x%02x",
-             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    // ==========================================
+    // 1. GENERATE DETERMINISTIC DEVICE NAME
+    // ==========================================
+
+    // Create a 32-bit seed from the last 4 bytes of the MAC
+    uint32_t mac_seed = (mac[2] << 24) | (mac[3] << 16) | (mac[4] << 8) | mac[5];
+    srand(mac_seed);
+
+    const size_t charset_len = strlen(charset);
+
+    // Generate an 8-character deterministic random suffix
+    char random_suffix[9];
+    for (int i = 0; i < 8; i++) {
+        random_suffix[i] = charset[rand() % charset_len];
+    }
+    random_suffix[8] = '\0';
+
+    // Format the final username (e.g., "mqtt_device_aB3dE9xZ")
+    snprintf(creds.username, sizeof(creds.username), "mqtt_device_%s", random_suffix);
+
+
+    // ==========================================
+    // 2. GENERATE SECURE DETERMINISTIC PASSWORD
+    // ==========================================
+
+    // Change this string to something unique to your project!
+    const char *secret_salt = "SUPER_SECRET_FIRMWARE_SALT_123!";
 
     mbedtls_sha256_context ctx;
     mbedtls_sha256_init(&ctx);
-    mbedtls_sha256_starts(&ctx, 0);
+    mbedtls_sha256_starts(&ctx, 0); // 0 means SHA-256
+
+    // Hash the MAC address + the secret salt
     mbedtls_sha256_update(&ctx, mac, sizeof(mac));
-    mbedtls_sha256_update(&ctx, random_seed, sizeof(random_seed));
+    mbedtls_sha256_update(&ctx, (const uint8_t *)secret_salt, strlen(secret_salt));
     mbedtls_sha256_finish(&ctx, hash_output);
     mbedtls_sha256_free(&ctx);
 
+    // Limit password length to max 64
     size_t actual_pass_len = (pass_length > 64) ? 64 : pass_length;
-    const size_t charset_len = strlen(charset);
 
+    // Map the hash output to your character set
     for (size_t i = 0; i < actual_pass_len; i++) {
         creds.password[i] = charset[hash_output[i % 32] % charset_len];
     }
