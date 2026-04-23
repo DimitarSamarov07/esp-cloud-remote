@@ -4,7 +4,7 @@
 #include "esp_log.h"
 #include <string.h>
 #include "wifi_control.h"
-#include "ir_remote.h"
+#include "universal_remote.h"
 
 
 static const char *TAG = "mqtt_handlers";
@@ -62,8 +62,6 @@ static void handle_ac_control_message(const char *message, size_t length) {
     bool power        = (power_item->valueint > 0);
     float temp        = (float)temp_item->valuedouble;
 
-    stdAc::opmode_t mode     = str_to_mode(cJSON_IsString(mode_item) ? mode_item->valuestring : "Auto");
-    stdAc::fanspeed_t fan    = str_to_fan(cJSON_IsString(fan_item) ? fan_item->valuestring : "Auto");
 
     // Handle Swing (Mapping boolean/int to vertical swing enum)
     stdAc::swingv_t swingv = (cJSON_IsTrue(swing_item) || (cJSON_IsNumber(swing_item) && swing_item->valueint == 1))
@@ -71,7 +69,7 @@ static void handle_ac_control_message(const char *message, size_t length) {
                              : stdAc::swingv_t::kOff;
 
     // Call your new universal AC function
-    set_ac_state(brand, power, temp, mode, fan, swingv);
+    set_ac_state(brand, power, temp, mode_item->valuestring, fan_item->valuestring, swingv,stdAc::swingh_t::kAuto,false,true);
 
     cJSON_Delete(root);
 }

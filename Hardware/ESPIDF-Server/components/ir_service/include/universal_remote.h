@@ -15,7 +15,7 @@ void ac_init();
  * @param temp_c     Target temperature in degrees Celsius.
  * @param mode       The operating mode (e.g., stdAc::opmode_t::kCool, kHeat, kAuto).
  */
-void set_ac_state(const char* brand_str, bool power_on, float temp_c, stdAc::opmode_t mode, stdAc::fanspeed_t fanspeed, stdAc::swingv_t swingv, stdAc::swingh_t swingh, bool light , bool beep);
+void set_ac_state(const char* brand_str, bool power_on, float temp_c, const char* mode, const char* fanspeed, stdAc::swingv_t swingv = stdAc::swingv_t::kOff, stdAc::swingh_t swingh = stdAc::swingh_t::kOff, bool light = false, bool beep = true);
 
 /**
  * @brief Cycles through models 1 to 8 for a specific brand, sending a "Power On" 
