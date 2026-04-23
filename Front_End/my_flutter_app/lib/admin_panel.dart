@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:my_flutter_app/connection.dart';
-import 'package:my_flutter_app/wifi_dialog.dart';
 import 'dart:developer';
 
 const String serverURL = 'http://90.154.171.96:8690';
@@ -82,9 +81,9 @@ class _AdminPageState extends State<AdminPage> {
             padding: const EdgeInsets.all(8.0),
             child: OutlinedButton(
                 onPressed: (){
-                  Navigator.pushReplacement(
+                  Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => ConnectionPage())
+                      MaterialPageRoute(builder: (context) => const ConnectionPage())
                   );
                 },
                 style: OutlinedButton.styleFrom(
