@@ -1,12 +1,11 @@
 import {Request, Response} from 'express';
 import {pool} from "../services/Pool.ts";
-import DatabaseQueries from "../DatabaseQueries.ts";
 import {User} from "../data_models/User.ts";
-import AirConditioner from "../data_models/AirConditioner.ts";
+import {AirConditioner} from "../data_models/AirConditioner.ts";
 import Device from "../data_models/Device.ts";
-import AirConditionerStatus from "../data_models/AirConditionerStatus.ts";
+import {AirConditionerStatus} from "../data_models/AirConditioner.ts";
 import {fetchAirConditionerStatus} from "../services/data/AirConditioner.ts";
-import AirConditionerSet from "../data_models/AirConditionerSet.ts";
+import {AirConditionerSet} from "../data_models/AirConditioner.ts";
 import esp from "../services/MQTTService.ts";
 import {AirConditionerQueries} from "../services/data/queries/AirConditioner.sql.ts";
 

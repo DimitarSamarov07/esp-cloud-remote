@@ -26,12 +26,13 @@ export const registerDevice = async (req: Request, res: Response) => {
         });
     }
     try{
-        register(res, {
+        await register({
             isDevice: true,
             deviceID: deviceID,
             password: password,
             targetUserID: 1
         });
+        return res.sendStatus(201);
     }
     catch (err){
         console.error("Webhook Error:", err);
@@ -56,7 +57,7 @@ export const validateCredentials = async (req: Request, res: Response) => {
 
     } catch (err) {
         console.error("Webhook Error:", err);
-        return res.status(500).json({ result: "deny" });
+        return res.status(200).json({ result: "deny" });
     }
 };
 

@@ -1,4 +1,4 @@
-class Device {
+export class Device {
     deviceID: string;
     deviceName: string;
     location: string;
@@ -9,5 +9,15 @@ class Device {
         this.location = location;
     }
 }
+export class DeviceStatus {
+    Name: string;
+    IsDeviceOnline: boolean;
+    IsACOnline: boolean;
 
-export default Device;
+    constructor(name: string, isDeviceOnline: boolean, isACOnline: boolean) {
+        this.Name = name;
+        this.IsACOnline = isACOnline;
+        this.IsDeviceOnline = isDeviceOnline;
+    }
+}
+

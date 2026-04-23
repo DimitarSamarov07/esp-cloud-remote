@@ -1,14 +1,14 @@
 import {pool} from "../Pool.ts";
-import DatabaseQueries from "../../DatabaseQueries.ts";
-import {DeviceStatus} from "../../data_models/DeviceStatus.ts";
+import {DeviceStatus} from "../../data_models/Device.ts";
 import bcrypt from 'bcrypt';
 import {DeviceQueries} from "./queries/Device.sql.ts";
 import {UserQueries} from "./queries/User.sql.ts";
+import {AirConditionerQueries} from "./queries/AirConditioner.sql.ts";
 
 
 export const fetchDevices = async () => {
 
-    const [rows] = await pool.query(DatabaseQueries.SELECT_DEVICE_AND_ACS);
+    const [rows] = await pool.query(AirConditionerQueries.SELECT_DEVICE_AND_ACS);
     //@ts-ignore
     if (rows.length === 0) {
         throw new Error('No status found for the given device ID');
@@ -77,26 +77,29 @@ export const verifyCredentials = async (
 ): Promise<boolean> => {
     let dbPassword;
 
-    if (isDevice === "true") {
-        // Notice we don't destructure [rows] here with the mariadb package
-        const rows = await pool.query(
+    if (isDevice == "true") {
+        const [rows] = await pool.query(
             `SELECT DevicePassword FROM Devices WHERE ID = ?`,
             [username]
         );
+        // @ts-ignore
         if (rows.length > 0) { // @ts-ignore
             dbPassword = rows[0].DevicePassword;
         }
     } else {
-        const rows = await pool.query(
+        const [rows] = await pool.query(
             `SELECT Password FROM Users WHERE Username = ?`,
             [username]
         );
-        if (rows.length > 0) { // @ts-ignore
+        // @ts-ignore
+        if (rows.length > 0) {
+            // @ts-ignore
             dbPassword = rows[0].Password;
         }
     }
 
     if (!dbPassword) {
+        console.log("No password found for user:", username);
         return false;
     }
 

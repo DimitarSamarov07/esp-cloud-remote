@@ -5,6 +5,7 @@ import * as path from 'node:path';
 
 import * as AirConditionerController from "./controllers/AirConditioner.controller.js";
 import airConditionerRoutes from './routes/AirConditioner.routes.js';
+import deviceRoutes from './routes/Device.routes.js';
 import { fetchDevices } from "./services/data/Device.ts";
 import esp from "./services/MQTTService.ts";
 import dotenv from "dotenv";
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
 esp.registerControllerHandler('ac/status', AirConditionerController.getAirConditionerByID);
 
 app.use('/air-conditioner', airConditionerRoutes);
+app.use('/device', deviceRoutes);
 
 let sendOptions = { root: path.join(__dirname, '../Front-End') };
 app.use("/public", express.static(path.join(__dirname, '/../Front-End/public/')));
