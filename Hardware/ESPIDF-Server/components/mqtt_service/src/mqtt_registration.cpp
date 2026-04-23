@@ -57,11 +57,6 @@ static esp_err_t http_event_handler(esp_http_client_event_t *evt) {
 #include "esp_log.h"
 #include "mbedtls/sha256.h"
 
-// Assuming your struct looks something like this:
-// typedef struct {
-//     char username[64];
-//     char password[65];
-// } mqtt_credentials_t;
 
 mqtt_credentials_t generate_mqtt_credentials(const size_t pass_length) {
     mqtt_credentials_t creds;

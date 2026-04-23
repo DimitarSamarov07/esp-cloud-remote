@@ -57,7 +57,7 @@ void ac_init() {
  * @param mode       The standard operating mode (0=Auto, 1=Cool, 2=Heat, etc.)
  * @param light
  */
-void set_ac_state(const char* brand_str, bool power_on, float temp_c, const char* mode, const char* fanspeed, stdAc::swingv_t swingv = stdAc::swingv_t::kOff, stdAc::swingh_t swingh = stdAc::swingh_t::kOff, bool light = false, bool beep = true) {
+void set_ac_state(const char* brand_str, bool power_on, float temp_c, const char* mode, const char* fanspeed, stdAc::swingv_t swingv, stdAc::swingh_t swingh, bool light, bool beep) {
 
     // 1. Convert the user's string into the library's protocol enum
     decode_type_t protocol = strToDecodeType(brand_str);
