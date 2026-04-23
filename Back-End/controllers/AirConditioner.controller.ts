@@ -6,6 +6,8 @@ import AirConditioner from "../data_models/AirConditioner.ts";
 import Device from "../data_models/Device.ts";
 import AirConditionerStatus from "../data_models/AirConditionerStatus.ts";
 import {fetchAirConditionerStatus} from "../services/AirConditioner.ts";
+import AirConditionerSet from "../data_models/AirConditionerSet.ts";
+import esp from "../services/MQTTService.ts";
 
 interface CreateAirConditionerRequest {
     user: User;
@@ -184,4 +186,14 @@ export const deleteAirConditionerByID = async (req: Request, res: Response) => {
     } catch (err) {
         return res.sendStatus(500).json({error: 'Internal server error. Please try again later.'});
     }
+}
+
+
+
+export const setAcData = async (req: Request, res: Response) => {
+    let {brand,deviceID, temp, fanSpeed, swing, mode, power} = req.body;
+    let acData;
+    acData = new AirConditionerSet(brand,power, mode, temp, fanSpeed, swing);
+    await esp.setAcData(deviceID, acData);
+    res.sendStatus(200);
 }

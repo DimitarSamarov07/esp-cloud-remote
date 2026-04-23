@@ -8,4 +8,6 @@ router.post('/', AirConditionerController.createAirConditioner);
 router.put('/:deviceID', AirConditionerController.updateAirConditionerByID);
 router.delete('/:deviceID', AirConditionerController.deleteAirConditionerByID);
 
+router.post('/setData', AirConditionerController.setAcData )
+
 export default router;
