@@ -1,5 +1,5 @@
-import DatabaseQueries from "../DatabaseQueries.ts";
-import {pool} from "./Pool.ts";
+import DatabaseQueries from "../../DatabaseQueries.ts";
+import {pool} from "../Pool.ts";
 
 export const fetchAirConditionerStatus = async (deviceID: string, mqttClient: any) => {
     if (!deviceID) {

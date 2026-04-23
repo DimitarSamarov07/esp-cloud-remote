@@ -5,7 +5,7 @@ import mqtt, {
     ISubscriptionGrant
 } from 'mqtt';
 import dotenv from 'dotenv';
-import { fetchAirConditionerStatus } from "./services/AirConditioner.js";
+import { fetchAirConditionerStatus } from "./services/data/AirConditioner.ts";
 import { FanSpeed, Mode } from "./data_models/AirConditionerStatus.js";
 import AirConditionerSet from "./data_models/AirConditionerSet.js";
 

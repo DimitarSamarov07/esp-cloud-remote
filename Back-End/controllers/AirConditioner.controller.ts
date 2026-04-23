@@ -5,9 +5,10 @@ import {User} from "../data_models/User.ts";
 import AirConditioner from "../data_models/AirConditioner.ts";
 import Device from "../data_models/Device.ts";
 import AirConditionerStatus from "../data_models/AirConditionerStatus.ts";
-import {fetchAirConditionerStatus} from "../services/AirConditioner.ts";
+import {fetchAirConditionerStatus} from "../services/data/AirConditioner.ts";
 import AirConditionerSet from "../data_models/AirConditionerSet.ts";
 import esp from "../services/MQTTService.ts";
+import {AirConditionerQueries} from "../services/data/queries/AirConditioner.sql.ts";
 
 interface CreateAirConditionerRequest {
     user: User;
@@ -98,7 +99,7 @@ export const createAirConditioner = async (req: Request, res: Response) => {
             status.Swing,
             status.LastUpdated
         ]
-        const [rows] = await pool.query(DatabaseQueries.CREATE_AIR_CONDITIONER, params );
+        const [rows] = await pool.query(AirConditionerQueries.CREATE_AIR_CONDITIONER, params );
 
         if (!rows) {
             return res.sendStatus(422).send('The AC was NOT created successfully');
@@ -146,7 +147,7 @@ export const updateAirConditionerByID = async (req: Request, res: Response) => {
             status?.Mode ?? null,
             status?.Swing ?? null,
         ];
-        await pool.query(DatabaseQueries.UPDATE_AIR_CONDITIONER_BY_ID, params);
+        await pool.query(AirConditionerQueries.UPDATE_AIR_CONDITIONER_BY_ID, params);
 
         return res.sendStatus(200).json({message: 'Air conditioner updated successfully.'});
     } catch (err) {
@@ -174,7 +175,7 @@ export const deleteAirConditionerByID = async (req: Request, res: Response) => {
         if (!deviceID) {
             return res.sendStatus(406).send('Please provide a valid device ID!');
         }
-        const [rows] = await pool.query(DatabaseQueries.DELETE_AIR_CONDITIONER_BY_ID, [deviceID]);
+        const [rows] = await pool.query(AirConditionerQueries.DELETE_AIR_CONDITIONER_BY_ID, [deviceID]);
         // @ts-ignore
         const result = rows[0][0]; //First result set, first row
 

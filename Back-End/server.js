@@ -2,12 +2,10 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import * as path from 'node:path';
-import bcrypt from "bcrypt"; // Required for validateCredentials
 
 import * as AirConditionerController from "./controllers/AirConditioner.controller.js";
 import airConditionerRoutes from './routes/AirConditioner.routes.js';
-import { pool } from "./services/Pool.ts";
-import { fetchDevices } from "./services/Device.ts";
+import { fetchDevices } from "./services/data/Device.ts";
 import esp from "./services/MQTTService.ts";
 import dotenv from "dotenv";
 
@@ -19,12 +17,10 @@ const app = express();
 app.use(express.json());
 const port = 8690;
 
-const saltRounds = 14;
 const deviceStatusMap = new Map();
 
 // Inject MQTT client into request object for route controllers to use
 app.use((req, res, next) => {
-    // @ts-ignore - You may need to extend Express Request type in a .d.ts file later
     req.mqttClient = esp;
     next();
 });
@@ -70,42 +66,8 @@ app.get('/status', (req, res) => {
     }
 });
 
-/*
-IMPORTANT: The EMQX broker only works with codes 200,204,4XX,5XX.
-If the 4XX or 5XX codes are sent, the broker will presume that the request is
-wrong and determine the result to be ignored which would practically deny the
-authentication.
-*/
-app.post('/validateCredentials', async (req, res) => {
-    const { username, password, isDevice } = req.body;
-    try {
-        let dbPassword;
-        if (isDevice === "true") {
-            const [rows] = await pool.execute(
-                `SELECT DevicePassword FROM Devices WHERE ID = ?`,
-                [username]
-            );
-            // @ts-ignore
-            if (rows.length > 0) dbPassword = rows[0].DevicePassword;
-        } else {
-            const [rows] = await pool.execute(
-                `SELECT Password FROM Users WHERE Username = ?`,
-                [username]
-            );
-            // @ts-ignore
-            if (rows.length > 0) dbPassword = rows[0].Password;
-        }
 
-        if (!dbPassword) return res.status(200).json({ result: "deny" });
 
-        const match = await bcrypt.compare(password, dbPassword);
-        return res.status(200).json({ result: match ? "allow" : "deny" });
-
-    } catch (err) {
-        console.error("Webhook Error:", err);
-        return res.status(200).json({ result: "deny" });
-    }
-});
 
 // IMPORTANT: HTTPS config SHOULD BE UNCOMMENTED IN PRODUCTION
 // https.createServer(options, app).listen(port, () => { ...
