@@ -51,8 +51,9 @@ static void handle_ac_control_message(const char *message, size_t length) {
     cJSON *swing_item = cJSON_GetObjectItem(root, "Swing");
 
     // Validation (Brand is now mandatory for your set_ac_state function)
-    if (!cJSON_IsString(brand_item) || !cJSON_IsNumber(power_item) || !cJSON_IsNumber(temp_item)) {
-        ESP_LOGE(TAG, "Missing mandatory fields (Brand, Power, or Temp)");
+    if (!cJSON_IsString(brand_item) || !cJSON_IsNumber(power_item) || !cJSON_IsNumber(temp_item) ||
+    !cJSON_IsString(mode_item) || !cJSON_IsString(fan_item) ) {
+        ESP_LOGE(TAG, "Missing mandatory fields (Brand, Power, Temp, Mode, or FanSpeed)");
         cJSON_Delete(root);
         return;
     }
